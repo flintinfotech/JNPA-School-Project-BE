@@ -9,8 +9,8 @@
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.flint</groupId>
-	<artifactId>sample</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+    <version>0.0.1-SNAPSHOT</version>
+    <artifactId>jnpa-school-project</artifactId>
 	<packaging>war</packaging>
 	<name/>
 	<description/>
