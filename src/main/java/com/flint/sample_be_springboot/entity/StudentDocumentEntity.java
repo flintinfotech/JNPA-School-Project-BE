@@ -3,6 +3,9 @@ package com.flint.sample_be_springboot.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+import java.util.Base64;
+
 @Table(name = "STUDENT_DOCUMENT_ENTITY")
 @Entity
 @NoArgsConstructor
@@ -21,19 +24,22 @@ public class StudentDocumentEntity {
     @JoinColumn(name = "STUDENT_ID")
     private StudentEntity studentEntity;
 
-    @Column(name = "BIRTH_CERTIFICATE")
-    private byte[] birthCertificate;
+    @NonNull
+    @Column(name = "DOCUMENT_NAME")
+    private String documentName;
 
-    @Column(name = "TRANSFER_CERTIFICATE")
-    private byte[] transferCertificate;
+    @Column(name = "UPLOAD_DATE")
+    private LocalDate uploadDate;
 
-    @Column(name = "AADHAAR_CARD")
-    private byte[] aadhaarCard;
+    @Column(name = "DOCUMENT")
+    private byte[] document;
 
-    @Column(name = "PHOTO")
-    private byte[] photo;
 
-    @Column(name = "MEDICAL_CERTIFICATE")
-    private byte[] medicalCertificate;
+    public String getDocument() {
+        if (document != null) {
+            return Base64.getEncoder().encodeToString(document);
+        }
+        return null;
+    }
 
 }

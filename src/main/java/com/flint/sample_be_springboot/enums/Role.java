@@ -1,5 +1,5 @@
 package com.flint.sample_be_springboot.enums;
 
 public enum Role {
-    ADMIN,USER
+    ADMIN,PRINCIPAL,TEACHER,STUDENT,PARENT,ACCOUNTANT
 }

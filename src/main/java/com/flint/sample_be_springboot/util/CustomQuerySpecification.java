@@ -4,9 +4,7 @@ import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class CustomQuerySpecification<T> implements Specification<T> {
 
@@ -20,46 +18,91 @@ public class CustomQuerySpecification<T> implements Specification<T> {
         return new CustomQuerySpecification<>(filters);
     }
 
+    /**
+     * Child entity field mapping
+     */
+    private static final Map<String, String> JOIN_FIELDS = new HashMap<>();
+
+    static {
+
+        // Academic Information
+        JOIN_FIELDS.put("admissionNo", "academicInformationEntity");
+        JOIN_FIELDS.put("admissionDate", "academicInformationEntity");
+        JOIN_FIELDS.put("standard", "academicInformationEntity");
+        JOIN_FIELDS.put("section", "academicInformationEntity");
+        JOIN_FIELDS.put("rollNo", "academicInformationEntity");
+        JOIN_FIELDS.put("academicYear", "academicInformationEntity");
+
+        // Parent
+        JOIN_FIELDS.put("relation", "parentEntities");
+        JOIN_FIELDS.put("occupation", "parentEntities");
+        JOIN_FIELDS.put("annualIncome", "parentEntities");
+
+        // Documents
+        JOIN_FIELDS.put("documentName", "studentDocumentEntities");
+
+        // User module example
+        JOIN_FIELDS.put("mobile", "userId");
+        JOIN_FIELDS.put("name", "userId");
+    }
+
+    /**
+     * Resolve entity path automatically.
+     */
     private Path<?> resolvePath(Root<?> root, String key) {
 
-        if (key.equals("mobile")) {
-            return root.join("userId", JoinType.LEFT).get("mobile");
+        // Child entity field
+        if (JOIN_FIELDS.containsKey(key)) {
+
+            String joinName = JOIN_FIELDS.get(key);
+
+            return root.join(joinName, JoinType.LEFT)
+                    .get(key);
         }
 
-        if (key.equals("name")) {
-            return root.join("userId", JoinType.LEFT).get("name");
-        }
+        // Nested field support (optional)
+        if (key.contains(".")) {
 
-        if (key.contains(".")) {        // handle nested fields
             String[] parts = key.split("\\.");
-            Path<?> path = root;
-            for (String p : parts) {
-                path = path.get(p);
+
+            From<?, ?> from = root;
+
+            for (int i = 0; i < parts.length - 1; i++) {
+                from = from.join(parts[i], JoinType.LEFT);
             }
-            return path;
+
+            return from.get(parts[parts.length - 1]);
         }
 
-        // If direct field exists in the entity
-        if (root.getModel().getAttributes().stream().anyMatch(a -> a.getName().equals(key))) {
+        // Direct entity field
+        if (root.getModel().getAttributes()
+                .stream()
+                .anyMatch(a -> a.getName().equals(key))) {
+
             return root.get(key);
         }
 
-        // If field exists in BaseEntity (superclass)
+        // BaseEntity field
         try {
-            return root.getModel().getJavaType()
-                    .getSuperclass()
-                    .getDeclaredField(key) != null
-                    ? root.get(key)
-                    : null;
 
-        } catch (NoSuchFieldException e) {
+            root.getModel()
+                    .getJavaType()
+                    .getSuperclass()
+                    .getDeclaredField(key);
+
+            return root.get(key);
+
+        } catch (Exception e) {
             return null;
         }
     }
 
-
     @Override
-    public Predicate toPredicate(Root<T> root, CriteriaQuery<?> query, CriteriaBuilder cb) {
+    public Predicate toPredicate(Root<T> root,
+                                 CriteriaQuery<?> query,
+                                 CriteriaBuilder cb) {
+
+        query.distinct(true);
 
         List<Predicate> predicates = new ArrayList<>();
 
@@ -72,56 +115,93 @@ public class CustomQuerySpecification<T> implements Specification<T> {
             String key = entry.getKey();
             Object value = entry.getValue();
 
-            Path<?> path = resolvePath(root, key);
+            // ---------------- RANGE ----------------
 
-            if (path == null) {
-                continue;   // skip unknown fields
-            }
-            if (filters.containsKey("date") && value instanceof LocalDate ) {
-                predicates.add(cb.equal(path.as(LocalDate.class), value));
-                continue;
-            }
-
-
-            // ----- range:fieldName -----
             if (key.startsWith("range:")) {
+
                 String field = key.substring(6);
+
+                Path<?> path = resolvePath(root, field);
+
+                if (path == null) {
+                    continue;
+                }
 
                 Map<String, String> dateMap = (Map<String, String>) value;
 
-                try {
-                    LocalDate start = LocalDate.parse(dateMap.get("start"));
-                    LocalDate end = LocalDate.parse(dateMap.get("end"));
-                    predicates.add(cb.between(root.get(field), start, end));
+                LocalDate start = LocalDate.parse(dateMap.get("start"));
+                LocalDate end = LocalDate.parse(dateMap.get("end"));
 
-                } catch (Exception e) {
-                    throw new RuntimeException("Invalid range format: " + key);
-                }
+                predicates.add(
+                        cb.between(
+                                path.as(LocalDate.class),
+                                start,
+                                end
+                        )
+                );
 
                 continue;
             }
 
-            // ----- IN CLAUSE -----
+            Path<?> path = resolvePath(root, key);
+
+            if (path == null) {
+                continue;
+            }
+
+            // ---------------- DATE ----------------
+
+            if (value instanceof LocalDate) {
+
+                predicates.add(
+                        cb.equal(
+                                path.as(LocalDate.class),
+                                value
+                        )
+                );
+
+                continue;
+            }
+
+            // ---------------- IN ----------------
+
             if (value instanceof List<?>) {
-                CriteriaBuilder.In<Object> inList = cb.in(path);
-                ((List<?>) value).forEach(inList::value);
-                predicates.add(inList);
+
+                CriteriaBuilder.In<Object> inClause = cb.in(path);
+
+                ((List<?>) value).forEach(inClause::value);
+
+                predicates.add(inClause);
+
                 continue;
             }
 
-            // ----- LIKE -----
+            // ---------------- LIKE ----------------
+
             if (value instanceof String) {
-                predicates.add(cb.like(cb.lower(path.as(String.class)), "%" + value.toString().toLowerCase() + "%"));
+
+                predicates.add(
+
+                        cb.like(
+
+                                cb.lower(path.as(String.class)),
+
+                                "%" + value.toString().toLowerCase() + "%"
+                        )
+                );
+
                 continue;
             }
 
-            // ----- Equal -----
-            predicates.add(cb.equal(path, value));
+            // ---------------- EQUAL ----------------
+
+            predicates.add(
+
+                    cb.equal(path, value)
+
+            );
         }
 
         return cb.and(predicates.toArray(new Predicate[0]));
     }
-
-
 }
-

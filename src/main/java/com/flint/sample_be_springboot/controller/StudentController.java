@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
@@ -37,6 +38,7 @@ public class StudentController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Student updated successfully").data(data).build());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteStudent/{studentId}")
     public ResponseEntity<?> deleteStudent(@PathVariable Long studentId) {
         String msg = studentService.deleteStudent(studentId);
