@@ -442,7 +442,7 @@ public class StudentServiceImpl implements StudentService{
 
         Map<String, Object> result = new HashMap<>();
         result.put("Data", studentDTOS);
-        result.put("total", totalElement);
+        result.put("Total", totalElement);
         return result;
     }
 
