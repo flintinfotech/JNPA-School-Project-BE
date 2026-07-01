@@ -1,4 +1,4 @@
-package com.flint.sample_be_springboot.dto;
+package com.flint.sample_be_springboot.dto.student;
 
 import lombok.Data;
 

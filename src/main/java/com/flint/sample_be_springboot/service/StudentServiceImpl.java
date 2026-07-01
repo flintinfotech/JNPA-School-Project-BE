@@ -1,9 +1,15 @@
 package com.flint.sample_be_springboot.service;
 
-import com.flint.sample_be_springboot.dto.*;
-import com.flint.sample_be_springboot.entity.*;
+import com.flint.sample_be_springboot.dto.student.AcademicInformationDTO;
+import com.flint.sample_be_springboot.dto.student.ParentDTO;
+import com.flint.sample_be_springboot.dto.student.StudentDTO;
+import com.flint.sample_be_springboot.dto.student.StudentDocumentDTO;
+import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
+import com.flint.sample_be_springboot.entity.student.ParentEntity;
+import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
+import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
-import com.flint.sample_be_springboot.repository.StudentRepository;
+import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;

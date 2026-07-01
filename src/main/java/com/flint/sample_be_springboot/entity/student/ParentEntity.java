@@ -1,4 +1,4 @@
-package com.flint.sample_be_springboot.entity;
+package com.flint.sample_be_springboot.entity.student;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
