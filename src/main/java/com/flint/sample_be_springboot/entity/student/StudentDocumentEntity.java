@@ -31,6 +31,7 @@ public class StudentDocumentEntity {
     @Column(name = "UPLOAD_DATE")
     private LocalDate uploadDate;
 
+    @Lob
     @Column(name = "DOCUMENT")
     private byte[] document;
 
