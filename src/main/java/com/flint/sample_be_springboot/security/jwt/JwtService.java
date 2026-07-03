@@ -21,10 +21,11 @@ public class JwtService {
     private long jwtExpiration;
 
     // Since we need a Secret Key type for signing and not String type, we wrap it
+    private final SecretKey signingKey =
+            Keys.secretKeyFor(io.jsonwebtoken.SignatureAlgorithm.HS256);
+
     private SecretKey getSigningKey() {
-        return Keys.hmacShaKeyFor(
-                jwtSecret.getBytes(StandardCharsets.UTF_8)
-        );
+        return signingKey;
     }
 
     public String generateToken(UserDetails userDetails) {
