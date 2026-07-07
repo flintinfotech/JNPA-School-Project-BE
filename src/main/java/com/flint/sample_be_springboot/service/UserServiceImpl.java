@@ -2,9 +2,11 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.UserRepository;
+import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -23,7 +25,7 @@ import java.util.Optional;
 
 @Slf4j
 @Service
-public class UserServiceImpl implements UserService{
+public class UserServiceImpl extends BaseService implements UserService{
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -54,6 +56,7 @@ public class UserServiceImpl implements UserService{
         }
 
         UserEntity userEntity = modelMapper.map(signUpDTO, UserEntity.class);
+        userEntity.setAuditDetails(addAuditDetails(userEntity.getAuditDetails()));
 
         userEntity.setPassword(passwordEncoder.encode(signUpDTO.getPassword())); // encoded password
 
@@ -75,7 +78,11 @@ public class UserServiceImpl implements UserService{
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
         }
 
+        AuditDetails auditDetails = existingEntity.getAuditDetails();
+
         modelMapper.map(userDTO, existingEntity);
+
+        existingEntity.setAuditDetails(addAuditDetails(auditDetails));
 
         UserEntity savedEntity = userRepository.save(existingEntity);
         UserDTO savedDTO = modelMapper.map(savedEntity, UserDTO.class);

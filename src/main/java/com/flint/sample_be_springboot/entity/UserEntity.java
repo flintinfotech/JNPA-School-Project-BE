@@ -52,4 +52,7 @@ public class UserEntity {
     @Column(name = "EMAIL")
     private String email;
 
+    @Embedded
+    private AuditDetails auditDetails;
+
 }

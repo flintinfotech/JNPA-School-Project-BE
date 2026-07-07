@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -15,5 +16,6 @@ public class AcademicInformationDTO {
     private String section;
     private String rollNo;
     private String academicYear;
+    private AuditDetails auditDetails;
 
 }

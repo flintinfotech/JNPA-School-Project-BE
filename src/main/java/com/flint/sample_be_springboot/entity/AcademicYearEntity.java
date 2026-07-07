@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Table(name = "ACADEMIC_YEAR_ENTITY")
 @Entity
@@ -30,5 +31,23 @@ public class AcademicYearEntity {
 
     @Column(name = "IS_CURRENT")
     private Boolean isCurrent;
+
+    @Column(name = "CBSE_AFFILIATED")
+    private String cbseAffiliated;
+
+    @Column(name = "AVG_PASSING_PERCENTAGE")
+    private String avgPassingPercentage;
+
+    @Column(name = "SUBJECTS_OFFERED")
+    private String subjectOffered;
+
+    @Column(name = "STUDENT_TEACHER_RATIO")
+    private String studentTeacherRatio;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "academicYearEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubScreenEntity> subScreenEntities;
+
+    @Embedded
+    private AuditDetails auditDetails;
 
 }

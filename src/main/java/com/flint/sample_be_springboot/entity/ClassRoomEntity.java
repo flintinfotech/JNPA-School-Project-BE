@@ -1,7 +1,11 @@
 package com.flint.sample_be_springboot.entity;
 
+import com.flint.sample_be_springboot.entity.student.ParentEntity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.Base64;
+import java.util.List;
 
 @Table(name = "CLASS_ROOM_ENTITY")
 @Entity
@@ -25,5 +29,25 @@ public class ClassRoomEntity {
 
     @Column(name = "DESCRIPTION")
     private String description;
+
+    @Column(name = "MEDIUM")
+    private String medium;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "classRoomEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SubjectEntity> subjects;
+
+    @Lob
+    @Column(name = "BROCHURE")
+    private byte[] brochure;
+
+    @Embedded
+    private AuditDetails auditDetails;
+
+    public String getBrochure() {
+        if (brochure != null) {
+            return Base64.getEncoder().encodeToString(brochure);
+        }
+        return null;
+    }
 
 }

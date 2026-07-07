@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.entity.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -42,5 +43,8 @@ public class AcademicInformationEntity {
 
     @Column(name = "ACADEMIC_YEAR")
     private String academicYear;
+
+    @Embedded
+    private AuditDetails auditDetails;
 
 }

@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.enums.Role;
 import lombok.Data;
 
@@ -13,5 +14,6 @@ public class UserDTO {
     private Role role;
     private String mobileNo;
     private String email;
+    private AuditDetails auditDetails;
 
 }

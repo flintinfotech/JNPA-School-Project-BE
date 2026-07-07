@@ -10,6 +10,7 @@ import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
+import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class StudentServiceImpl implements StudentService{
+public class StudentServiceImpl extends BaseService implements StudentService{
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -41,6 +42,7 @@ public class StudentServiceImpl implements StudentService{
         }
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
+        studentEntity.setAuditDetails(addAuditDetails(studentEntity.getAuditDetails()));
 
         // set parent entities
         List<ParentEntity> parentEntities = new ArrayList<>();
@@ -137,6 +139,8 @@ public class StudentServiceImpl implements StudentService{
                 .orElseThrow(() ->
                         new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
+//        modelMapper.map(studentDTO, existingStudentEntity);
+
         // Update basic fields
         existingStudentEntity.setFirstName(studentDTO.getFirstName());
         existingStudentEntity.setLastName(studentDTO.getLastName());
@@ -149,6 +153,7 @@ public class StudentServiceImpl implements StudentService{
         existingStudentEntity.setCaste(studentDTO.getCaste());
         existingStudentEntity.setNationality(studentDTO.getNationality());
         existingStudentEntity.setStatus(studentDTO.getStatus());
+        existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
 
         // delete removed parents from existing entity
         Set<Long> requestParentIds = studentDTO.getParentEntities().stream()
@@ -225,6 +230,12 @@ public class StudentServiceImpl implements StudentService{
                 // Update existing
                 documentEntity = existingDocuments.get(documentDTO.getStudentDocumentId());
 
+                if (documentDTO.getDocument() != null) {
+                    documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+                }
+
+                documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
+
             } else {
 
                 // New document
@@ -234,6 +245,7 @@ public class StudentServiceImpl implements StudentService{
                     documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
                 }
 
+                documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
                 existingStudentEntity.getStudentDocumentEntities().add(documentEntity);
             }
 

@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -16,5 +17,6 @@ public class ParentDTO {
     private String email;
     private String address;
     private BigDecimal annualIncome;
+    private AuditDetails auditDetails;
 
 }

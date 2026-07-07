@@ -1,5 +1,7 @@
 package com.flint.sample_be_springboot.dto.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import lombok.Data;
 
 import java.util.List;
@@ -18,9 +20,10 @@ public class StudentDTO {
     private String religion;
     private String caste;
     private String nationality;
-    private String status;
+    private StudentStatus status;
     private List<ParentDTO> parentEntities;
     private List<StudentDocumentDTO> studentDocuments;
     private List<AcademicInformationDTO> academicInformation;
+    private AuditDetails auditDetails;
 
 }

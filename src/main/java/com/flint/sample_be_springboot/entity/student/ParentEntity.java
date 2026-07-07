@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.entity.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -50,5 +51,8 @@ public class ParentEntity {
 
     @Column(name = "ANNUAL_INCOME")
     private BigDecimal annualIncome;
+
+    @Embedded
+    private AuditDetails auditDetails;
 
 }

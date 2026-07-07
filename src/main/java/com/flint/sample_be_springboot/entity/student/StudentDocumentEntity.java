@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.entity.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -35,6 +36,8 @@ public class StudentDocumentEntity {
     @Column(name = "DOCUMENT")
     private byte[] document;
 
+    @Embedded
+    private AuditDetails auditDetails;
 
     public String getDocument() {
         if (document != null) {

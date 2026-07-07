@@ -1,5 +1,7 @@
 package com.flint.sample_be_springboot.entity.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -54,8 +56,9 @@ public class StudentEntity {
     @Column(name = "NATIONALITY")
     private String nationality;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
-    private String status;
+    private StudentStatus status;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ParentEntity> parentEntities;
@@ -65,5 +68,8 @@ public class StudentEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<AcademicInformationEntity> academicInformationEntity;
+
+    @Embedded
+    private AuditDetails auditDetails;
 
 }

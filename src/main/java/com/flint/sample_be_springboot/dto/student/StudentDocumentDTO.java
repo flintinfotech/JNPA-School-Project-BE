@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto.student;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -12,5 +13,6 @@ public class StudentDocumentDTO {
     private String documentName;
     private LocalDate uploadDate;
     private String document;
+    private AuditDetails auditDetails;
 
 }
