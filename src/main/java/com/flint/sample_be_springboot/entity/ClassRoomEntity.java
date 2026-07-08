@@ -36,6 +36,9 @@ public class ClassRoomEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "classRoomEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubjectEntity> subjects;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "classRoomEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<AcademicYearEntity> academicYearEntities;
+
     @Lob
     @Column(name = "BROCHURE")
     private byte[] brochure;

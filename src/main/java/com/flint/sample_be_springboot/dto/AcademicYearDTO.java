@@ -12,6 +12,7 @@ import java.util.List;
 public class AcademicYearDTO {
 
     private Long academicYearId;
+    private Long classRoomId;
     private String academicYearName;
     private LocalDate startDate;
     private LocalDate endDate;

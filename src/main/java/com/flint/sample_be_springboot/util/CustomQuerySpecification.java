@@ -182,11 +182,9 @@ public class CustomQuerySpecification<T> implements Specification<T> {
 
                 predicates.add(
 
-                        cb.like(
-
+                        cb.equal(
                                 cb.lower(path.as(String.class)),
-
-                                "%" + value.toString().toLowerCase() + "%"
+                                value.toString().trim().toLowerCase()
                         )
                 );
 

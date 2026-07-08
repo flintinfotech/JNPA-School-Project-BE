@@ -15,6 +15,7 @@ public class ClassRoomDTO {
     private String medium;
 
     private List<SubjectDTO> subjectDTOList;
+    private List<AcademicYearDTO> academicYearDTOS;
     private String brochure;
 
     private AuditDetails auditDetails;

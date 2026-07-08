@@ -98,35 +98,6 @@ public class AcademicServiceImpl extends BaseService implements AcademicYearServ
         return savedDTO;
     }
 
-//    @Override
-//    public AcademicYearDTO updateAcademicYear(AcademicYearDTO academicYearDTO) {
-//        log.info("Enter into updateAcademicYear");
-//
-//        AcademicYearEntity existingAcademicYear = academicYearRepository.findById(academicYearDTO.getAcademicYearId())
-//                .orElseThrow(() -> new CustomException("Academic year not found", HttpStatus.PRECONDITION_FAILED));
-//
-//        academicYearRepository
-//                .findByAcademicYearNameAndAcademicYearIdNot(
-//                        academicYearDTO.getAcademicYearName(),
-//                        existingAcademicYear.getAcademicYearId())
-//                .ifPresent(entity -> {
-//                    throw new CustomException(
-//                            "This academic year already exists",
-//                            HttpStatus.PRECONDITION_FAILED
-//                    );
-//                });
-//
-//        AuditDetails auditDetails = existingAcademicYear.getAuditDetails();
-//
-//        modelMapper.map(academicYearDTO, AcademicYearEntity.class);
-//        existingAcademicYear.setAuditDetails(addAuditDetails(auditDetails));
-//
-//        AcademicYearEntity updatedEntity = academicYearRepository.save(existingAcademicYear);
-//        AcademicYearDTO updatedDTO = modelMapper.map(updatedEntity, AcademicYearDTO.class);
-//
-//        log.info("Exit from updateAcademicYear");
-//        return updatedDTO;
-//    }
 
     @Override
     public AcademicYearDTO updateAcademicYear(AcademicYearDTO academicYearDTO) {
@@ -199,12 +170,22 @@ public class AcademicServiceImpl extends BaseService implements AcademicYearServ
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
 
-            subScreenEntity.getSubScreenDataEntities().removeIf(data ->
+// Initialize collection if null
+            if (subScreenEntity.getSubScreenDataEntities() == null) {
+                subScreenEntity.setSubScreenDataEntities(new ArrayList<>());
+            }
+
+            List<SubScreenDataEntity> existingList = subScreenEntity.getSubScreenDataEntities();
+
+// Remove deleted entities
+            existingList.removeIf(data ->
                     data.getSubScreenDataId() != null &&
                             !requestDataIds.contains(data.getSubScreenDataId()));
 
+// Existing entity map
             Map<Long, SubScreenDataEntity> existingDataMap =
-                    subScreenEntity.getSubScreenDataEntities().stream()
+                    existingList.stream()
+                            .filter(data -> data.getSubScreenDataId() != null)
                             .collect(Collectors.toMap(
                                     SubScreenDataEntity::getSubScreenDataId,
                                     Function.identity()));
@@ -216,15 +197,16 @@ public class AcademicServiceImpl extends BaseService implements AcademicYearServ
                 if (dataDTO.getSubScreenDataId() != null &&
                         existingDataMap.containsKey(dataDTO.getSubScreenDataId())) {
 
+                    // Update existing
                     dataEntity = existingDataMap.get(dataDTO.getSubScreenDataId());
 
                 } else {
 
+                    // Create new
                     dataEntity = new SubScreenDataEntity();
-
                     dataEntity.setSubScreenEntity(subScreenEntity);
 
-                    subScreenEntity.getSubScreenDataEntities().add(dataEntity);
+                    existingList.add(dataEntity);
                 }
 
                 dataEntity.setSubjectName(dataDTO.getSubjectName());
@@ -232,6 +214,8 @@ public class AcademicServiceImpl extends BaseService implements AcademicYearServ
                 if (dataDTO.getSubjectData() != null) {
                     dataEntity.setSubjectData(
                             Base64.getDecoder().decode(dataDTO.getSubjectData()));
+                } else {
+                    dataEntity.setSubjectData(null);
                 }
             }
         }

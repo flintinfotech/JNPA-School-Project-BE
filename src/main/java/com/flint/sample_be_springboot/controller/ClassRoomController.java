@@ -49,7 +49,7 @@ public class ClassRoomController {
     @PostMapping("/getAllClassRoomsByFilter")
     public ResponseEntity<?> getAllClassRoomsByFilter(@RequestBody Map<String, Object> filter,Pageable pageable,
                                                       @RequestParam(defaultValue = "true") boolean paginate) {
-
+        System.err.println(filter);
         Map<String, Object> data = classRoomService.getAllClassRoomsByFilter(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }

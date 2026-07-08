@@ -20,6 +20,10 @@ public class AcademicYearEntity {
     @Column(name = "ACADEMIC_YEAR_ID")
     private Long academicYearId;
 
+    @ManyToOne(targetEntity = ClassRoomEntity.class, fetch = FetchType.LAZY)
+    @JoinColumn(name = "CLASS_ROOM_ID")
+    private ClassRoomEntity classRoomEntity;
+
     @Column(name = "ACADEMIC_YEAR_NAME")
     private String academicYearName;
 
