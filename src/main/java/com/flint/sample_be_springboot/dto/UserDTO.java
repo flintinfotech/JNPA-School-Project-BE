@@ -14,6 +14,8 @@ public class UserDTO {
     private Role role;
     private String mobileNo;
     private String email;
+    private String section;
+    private String medium;
     private AuditDetails auditDetails;
 
 }

@@ -36,7 +36,8 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
 
         log.info("Enter into saveClassRoom");
 
-        ClassRoomEntity existingClassRoom = classRoomRepository.findByClassRoomName(classRoomDTO.getClassRoomName());
+        ClassRoomEntity existingClassRoom = classRoomRepository.findByClassRoomNameAndAcademicYearNameAndMedium
+                (classRoomDTO.getClassRoomName(), classRoomDTO.getAcademicYearName(), classRoomDTO.getMedium());
 
         if (existingClassRoom != null) {
             throw new CustomException("Class Room already exists", HttpStatus.PRECONDITION_FAILED);
@@ -65,7 +66,7 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
         List<AcademicYearEntity> academicYearEntities = new ArrayList<>();
         if(classRoomDTO.getAcademicYearDTOS() != null){
             for(AcademicYearDTO yearDTO : classRoomDTO.getAcademicYearDTOS()){
-                AcademicYearEntity academicYearEntity = setAcademicYear(yearDTO);
+                AcademicYearEntity academicYearEntity = setAcademicYear(yearDTO, classRoomDTO);
                 academicYearEntity.setClassRoomEntity(classRoomEntity);
                 academicYearEntities.add(academicYearEntity);
             }
@@ -117,10 +118,10 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
         return savedDTO;
     }
 
-    private AcademicYearEntity setAcademicYear(AcademicYearDTO academicYearDTO) {
+    private AcademicYearEntity setAcademicYear(AcademicYearDTO academicYearDTO, ClassRoomDTO classRoomDTO) {
 
-        AcademicYearEntity existingAcademicYear = academicYearRepository
-                .findByAcademicYearName(academicYearDTO.getAcademicYearName());
+        AcademicYearEntity existingAcademicYear = academicYearRepository.findByAcademicYearNameAndClassRoomEntity_ClassRoomNameAndClassRoomEntity_Medium
+                (academicYearDTO.getAcademicYearName(), classRoomDTO.getClassRoomName(), classRoomDTO.getMedium());
 
         if (existingAcademicYear != null) {
             throw new CustomException("This year is already present", HttpStatus.PRECONDITION_FAILED);
@@ -182,8 +183,10 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
                 .orElseThrow(() -> new CustomException("Class Room not found", HttpStatus.PRECONDITION_FAILED));
 
         classRoomRepository
-                .findByClassRoomNameAndClassRoomIdNot(
+                .findByClassRoomNameAndAcademicYearNameAndMediumAndClassRoomIdNot(
                         classRoomDTO.getClassRoomName(),
+                        classRoomDTO.getAcademicYearName(),
+                        classRoomDTO.getMedium(),
                         existingClassRoom.getClassRoomId())
                 .ifPresent(entity -> {
                     throw new CustomException("Class Room already exists", HttpStatus.PRECONDITION_FAILED);
@@ -266,12 +269,12 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
                     existingAcademicYears.containsKey(academicYearDTO.getAcademicYearId())) {
 
                 // Update existing Academic Year
-                updateAcademicYear(existingAcademicYears.get(academicYearDTO.getAcademicYearId()),academicYearDTO);
+                updateAcademicYear(existingAcademicYears.get(academicYearDTO.getAcademicYearId()),academicYearDTO, classRoomDTO);
 
             } else {
 
                 // Create new Academic Year
-                academicYearEntity = setAcademicYear(academicYearDTO);
+                academicYearEntity = setAcademicYear(academicYearDTO,classRoomDTO);
                 academicYearEntity.setClassRoomEntity(existingClassRoom);
 
                 existingClassRoom.getAcademicYearEntities().add(academicYearEntity);
@@ -325,12 +328,14 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
     }
 
     private void updateAcademicYear(AcademicYearEntity existingEntity,
-                                    AcademicYearDTO academicYearDTO) {
+                                    AcademicYearDTO academicYearDTO, ClassRoomDTO classRoomDTO) {
 
         // Duplicate validation
         academicYearRepository
-                .findByAcademicYearNameAndAcademicYearIdNot(
+                .findByAcademicYearNameAndClassRoomEntity_ClassRoomNameAndClassRoomEntity_MediumAndAcademicYearIdNot(
                         academicYearDTO.getAcademicYearName(),
+                        classRoomDTO.getClassRoomName(),
+                        classRoomDTO.getMedium(),
                         existingEntity.getAcademicYearId())
                 .ifPresent(entity -> {
                     throw new CustomException(

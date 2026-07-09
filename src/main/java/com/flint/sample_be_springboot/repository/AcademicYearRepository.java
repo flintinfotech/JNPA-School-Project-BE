@@ -12,10 +12,19 @@ public interface AcademicYearRepository extends JpaRepository<AcademicYearEntity
 
     AcademicYearEntity findByAcademicYearName(String academicYearName);
 
-//    Optional<AcademicYearEntity> findByAcademicYearNameAndAcademicYearIdNot(String academicYearName, Long academicYearId);
+    AcademicYearEntity findByAcademicYearNameAndClassRoomEntity_ClassRoomNameAndClassRoomEntity_Medium
+            (String academicYearName, String classRoomName, String medium);
+
+    //    Optional<AcademicYearEntity> findByAcademicYearNameAndAcademicYearIdNot(String academicYearName, Long academicYearId);
 
     Optional<AcademicYearEntity> findByAcademicYearNameAndAcademicYearIdNot(
             String academicYearName,
+            Long academicYearId);
+
+    Optional<AcademicYearEntity> findByAcademicYearNameAndClassRoomEntity_ClassRoomNameAndClassRoomEntity_MediumAndAcademicYearIdNot(
+            String academicYearName,
+            String classRoomName,
+            String medium,
             Long academicYearId);
 
 }

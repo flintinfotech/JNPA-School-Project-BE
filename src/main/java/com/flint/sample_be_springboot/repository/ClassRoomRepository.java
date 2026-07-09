@@ -10,10 +10,12 @@ import java.util.Optional;
 @Repository
 public interface ClassRoomRepository extends JpaRepository<ClassRoomEntity, Long>, JpaSpecificationExecutor<ClassRoomEntity> {
 
-    ClassRoomEntity findByClassRoomName(String classRoomName);
+    ClassRoomEntity findByClassRoomNameAndAcademicYearNameAndMedium(String classRoomName, String academicYearName, String medium);
 
-    Optional<ClassRoomEntity> findByClassRoomNameAndClassRoomIdNot(
+    Optional<ClassRoomEntity> findByClassRoomNameAndAcademicYearNameAndMediumAndClassRoomIdNot(
             String classRoomName,
+            String academicYearName,
+            String medium,
             Long classRoomId);
 
 }

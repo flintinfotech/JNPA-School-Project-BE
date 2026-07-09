@@ -52,6 +52,12 @@ public class UserEntity {
     @Column(name = "EMAIL")
     private String email;
 
+    @Column(name = "SECTION")
+    private String section;
+
+    @Column(name = "MEDIUM")
+    private String medium;
+
     @Embedded
     private AuditDetails auditDetails;
 
