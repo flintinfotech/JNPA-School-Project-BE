@@ -1,4 +1,4 @@
-package com.flint.sample_be_springboot.dto;
+package com.flint.sample_be_springboot.dto.classRoom;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
 import lombok.Data;

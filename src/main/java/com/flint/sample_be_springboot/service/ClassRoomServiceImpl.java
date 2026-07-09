@@ -1,10 +1,11 @@
 package com.flint.sample_be_springboot.service;
 
-import com.flint.sample_be_springboot.dto.*;
+import com.flint.sample_be_springboot.dto.classRoom.*;
 import com.flint.sample_be_springboot.entity.*;
+import com.flint.sample_be_springboot.entity.classRoom.*;
 import com.flint.sample_be_springboot.exception.CustomException;
-import com.flint.sample_be_springboot.repository.AcademicYearRepository;
-import com.flint.sample_be_springboot.repository.ClassRoomRepository;
+import com.flint.sample_be_springboot.repository.classRoom.AcademicYearRepository;
+import com.flint.sample_be_springboot.repository.classRoom.ClassRoomRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;

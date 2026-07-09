@@ -1,6 +1,6 @@
 package com.flint.sample_be_springboot.controller;
 
-import com.flint.sample_be_springboot.dto.AcademicYearDTO;
+import com.flint.sample_be_springboot.dto.classRoom.AcademicYearDTO;
 import com.flint.sample_be_springboot.response.APIResponse;
 import com.flint.sample_be_springboot.service.AcademicYearService;
 import lombok.extern.slf4j.Slf4j;

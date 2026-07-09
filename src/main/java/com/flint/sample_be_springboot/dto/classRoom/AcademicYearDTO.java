@@ -1,8 +1,6 @@
-package com.flint.sample_be_springboot.dto;
+package com.flint.sample_be_springboot.dto.classRoom;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
-import com.flint.sample_be_springboot.entity.SubScreenEntity;
-import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDate;

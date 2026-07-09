@@ -1,6 +1,6 @@
 package com.flint.sample_be_springboot.controller;
 
-import com.flint.sample_be_springboot.dto.ClassRoomDTO;
+import com.flint.sample_be_springboot.dto.classRoom.ClassRoomDTO;
 import com.flint.sample_be_springboot.response.APIResponse;
 import com.flint.sample_be_springboot.service.ClassRoomService;
 import lombok.extern.slf4j.Slf4j;

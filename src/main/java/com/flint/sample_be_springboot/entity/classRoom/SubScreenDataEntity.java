@@ -1,4 +1,4 @@
-package com.flint.sample_be_springboot.entity;
+package com.flint.sample_be_springboot.entity.classRoom;
 
 import jakarta.persistence.*;
 import lombok.*;

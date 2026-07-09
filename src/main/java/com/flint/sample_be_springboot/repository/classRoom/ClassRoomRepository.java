@@ -1,6 +1,6 @@
-package com.flint.sample_be_springboot.repository;
+package com.flint.sample_be_springboot.repository.classRoom;
 
-import com.flint.sample_be_springboot.entity.ClassRoomEntity;
+import com.flint.sample_be_springboot.entity.classRoom.ClassRoomEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;

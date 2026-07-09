@@ -1,6 +1,6 @@
 package com.flint.sample_be_springboot.service;
 
-import com.flint.sample_be_springboot.dto.AcademicYearDTO;
+import com.flint.sample_be_springboot.dto.classRoom.AcademicYearDTO;
 import org.springframework.data.domain.Pageable;
 
 import java.util.Map;
