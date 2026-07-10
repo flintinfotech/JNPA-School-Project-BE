@@ -64,6 +64,19 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
 
         classRoomEntity.setSubjects(subjectEntities);
 
+        long count = 0;
+        if(classRoomDTO.getAcademicYearDTOS() != null){
+            for(AcademicYearDTO yearDTO : classRoomDTO.getAcademicYearDTOS()) {
+                if (yearDTO.getIsCurrent().equals(true)) {
+                    count += 1;
+                }
+            }
+        }
+
+        if(count > 1){
+            throw new CustomException("Current academic year should be only one", HttpStatus.PRECONDITION_FAILED);
+        }
+
         List<AcademicYearEntity> academicYearEntities = new ArrayList<>();
         if(classRoomDTO.getAcademicYearDTOS() != null){
             for(AcademicYearDTO yearDTO : classRoomDTO.getAcademicYearDTOS()){
@@ -244,8 +257,21 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
             subjectEntity.setSubjectDescription(subjectDTO.getSubjectDescription());
         }
 
+        long count = 0;
+        if(classRoomDTO.getAcademicYearDTOS() != null){
+            for(AcademicYearDTO yearDTO : classRoomDTO.getAcademicYearDTOS()) {
+                if (yearDTO.getIsCurrent().equals(true)) {
+                    count += 1;
+                }
+            }
+        }
+
+        if(count > 1){
+            throw new CustomException("Current academic year should be only one", HttpStatus.PRECONDITION_FAILED);
+        }
+
         // set academic year entities
-// Delete removed Academic Years
+        // Delete removed Academic Years
         Set<Long> requestAcademicYearIds = classRoomDTO.getAcademicYearDTOS().stream()
                 .map(AcademicYearDTO::getAcademicYearId)
                 .filter(Objects::nonNull)
@@ -255,7 +281,7 @@ public class ClassRoomServiceImpl extends BaseService implements ClassRoomServic
                 academicYear.getAcademicYearId() != null &&
                         !requestAcademicYearIds.contains(academicYear.getAcademicYearId()));
 
-// Existing Academic Year map
+        // Existing Academic Year map
         Map<Long, AcademicYearEntity> existingAcademicYears =
                 existingClassRoom.getAcademicYearEntities().stream()
                         .collect(Collectors.toMap(
