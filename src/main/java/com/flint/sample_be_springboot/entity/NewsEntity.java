@@ -24,11 +24,14 @@ public class NewsEntity {
     @Column(name = "NEWS")
     private String news;
 
+    @Column(name = "NEWS_DESCRIPTION")
+    private String newsDescription;
+
     @Lob
     @Column(name = "NEWS_DATA")
     private byte[] newsData;
 
-    public String getDocument() {
+    public String getNewsData() {
         if (newsData != null) {
             return Base64.getEncoder().encodeToString(newsData);
         }

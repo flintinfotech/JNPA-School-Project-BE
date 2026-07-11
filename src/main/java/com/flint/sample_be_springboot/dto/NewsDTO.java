@@ -7,6 +7,7 @@ public class NewsDTO {
 
     private Long newsId;
     private String news;
+    private String newsDescription;
     private String newsData;
 
 }

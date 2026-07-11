@@ -6,8 +6,8 @@ import lombok.Data;
 @Data
 public class ExamResultDTO {
 
-    private Long examResultEntity;
-    private ExamEntity examEntity;
+    private Long examResultId;
+    private Long examId;
     private String resultName;
     private String resultData;
 
