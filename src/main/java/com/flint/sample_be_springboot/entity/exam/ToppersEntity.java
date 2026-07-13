@@ -4,6 +4,8 @@ import com.flint.sample_be_springboot.entity.AuditDetails;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.Base64;
+
 @Table(name = "TOPPERS_ENTITY")
 @Entity
 @AllArgsConstructor
@@ -37,7 +39,18 @@ public class ToppersEntity {
     @Column(name = "DESCRIPTION")
     private String description;
 
+    @Lob
+    @Column(name = "STUDENT_IMAGE")
+    private byte[] studentImage;
+
     @Embedded
     private AuditDetails auditDetails;
+
+    public String getStudentImage(){
+        if(studentImage != null){
+            return Base64.getEncoder().encodeToString(studentImage);
+        }
+        return null;
+    }
 
 }

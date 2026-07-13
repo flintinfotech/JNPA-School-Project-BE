@@ -83,6 +83,11 @@ public class ExamServiceImpl extends BaseService implements ExamService{
         if(examDTO.getToppersDTOS() != null && !examDTO.getToppersDTOS().isEmpty()){
             for(ToppersDTO toppersDTO : examDTO.getToppersDTOS()){
                 ToppersEntity toppersEntity = modelMapper.map(toppersDTO, ToppersEntity.class);
+
+                if(toppersDTO.getStudentImage() != null){
+                    toppersEntity.setStudentImage(Base64.getDecoder().decode(toppersDTO.getStudentImage()));
+                }
+
                 toppersEntity.setAuditDetails(addAuditDetails(examEntity.getAuditDetails()));
                 toppersEntity.setExamEntity(examEntity);
                 toppersEntities.add(toppersEntity);
@@ -287,6 +292,12 @@ public class ExamServiceImpl extends BaseService implements ExamService{
 
                     toppersEntity = topperMap.get(toppersDTO.getTopperId());
 
+                    if(toppersDTO.getStudentImage() != null){
+                        toppersEntity.setStudentImage(Base64.getDecoder().decode(toppersDTO.getStudentImage()));
+                    }else{
+                        toppersEntity.setStudentImage(null);
+                    }
+
                     AuditDetails auditDetails2 = toppersEntity.getAuditDetails();
 
                     modelMapper.map(toppersDTO, toppersEntity);
@@ -299,6 +310,10 @@ public class ExamServiceImpl extends BaseService implements ExamService{
                 else {
 
                     toppersEntity = modelMapper.map(toppersDTO, ToppersEntity.class);
+
+                    if(toppersDTO.getStudentImage() != null){
+                        toppersEntity.setStudentImage(Base64.getDecoder().decode(toppersDTO.getStudentImage()));
+                    }
 
                     toppersEntity.setExamEntity(existingEntity);
 

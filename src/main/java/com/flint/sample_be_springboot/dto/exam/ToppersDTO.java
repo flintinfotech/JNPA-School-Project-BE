@@ -12,5 +12,6 @@ public class ToppersDTO {
     private String userName;
     private String std;
     private String description;
+    private String studentImage;
 
 }
