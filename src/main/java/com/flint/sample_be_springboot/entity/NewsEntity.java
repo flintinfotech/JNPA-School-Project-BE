@@ -31,6 +31,9 @@ public class NewsEntity {
     @Column(name = "NEWS_DATA")
     private byte[] newsData;
 
+    @Embedded
+    private AuditDetails auditDetails;
+
     public String getNewsData() {
         if (newsData != null) {
             return Base64.getEncoder().encodeToString(newsData);

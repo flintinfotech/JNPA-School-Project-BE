@@ -27,11 +27,11 @@ public class ClassRoomEntity {
     @Column(name = "ACADEMIC_YEAR_NAME")
     private String academicYearName;
 
-    @Column(name = "DESCRIPTION")
-    private String description;
-
     @Column(name = "MEDIUM")
     private String medium;
+
+    @Column(name = "DESCRIPTION")
+    private String description;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "classRoomEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<SubjectEntity> subjects;

@@ -1,9 +1,11 @@
 package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.NewsDTO;
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.entity.NewsEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.NewsRepository;
+import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -18,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class NewsServiceImpl implements NewsService{
+public class NewsServiceImpl extends BaseService implements NewsService{
 
     @Autowired
     NewsRepository newsRepository;
@@ -44,6 +46,8 @@ public class NewsServiceImpl implements NewsService{
 
         NewsEntity newsEntity = modelMapper.map(newsDTO, NewsEntity.class);
 
+        newsEntity.setAuditDetails(addAuditDetails(newsEntity.getAuditDetails()));
+
         if(newsDTO.getNewsData() != null){
             newsEntity.setNewsData(Base64.getDecoder().decode(newsDTO.getNewsData()));
         }
@@ -63,7 +67,12 @@ public class NewsServiceImpl implements NewsService{
         NewsEntity existingNews = newsRepository.findById(newsDTO.getNewsId())
                         .orElseThrow(() -> new CustomException("News information not found", HttpStatus.NOT_FOUND));
 
+        AuditDetails auditDetails = existingNews.getAuditDetails();
+
         modelMapper.map(newsDTO, existingNews);
+
+        existingNews.setAuditDetails(addAuditDetails(auditDetails));
+
         if(newsDTO.getNewsData() != null){
             existingNews.setNewsData(Base64.getDecoder().decode(newsDTO.getNewsData()));
         }else{
