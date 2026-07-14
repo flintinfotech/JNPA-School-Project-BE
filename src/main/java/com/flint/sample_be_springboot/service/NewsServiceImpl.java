@@ -11,7 +11,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -109,10 +111,16 @@ public class NewsServiceImpl extends BaseService implements NewsService{
         List<NewsEntity> newsEntityList;
         long totalElements;
 
+        Pageable pageable1 = PageRequest.of(
+                pageable.getPageNumber(),
+                pageable.getPageSize(),
+                Sort.by(Sort.Direction.DESC, "newsId")
+        );
+
         CustomQuerySpecification<NewsEntity> customQuerySpecification =  CustomQuerySpecification.getInstance(filter);
 
         if(paginate){
-            newsEntityPage = newsRepository.findAll(customQuerySpecification, pageable);
+            newsEntityPage = newsRepository.findAll(customQuerySpecification, pageable1);
             newsEntityList = newsEntityPage.getContent();
             totalElements = newsEntityPage.getTotalElements();
         }else{
@@ -121,8 +129,7 @@ public class NewsServiceImpl extends BaseService implements NewsService{
         }
 
         List<NewsDTO> newsDTOS = newsEntityList.stream()
-                .map(n -> modelMapper.map(n, NewsDTO.class))
-                .sorted((a, b) -> b.getNewsId().compareTo(a.getNewsId())).collect(Collectors.toList());
+                .map(n -> modelMapper.map(n, NewsDTO.class)).collect(Collectors.toList());
 
         log.info("Enter into getAllNewsByFilter");
         Map<String, Object> result = new HashMap<>();
