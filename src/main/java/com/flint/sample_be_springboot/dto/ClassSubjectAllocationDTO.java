@@ -5,7 +5,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class ClassAllocationDTO {
+public class ClassSubjectAllocationDTO {
 
     private Long classSubjectAllocationId;
     private Long classMasterId;

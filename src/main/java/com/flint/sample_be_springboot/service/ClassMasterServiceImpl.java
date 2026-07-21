@@ -27,6 +27,7 @@ import java.util.stream.Collectors;
 public class ClassMasterServiceImpl extends BaseService implements ClassMasterService {
 
     private final ModelMapper modelMapper = new ModelMapper();
+
     @Autowired
     ClassMasterRepository classMasterRepository;
 
