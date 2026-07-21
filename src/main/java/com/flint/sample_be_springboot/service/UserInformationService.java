@@ -9,6 +9,8 @@ public interface UserInformationService {
 
     UserInformationDTO getUserInformationById(Long userInformationId);
 
+    UserInformationDTO getUserInformationByUserId(Long userId);
+
     UserInformationDTO saveUserInformation(UserInformationDTO userInformationDTO);
 
     UserInformationDTO updateUserInformation(UserInformationDTO userInformationDTO);

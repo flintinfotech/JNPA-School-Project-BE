@@ -28,6 +28,14 @@ public class UserInformationController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(userInformationDTO).build());
     }
 
+    @GetMapping("/getUserInformationByUserId/{userId}")
+    public ResponseEntity<?> getUserInformationByUserId(@PathVariable Long userId) {
+
+        UserInformationDTO userInformationDTO = userInformationService.getUserInformationByUserId(userId);
+
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(userInformationDTO).build());
+    }
+
     @PostMapping("/saveUserInformation")
     public ResponseEntity<?> saveUserInformation(@RequestBody UserInformationDTO userInformationDTO) {
 
