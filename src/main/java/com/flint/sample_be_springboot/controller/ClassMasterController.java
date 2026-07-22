@@ -1,8 +1,9 @@
 package com.flint.sample_be_springboot.controller;
 
 import com.flint.sample_be_springboot.dto.ClassMasterDTO;
+import com.flint.sample_be_springboot.dto.ClassMasterSearchDTO;
 import com.flint.sample_be_springboot.response.APIResponse;
-import com.flint.sample_be_springboot.service.ClassMasterServiceImpl;
+import com.flint.sample_be_springboot.service.ClassMasterService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -18,12 +20,12 @@ import java.util.Map;
 public class ClassMasterController {
 
     @Autowired
-    private ClassMasterServiceImpl classMasterServiceImpl;
+    private ClassMasterService classMasterService;
 
     @GetMapping("/getClassMasterById/{classMasterId}")
     public ResponseEntity<?> getClassMasterById(@PathVariable Long classMasterId) {
 
-        ClassMasterDTO classMasterDTO = classMasterServiceImpl.getClassMasterById(classMasterId);
+        ClassMasterDTO classMasterDTO = classMasterService.getClassMasterById(classMasterId);
 
         return ResponseEntity.ok(
                 APIResponse.builder()
@@ -36,7 +38,7 @@ public class ClassMasterController {
     @PostMapping("/saveClassMaster")
     public ResponseEntity<?> saveClassMaster(@RequestBody ClassMasterDTO classMasterDTO) {
 
-        ClassMasterDTO data = classMasterServiceImpl.saveClassMaster(classMasterDTO);
+        ClassMasterDTO data = classMasterService.saveClassMaster(classMasterDTO);
 
         return ResponseEntity.ok(
                 APIResponse.builder()
@@ -49,7 +51,7 @@ public class ClassMasterController {
     @PutMapping("/updateClassMaster")
     public ResponseEntity<?> updateClassMaster(@RequestBody ClassMasterDTO classMasterDTO) {
 
-        ClassMasterDTO data = classMasterServiceImpl.updateClassMaster(classMasterDTO);
+        ClassMasterDTO data = classMasterService.updateClassMaster(classMasterDTO);
 
         return ResponseEntity.ok(
                 APIResponse.builder()
@@ -63,7 +65,7 @@ public class ClassMasterController {
     @DeleteMapping("/deleteClassMaster/{classMasterId}")
     public ResponseEntity<?> deleteClassMaster(@PathVariable Long classMasterId) {
 
-        String msg = classMasterServiceImpl.deleteClassMaster(classMasterId);
+        String msg = classMasterService.deleteClassMaster(classMasterId);
 
         return ResponseEntity.ok(
                 APIResponse.builder()
@@ -76,7 +78,7 @@ public class ClassMasterController {
     public ResponseEntity<?> getAllClassMasterByFilter(@RequestBody Map<String, Object> filter,
                                                        Pageable pageable, boolean paginate) {
 
-        Map<String, Object> data = classMasterServiceImpl.getAllClassMasterByFilter(filter, pageable, paginate);
+        Map<String, Object> data = classMasterService.getAllClassMasterByFilter(filter, pageable, paginate);
 
         return ResponseEntity.ok(
                 APIResponse.builder()
@@ -84,6 +86,14 @@ public class ClassMasterController {
                         .message("Data fetched successfully")
                         .data(data)
                         .build());
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<?> searchClasses(@RequestParam String keyword) {
+
+        List<ClassMasterSearchDTO> data = classMasterService.searchClasses(keyword);
+
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }
 
 }

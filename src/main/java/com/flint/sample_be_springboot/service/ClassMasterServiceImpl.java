@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.ClassMasterDTO;
+import com.flint.sample_be_springboot.dto.ClassMasterSearchDTO;
 import com.flint.sample_be_springboot.dto.SubjectMasterDTO;
 import com.flint.sample_be_springboot.entity.ClassMasterEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
@@ -139,4 +140,38 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
 
         return result;
     }
+
+    @Override
+    public List<ClassMasterSearchDTO> searchClasses(String keyword) {
+
+        log.info("Enter into searchClasses");
+
+        List<ClassMasterEntity> classMasterEntities =
+                classMasterRepository.searchClasses(keyword);
+
+        List<ClassMasterSearchDTO> result = classMasterEntities.stream()
+                .map(entity -> {
+
+                    ClassMasterSearchDTO dto = new ClassMasterSearchDTO();
+
+                    dto.setClassMasterId(entity.getClassMasterId());
+
+                    dto.setDisplayName(
+                            entity.getStandard()
+                                    + " - "
+                                    + entity.getDivision()
+                                    + " ("
+                                    + entity.getMedium()
+                                    + ")"
+                    );
+
+                    return dto;
+                })
+                .toList();
+
+        log.info("Exit from searchClasses");
+
+        return result;
+    }
+
 }
