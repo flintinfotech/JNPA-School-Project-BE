@@ -33,4 +33,7 @@ public class ClassMasterEntity {
     @OneToMany(mappedBy = "classMasterEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ClassSubjectAllocationEntity> classSubjectAllocations = new ArrayList<>();
 
+    @OneToMany(mappedBy = "classMasterEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TeacherClassSubjectAllocationEntity> teacherClassSubjectAllocationEntities = new ArrayList<>();
+
 }

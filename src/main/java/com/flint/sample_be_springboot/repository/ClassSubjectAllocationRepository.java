@@ -13,6 +13,6 @@ public interface ClassSubjectAllocationRepository extends JpaRepository<ClassSub
 
     List<ClassSubjectAllocationEntity> findByClassMasterEntity_ClassMasterId(Long classMasterId);
 
-    Optional<ClassSubjectAllocationEntity> findByClassMasterEntity_ClassMasterIdAndSubjectMasterEntity_SubjectMasterId(Long classMasterId, Long subjectMasterId);
+    boolean existsByClassMasterEntity_ClassMasterIdAndSubjectMasterEntity_SubjectMasterId(Long classMasterId, Long subjectMasterId);
 
 }

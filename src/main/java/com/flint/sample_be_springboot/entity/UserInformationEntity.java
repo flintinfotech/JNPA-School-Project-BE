@@ -68,6 +68,9 @@ public class UserInformationEntity {
     @OneToMany(mappedBy = "userInformationEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserDocumentEntity> userDocumentEntities;
 
+    @OneToMany(mappedBy = "userInformationEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<TeacherClassSubjectAllocationEntity> teacherClassSubjectAllocationEntities = new ArrayList<>();
+
     @Embedded
     private AuditDetails auditDetails;
 }
