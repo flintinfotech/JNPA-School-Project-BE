@@ -284,33 +284,37 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
     public UserInformationDTO getUserInformationByUserId(Long userId) {
         log.info("Enter into getUserInformationById");
 
-        UserInformationEntity existingEntity = userInformationRepository.findByUserEntity_UserId(userId)
-                .orElseThrow(() ->
-                        new CustomException("User information not found", HttpStatus.NOT_FOUND));
+        UserInformationDTO userInformationDTO = new UserInformationDTO();
 
-        UserInformationDTO userInformationDTO =
-                modelMapper.map(existingEntity, UserInformationDTO.class);
+        Optional<UserInformationEntity> userInformationEntity = userInformationRepository.findByUserEntity_UserId(userId);
 
-        if (existingEntity.getUserEntity() != null) {
-            userInformationDTO.setUserId(existingEntity.getUserEntity().getUserId());
-        }
+        if(userInformationEntity.isPresent()) {
 
-        List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
+            UserInformationEntity existingEntity = userInformationEntity.get();
 
-        if (existingEntity.getUserDocumentEntities() != null &&
-                !existingEntity.getUserDocumentEntities().isEmpty()) {
+            userInformationDTO =
+                    modelMapper.map(existingEntity, UserInformationDTO.class);
 
-            for (UserDocumentEntity documentEntity : existingEntity.getUserDocumentEntities()) {
-
-                UserDocumentDTO documentDTO =
-                        modelMapper.map(documentEntity, UserDocumentDTO.class);
-
-                userDocumentDTOS.add(documentDTO);
+            if (existingEntity.getUserEntity() != null) {
+                userInformationDTO.setUserId(existingEntity.getUserEntity().getUserId());
             }
+
+            List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
+
+            if (existingEntity.getUserDocumentEntities() != null &&
+                    !existingEntity.getUserDocumentEntities().isEmpty()) {
+
+                for (UserDocumentEntity documentEntity : existingEntity.getUserDocumentEntities()) {
+
+                    UserDocumentDTO documentDTO =
+                            modelMapper.map(documentEntity, UserDocumentDTO.class);
+
+                    userDocumentDTOS.add(documentDTO);
+                }
+            }
+
+            userInformationDTO.setUserDocumentDTOS(userDocumentDTOS);
         }
-
-        userInformationDTO.setUserDocumentDTOS(userDocumentDTOS);
-
         log.info("Exit from getUserInformationById");
 
         return userInformationDTO;
