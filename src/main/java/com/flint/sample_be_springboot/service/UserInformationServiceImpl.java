@@ -9,9 +9,11 @@ import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.UserInformationRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.util.BaseService;
+import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -337,6 +339,55 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
 
     @Override
     public Map<String, Object> getAllUserInformationByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
-        return Map.of();
+        log.info("Enter into getAllUserInformationByFilter");
+
+        Page<UserInformationEntity> informationEntityPage;
+        List<UserInformationEntity> userInformationEntities;
+        Long totalElement = 0l;
+
+        CustomQuerySpecification<UserInformationEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+
+        if(paginate){
+            informationEntityPage = userInformationRepository.findAll(customQuerySpecification, pageable);
+            userInformationEntities = informationEntityPage.getContent();
+            totalElement = informationEntityPage.getTotalElements();
+        }else{
+            userInformationEntities = userInformationRepository.findAll(customQuerySpecification);
+            totalElement = (long) userInformationEntities.size();
+        }
+
+        List<UserInformationDTO> userInformationDTOS = userInformationEntities.stream()
+                .map(existingEntity -> {
+                    UserInformationDTO userInformationDTO = modelMapper.map(existingEntity, UserInformationDTO.class);
+
+                    if (existingEntity.getUserEntity() != null) {
+                        userInformationDTO.setUserId(existingEntity.getUserEntity().getUserId());
+                    }
+
+                    List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
+
+                    if (existingEntity.getUserDocumentEntities() != null &&
+                            !existingEntity.getUserDocumentEntities().isEmpty()) {
+
+                        for (UserDocumentEntity documentEntity : existingEntity.getUserDocumentEntities()) {
+
+                            UserDocumentDTO documentDTO =
+                                    modelMapper.map(documentEntity, UserDocumentDTO.class);
+
+                            userDocumentDTOS.add(documentDTO);
+                        }
+                    }
+
+                    userInformationDTO.setUserDocumentDTOS(userDocumentDTOS);
+
+                    return userInformationDTO;
+                }).collect(Collectors.toUnmodifiableList());
+
+        log.info("Exit from getAllUserInformationByFilter");
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("Data", userInformationDTOS);
+        result.put("total", totalElement);
+        return result;
     }
 }
