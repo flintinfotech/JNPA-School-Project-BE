@@ -63,8 +63,14 @@ public class CustomQuerySpecification<T> implements Specification<T> {
 
             String joinName = JOIN_FIELDS.get(key);
 
-            return root.join(joinName, JoinType.LEFT)
-                    .get(key);
+            // Check whether current entity actually contains this relationship
+            boolean joinExists = root.getModel().getAttributes()
+                    .stream()
+                    .anyMatch(a -> a.getName().equals(joinName));
+
+            if (joinExists) {
+                return root.join(joinName, JoinType.LEFT).get(key);
+            }
         }
 
         // Nested field support (optional)
