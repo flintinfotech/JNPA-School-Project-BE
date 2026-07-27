@@ -6,6 +6,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.time.LocalDate;
+
 @Table(name = "TEACHER_CLASS_SUBJECT_ALLOCATION")
 @Entity
 @NoArgsConstructor
@@ -30,5 +32,11 @@ public class TeacherClassSubjectAllocationEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SUBJECT_MASTER_ID")
     private SubjectMasterEntity subjectMasterEntity;
+
+    @Column(name = "START_DATE")
+    private LocalDate startDate;
+
+    @Column(name = "END_DATE")
+    private LocalDate endDate;
 
 }

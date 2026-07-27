@@ -3,6 +3,8 @@ package com.flint.sample_be_springboot.entity;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Table(name = "CLASS_SUBJECT_ALLOCATION")
 @Entity
 @NoArgsConstructor
@@ -24,5 +26,11 @@ public class ClassSubjectAllocationEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "SUBJECT_MASTER_ID")
     private SubjectMasterEntity subjectMasterEntity;
+
+    @Column(name = "START_DATE")
+    private LocalDate startDate;
+
+    @Column(name = "END_DATE")
+    private LocalDate endDate;
 
 }

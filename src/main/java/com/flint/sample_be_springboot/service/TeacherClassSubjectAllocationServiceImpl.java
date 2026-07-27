@@ -56,9 +56,11 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
         // Existing allocations ONLY for this teacher & this class
         List<TeacherClassSubjectAllocationEntity> existing =
                 teacherClassSubjectAllocationRepository
-                        .findByUserInformationEntity_UserInformationIdAndClassMasterEntity_ClassMasterId(
+                        .findByUserInformationIdAndClassMasterIdAndAcademicYear(
                                 dto.getUserInformationId(),
-                                dto.getClassMasterId());
+                                dto.getClassMasterId(),
+                                getStartDate(),
+                                getEndDate());
 
         log.info("Existing Allocations:");
         existing.forEach(e -> log.info(
@@ -96,9 +98,11 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
 
             // Validate subject belongs to selected class
             boolean assigned = classSubjectAllocationRepository
-                    .existsByClassMasterEntity_ClassMasterIdAndSubjectMasterEntity_SubjectMasterId(
+                    .existsByClassMasterIdAndSubjectMasterIdAndAcademicYear(
                             dto.getClassMasterId(),
-                            subjectId);
+                            subjectId,
+                            getStartDate(),
+                            getEndDate());
 
             if (!assigned) {
                 throw new CustomException(
@@ -113,6 +117,8 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
             allocation.setUserInformationEntity(user);
             allocation.setClassMasterEntity(classEntity);
             allocation.setSubjectMasterEntity(subject);
+            allocation.setStartDate(getStartDate());
+            allocation.setEndDate(getEndDate());
 
             teacherClassSubjectAllocationRepository.save(allocation);
 
@@ -132,7 +138,9 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
 
         Map<ClassMasterDTO, List<SubjectMasterDTO>> map;
 
-        List<TeacherClassSubjectAllocationEntity> entities = teacherClassSubjectAllocationRepository.findByUserInformationEntity_UserInformationId(userInformationId);
+        List<TeacherClassSubjectAllocationEntity> entities = teacherClassSubjectAllocationRepository.
+                findByUserInformationIdAndAcademicYear
+                (userInformationId, getStartDate(), getEndDate());
 
         map = entities.stream()
                 .collect(Collectors.groupingBy(

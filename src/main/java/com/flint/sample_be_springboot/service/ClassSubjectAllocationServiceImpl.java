@@ -43,7 +43,8 @@ public class ClassSubjectAllocationServiceImpl extends BaseService implements Cl
                 .orElseThrow(() -> new CustomException("Class not found", HttpStatus.NOT_FOUND));
 
         List<ClassSubjectAllocationEntity> existing =
-                classSubjectAllocationRepository.findByClassMasterEntity_ClassMasterId(dto.getClassMasterId());
+                classSubjectAllocationRepository.findByClassMasterIdAndAcademicYear
+                        (dto.getClassMasterId(), getStartDate(), getEndDate());
 
         Set<Long> existingIds = existing.stream()
                 .map(e -> e.getSubjectMasterEntity().getSubjectMasterId())
@@ -72,6 +73,8 @@ public class ClassSubjectAllocationServiceImpl extends BaseService implements Cl
             ClassSubjectAllocationEntity allocation = new ClassSubjectAllocationEntity();
             allocation.setClassMasterEntity(classEntity);
             allocation.setSubjectMasterEntity(subject);
+            allocation.setStartDate(getStartDate());
+            allocation.setEndDate(getEndDate());
 
             classSubjectAllocationRepository.save(allocation);
         }
@@ -83,7 +86,8 @@ public class ClassSubjectAllocationServiceImpl extends BaseService implements Cl
     public List<SubjectMasterDTO> getSubjectsByClass(Long classId) {
 
         List<ClassSubjectAllocationEntity> allocations =
-                classSubjectAllocationRepository.findByClassMasterEntity_ClassMasterId(classId);
+                classSubjectAllocationRepository.findByClassMasterIdAndAcademicYear
+                        (classId, getStartDate(), getEndDate());
 
         return allocations.stream()
                 .map(a -> {
