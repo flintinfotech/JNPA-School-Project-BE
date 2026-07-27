@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.security.jwt;
 
+import com.flint.sample_be_springboot.dto.AcademicWorkYearDTO;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
@@ -8,8 +9,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
-import java.nio.charset.StandardCharsets;
+import java.time.LocalDate;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @Service
 public class JwtService {
@@ -28,7 +31,11 @@ public class JwtService {
         return signingKey;
     }
 
-    public String generateToken(UserDetails userDetails) {
+    public String generateToken(UserDetails userDetails, AcademicWorkYearDTO academicWorkYearDTO) {
+
+        Map<String, Object> academicYearMap = new HashMap<>();
+        academicYearMap.put("startDate", academicWorkYearDTO.getStartDate().toString());
+        academicYearMap.put("endDate", academicWorkYearDTO.getEndDate().toString());
 
         return Jwts.builder()
                 .subject(userDetails.getUsername())
@@ -37,6 +44,7 @@ public class JwtService {
                         .next()
                         .getAuthority()
                 )
+                .claim("academicYear", academicYearMap)
                 .issuedAt(new Date())
                 .expiration(
                         new Date(System.currentTimeMillis() + jwtExpiration)
@@ -60,6 +68,20 @@ public class JwtService {
     public String extractRole(String token) {
         return extractAllClaims(token)
                 .get("role", String.class);
+    }
+
+    public AcademicWorkYearDTO extractAcademicYear(String token) {
+
+        Claims claims = extractAllClaims(token);
+
+        Map<String, String> academicYear =
+                claims.get("academicYear", Map.class);
+
+        AcademicWorkYearDTO dto = new AcademicWorkYearDTO();
+        dto.setStartDate(LocalDate.parse(academicYear.get("startDate")));
+        dto.setEndDate(LocalDate.parse(academicYear.get("endDate")));
+
+        return dto;
     }
 
     public Date extractExpiration(String token) {

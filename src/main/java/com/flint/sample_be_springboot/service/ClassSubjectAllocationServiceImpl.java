@@ -9,6 +9,7 @@ import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.ClassMasterRepository;
 import com.flint.sample_be_springboot.repository.ClassSubjectAllocationRepository;
 import com.flint.sample_be_springboot.repository.SubjectMasterRepository;
+import com.flint.sample_be_springboot.util.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +23,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class ClassSubjectAllocationServiceImpl implements ClassSubjectAllocationService {
+public class ClassSubjectAllocationServiceImpl extends BaseService implements ClassSubjectAllocationService {
 
     private final ModelMapper modelMapper = new ModelMapper();
 

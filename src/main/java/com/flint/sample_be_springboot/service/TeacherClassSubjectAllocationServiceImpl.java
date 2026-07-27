@@ -9,6 +9,7 @@ import com.flint.sample_be_springboot.entity.TeacherClassSubjectAllocationEntity
 import com.flint.sample_be_springboot.entity.UserInformationEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.*;
+import com.flint.sample_be_springboot.util.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class TeacherClassSubjectAllocationServiceImpl implements TeacherClassSubjectAllocationService {
+public class TeacherClassSubjectAllocationServiceImpl extends BaseService implements TeacherClassSubjectAllocationService {
 
     @Autowired
     private TeacherClassSubjectAllocationRepository teacherClassSubjectAllocationRepository;

@@ -45,11 +45,12 @@ public class AuthService {
         UserDTO userDTO = modelMapper.map(userEntity, UserDTO.class);
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
-        String token = jwtService.generateToken(userDetails);
+        String token = jwtService.generateToken(userDetails, request.getAcademicWorkYearDTO());
 
         Map<String, Object> map = new HashMap<>();
         map.put("token", token);
         map.put("userDTO", userDTO);
+        map.put("academicYearDTO", request.getAcademicWorkYearDTO());
 
         return map;
     }
