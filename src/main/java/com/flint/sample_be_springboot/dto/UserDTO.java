@@ -4,6 +4,8 @@ import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.enums.Role;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class UserDTO {
 
@@ -18,4 +20,5 @@ public class UserDTO {
     private String medium;
     private AuditDetails auditDetails;
 
+    private List<ScreenMasterDTO> screens;
 }

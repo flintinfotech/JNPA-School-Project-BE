@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
+import java.util.List;
+
 @Table(name = "USER_ENTITY")
 @Entity
 @NoArgsConstructor
@@ -57,6 +59,11 @@ public class UserEntity {
 
     @Column(name = "MEDIUM")
     private String medium;
+
+    @OneToMany(mappedBy = "user",
+            cascade = CascadeType.ALL,
+            orphanRemoval = true)
+    private List<UserScreenAccessEntity> screenAccesses;
 
     @Embedded
     private AuditDetails auditDetails;

@@ -343,7 +343,7 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
 
         Page<UserInformationEntity> informationEntityPage;
         List<UserInformationEntity> userInformationEntities;
-        Long totalElement = 0l;
+        long totalElement;
 
         CustomQuerySpecification<UserInformationEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 

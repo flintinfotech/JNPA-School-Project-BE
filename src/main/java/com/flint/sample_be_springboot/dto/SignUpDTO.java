@@ -3,6 +3,8 @@ package com.flint.sample_be_springboot.dto;
 import com.flint.sample_be_springboot.enums.Role;
 import lombok.Data;
 
+import java.util.List;
+
 @Data
 public class SignUpDTO {
 
@@ -16,5 +18,7 @@ public class SignUpDTO {
     private String email;
     private String section;
     private String medium;
+
+    private List<ScreenMasterDTO> screens;
 
 }

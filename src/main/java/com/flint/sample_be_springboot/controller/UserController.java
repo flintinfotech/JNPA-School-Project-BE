@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.controller;
 
+import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.response.APIResponse;
@@ -10,6 +11,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -58,6 +60,12 @@ public class UserController {
     public ResponseEntity<?> getAllUsersByFilter(@RequestBody Map<String, Object> filter, Pageable pageable, boolean paginate) {
         Map<String, Object> data = userService.getAllUsersByFilter(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
+    }
+
+    @GetMapping("/getAllScreens")
+    public ResponseEntity<?> getAllScreens(){
+        List<ScreenMasterDTO> screenMasterDTOS = userService.getAllScreens();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(screenMasterDTOS).build());
     }
 
 }

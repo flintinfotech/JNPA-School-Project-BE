@@ -1,31 +1,34 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.entity.ScreenMaster;
 import com.flint.sample_be_springboot.entity.UserEntity;
+import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.ScreenMasterRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
+import com.flint.sample_be_springboot.repository.UserScreenAccessRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
-
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserServiceImpl extends BaseService implements UserService{
+public class UserServiceImpl extends BaseService implements UserService {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -35,19 +38,32 @@ public class UserServiceImpl extends BaseService implements UserService{
     @Autowired
     PasswordEncoder passwordEncoder;
 
-    public UserDTO getUserById(Long userId){
+    @Autowired
+    ScreenMasterRepository screenRepository;
+
+    @Autowired
+    UserScreenAccessRepository userScreenAccessRepository;
+
+    public UserDTO getUserById(Long userId) {
         log.info("Enter into getUserById");
 
-            UserEntity entity = userRepository.findById(userId)
-                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+        UserEntity entity = userRepository.findById(userId)
+                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-            UserDTO userDTO = modelMapper.map(entity, UserDTO.class);
+        UserDTO userDTO = modelMapper.map(entity, UserDTO.class);
+        List<ScreenMasterDTO> screens = entity.getScreenAccesses()
+                .stream()
+                .map(UserScreenAccessEntity::getScreen)
+                .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                .toList();
+
+        userDTO.setScreens(screens);
 
         log.info("Enter into getUserById");
         return userDTO;
     }
 
-    public UserDTO saveUser(SignUpDTO signUpDTO){
+    public UserDTO saveUser(SignUpDTO signUpDTO) {
         log.info("Enter into saveUser");
 
         Optional<UserEntity> existingUserEntity = userRepository.findByUserName(signUpDTO.getUserName());
@@ -61,20 +77,51 @@ public class UserServiceImpl extends BaseService implements UserService{
         userEntity.setPassword(passwordEncoder.encode(signUpDTO.getPassword())); // encoded password
 
         UserEntity savedUserEntity = userRepository.save(userEntity);
+
+        List<UserScreenAccessEntity> accesses = new ArrayList<>();
+
+        if (signUpDTO.getScreens() != null && !signUpDTO.getScreens().isEmpty()) {
+
+            accesses = signUpDTO.getScreens()
+                    .stream()
+                    .map(screenId -> {
+
+                        ScreenMaster screen = screenRepository.findById(screenId.getScreenId())
+                                .orElseThrow(() ->
+                                        new CustomException("Screen not found", HttpStatus.NOT_FOUND));
+
+                        return UserScreenAccessEntity.builder()
+                                .user(savedUserEntity)
+                                .screen(screen)
+                                .build();
+                    })
+                    .toList();
+
+            userScreenAccessRepository.saveAll(accesses);
+        }
+
         UserDTO savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
+
+        savedUser.setScreens(
+                accesses.stream()
+                        .map(UserScreenAccessEntity::getScreen)
+                        .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                        .toList()
+        );
+
 
         log.info("Exit from saveUser");
         return savedUser;
     }
 
-    public UserDTO updateUser(UserDTO userDTO){
+    public UserDTO updateUser(UserDTO userDTO) {
         log.info("Enter into updateUser");
 
         UserEntity existingEntity = userRepository.findById(userDTO.getUserId())
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         Optional<UserEntity> existingUserEntity = userRepository.findByUserNameAndUserIdNot(userDTO.getUserName(), userDTO.getUserId());
-        if(existingUserEntity.isPresent()){
+        if (existingUserEntity.isPresent()) {
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
         }
 
@@ -84,14 +131,71 @@ public class UserServiceImpl extends BaseService implements UserService{
 
         existingEntity.setAuditDetails(addAuditDetails(auditDetails));
 
+        // Existing Screen Mappings
+        Map<Long, UserScreenAccessEntity> existingScreenMap =
+                existingEntity.getScreenAccesses()
+                        .stream()
+                        .collect(Collectors.toMap(
+                                access -> access.getScreen().getScreenId(),
+                                Function.identity()));
+
+        // Requested Screen Ids
+        Set<Long> requestScreenIds =
+                userDTO.getScreens() == null
+                        ? Collections.emptySet()
+                        : userDTO.getScreens()
+                        .stream()
+                        .map(ScreenMasterDTO::getScreenId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
+
+        // Remove Unselected Screens
+        existingEntity.getScreenAccesses().removeIf(access ->
+                !requestScreenIds.contains(access.getScreen().getScreenId()));
+
+        // Add Newly Selected Screens
+        if (userDTO.getScreens() != null) {
+
+            for (ScreenMasterDTO screenDTO : userDTO.getScreens()) {
+
+                if (screenDTO.getScreenId() == null) {
+                    continue;
+                }
+
+                if (!existingScreenMap.containsKey(screenDTO.getScreenId())) {
+
+                    ScreenMaster screen = screenRepository
+                            .findById(screenDTO.getScreenId())
+                            .orElseThrow(() ->
+                                    new CustomException("Screen not found",
+                                            HttpStatus.NOT_FOUND));
+
+                    UserScreenAccessEntity access = UserScreenAccessEntity.builder()
+                            .user(existingEntity)
+                            .screen(screen)
+                            .build();
+
+                    existingEntity.getScreenAccesses().add(access);
+                }
+            }
+        }
+
         UserEntity savedEntity = userRepository.save(existingEntity);
+
+        List<ScreenMasterDTO> screens = savedEntity.getScreenAccesses()
+                .stream()
+                .map(UserScreenAccessEntity::getScreen)
+                .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                .toList();
+
         UserDTO savedDTO = modelMapper.map(savedEntity, UserDTO.class);
+        savedDTO.setScreens(screens);
 
         log.info("Exit from updateUser");
         return savedDTO;
     }
 
-    public String deleteUser(Long userId){
+    public String deleteUser(Long userId) {
         log.info("Enter into deleteUser");
 
         UserEntity existingEntity = userRepository.findById(userId)
@@ -103,7 +207,7 @@ public class UserServiceImpl extends BaseService implements UserService{
         return "User deleted successfully";
     }
 
-    public Map<String, Object> getAllUsersByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate){
+    public Map<String, Object> getAllUsersByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         log.info("Enter into getAllUsersByFilter");
 
         Page<UserEntity> userEntityPage;
@@ -112,18 +216,29 @@ public class UserServiceImpl extends BaseService implements UserService{
 
         CustomQuerySpecification<UserEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
-        if(paginate){
+        if (paginate) {
             userEntityPage = userRepository.findAll(customQuerySpecification, pageable);
             userEntityList = userEntityPage.getContent();
             totalElement = userEntityPage.getTotalElements();
-        }else{
+        } else {
             userEntityList = userRepository.findAll(customQuerySpecification);
             totalElement = (long) userEntityList.size();
         }
 
         List<UserDTO> userDTOS = userEntityList.stream()
-                .map(u -> modelMapper.map(u, UserDTO.class))
-                .toList();
+                .map(u -> {
+                    UserDTO dto = modelMapper.map(u, UserDTO.class);
+
+                    List<ScreenMasterDTO> screens = u.getScreenAccesses()
+                            .stream()
+                            .map(UserScreenAccessEntity::getScreen)
+                            .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                            .toList();
+
+                    dto.setScreens(screens);
+
+                    return dto;
+                }).toList();
 
         log.info("Exit from getAllUsersByFilter");
 
@@ -131,6 +246,20 @@ public class UserServiceImpl extends BaseService implements UserService{
         result.put("Data", userDTOS);
         result.put("total", totalElement);
         return result;
+    }
+
+    public List<ScreenMasterDTO> getAllScreens() {
+        log.info("Exit from getAllScreens");
+
+        List<ScreenMaster> screenMasters = screenRepository.findAll();
+
+        List<ScreenMasterDTO> screenMasterDTOS = screenMasters.stream()
+                .map(s -> modelMapper.map(s, ScreenMasterDTO.class))
+                .collect(Collectors.toList());
+
+        log.info("Exit from getAllScreens");
+
+        return screenMasterDTOS;
     }
 
 }
