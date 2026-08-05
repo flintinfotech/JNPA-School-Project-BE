@@ -51,6 +51,8 @@ public class SecurityConfig {
                                 .requestMatchers("/exam/getAllExamsByFilter").permitAll()
                                 .requestMatchers("/admission/getAdmissionById/**").permitAll()
                                 .requestMatchers("/admission/getAllAdmissionsByFilter").permitAll()
+                                .requestMatchers("/inquiry/saveAdmissionInquiry").permitAll()
+
                                 .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
