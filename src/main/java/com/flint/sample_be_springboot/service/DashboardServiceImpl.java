@@ -1,15 +1,20 @@
 package com.flint.sample_be_springboot.service;
 
 
+import com.flint.sample_be_springboot.entity.AdmissionInquiry;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
+import com.flint.sample_be_springboot.entity.websiteModuleEntities.NewsEntity;
 import com.flint.sample_be_springboot.enums.Role;
+import com.flint.sample_be_springboot.repository.AdmissionInquiryRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
+import com.flint.sample_be_springboot.repository.websiteModuleRepository.NewsRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -24,20 +29,34 @@ public class DashboardServiceImpl implements DashboardService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AdmissionInquiryRepository admissionInquiryRepository;
 
-    public Long getAllStudentsCount() {
 
-        Long count = 0l;
-        List<StudentEntity> studentEntities = studentRepository.findAll();
+    @Autowired
+    private NewsRepository newsRepository;
 
-        if (!studentEntities.isEmpty()) {
-            count = Long.valueOf(studentEntities.size());
+    public Map<String, Long> getAllStudentsCount() {
+        Map<String, Long> map = new HashMap<>();
+        List<StudentEntity> students = studentRepository.findAll();
+        long total = 0L;
 
+        for (StudentEntity student : students) {
+            total++;
+
+            String gender = student.getGender().toString();
+            if (map.containsKey(gender)) {
+                map.put(gender, map.get(gender) + 1);
+            } else {
+                map.put(gender, 1L);
+            }
         }
-        return count;
+
+        map.put("Total", total);
+        return map;
     }
 
-    public Map<String, Long> getAllTeachers() {
+    public Map<String, Long> getAllUsersCount() {
         Map<String, Long> map = new HashMap<>();
         List<UserEntity> entities = userRepository.findAll();
 
@@ -56,6 +75,29 @@ public class DashboardServiceImpl implements DashboardService {
         }
         return map;
     }
+
+    public Map<String, Long> getAllAdmissionInquiryCount()
+    {
+        Map<String, Long> map = new HashMap<>();
+      List<AdmissionInquiry> inquiries =  admissionInquiryRepository.findAll();
+      Long total=0L;
+
+      for (AdmissionInquiry inquiry:inquiries)
+      {
+          total++;
+
+          String status = inquiry.getStatus().toString();
+          map.put(status,map.getOrDefault(status,0L) + 1);
+
+      }
+      map.put("Total", total);
+      return map;
+    }
+
+
+
+
+
 
 
 }

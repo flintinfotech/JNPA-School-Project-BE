@@ -107,6 +107,8 @@ public class NewsServiceImpl extends BaseService implements NewsService {
     public Map<String, Object> getAllNewsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         log.info("Enter into getAllNewsByFilter");
 
+
+
         Page<NewsEntity> newsEntityPage;
         List<NewsEntity> newsEntityList;
         long totalElements;

@@ -6,10 +6,7 @@ import com.flint.sample_be_springboot.service.DashboardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 
@@ -23,16 +20,23 @@ public class DashboardController {
 
     @GetMapping("/getAllStudentsCount")
     public ResponseEntity<?> getAllStudentsCount() {
-        Long tetalCount = dashboardService.getAllStudentsCount();
-        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(tetalCount).build());
+        Map<String, Long> studentsCount = dashboardService.getAllStudentsCount();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(studentsCount).build());
     }
 
-    @GetMapping("/getAllTeachers")
-    public ResponseEntity<?> getAllTeachers()
-    {
-       Map<String, Long> map = dashboardService.getAllTeachers();
+    @GetMapping("/getAllUsersCount")
+    public ResponseEntity<?> getAllUsersCount() {
+        Map<String, Long> map = dashboardService.getAllUsersCount();
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
+
+    @GetMapping("/getAllAdmissionInquiryCount")
+    public ResponseEntity<?> getAllAdmissionInquiryCount() {
+        Map<String, Long> map = dashboardService.getAllAdmissionInquiryCount();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
+    }
+
+
 
 
 }

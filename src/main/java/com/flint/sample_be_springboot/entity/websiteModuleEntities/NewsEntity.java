@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
 import java.util.Base64;
 
 @Table(name = "NEWS_ENTITY")
@@ -31,6 +32,9 @@ public class NewsEntity {
     @Lob
     @Column(name = "NEWS_DATA")
     private byte[] newsData;
+
+    @Column(name = "EVENT_DATE")
+    private LocalDate eventDate;
 
     @Embedded
     private AuditDetails auditDetails;
