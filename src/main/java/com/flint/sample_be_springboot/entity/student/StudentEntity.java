@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.util.Base64;
 import java.util.List;
 
 @Table(name = "STUDENT_ENTITY")
@@ -60,6 +61,9 @@ public class StudentEntity {
     @Column(name = "STATUS")
     private StudentStatus status;
 
+    @Column(name = "PROFILE_IMG")
+    private byte[] profileImg;
+
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<ParentEntity> parentEntities;
 
@@ -73,4 +77,12 @@ public class StudentEntity {
     private AuditDetails auditDetails;
 
 
+    private String getDocument()
+    {
+        if (profileImg !=null)
+        {
+            return Base64.getEncoder().encodeToString(profileImg);
+        }
+        return null;
+    }
 }

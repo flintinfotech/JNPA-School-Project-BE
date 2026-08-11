@@ -25,5 +25,6 @@ public class StudentDTO {
     private List<StudentDocumentDTO> studentDocuments;
     private List<AcademicInformationDTO> academicInformation;
     private AuditDetails auditDetails;
+    private String profileImg;
 
 }

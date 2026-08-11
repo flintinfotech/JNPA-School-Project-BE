@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class StudentServiceImpl extends BaseService implements StudentService{
+public class StudentServiceImpl extends BaseService implements StudentService {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
@@ -37,17 +37,23 @@ public class StudentServiceImpl extends BaseService implements StudentService{
     public StudentDTO saveStudent(StudentDTO studentDTO) {
         log.info("Enter into saveStudent");
 
-        if(studentDTO == null){
+        if (studentDTO == null) {
             throw new CustomException("Student info cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
+
+        if (studentDTO.getProfileImg() != null) {
+            studentEntity.setProfileImg(Base64.getDecoder().decode(studentDTO.getProfileImg()));
+
+        }
+
         studentEntity.setAuditDetails(addAuditDetails(studentEntity.getAuditDetails()));
 
         // set parent entities
         List<ParentEntity> parentEntities = new ArrayList<>();
-        if(studentDTO.getParentEntities() != null && !studentDTO.getParentEntities().isEmpty()){
-            for(ParentDTO parentDTO : studentDTO.getParentEntities()){
+        if (studentDTO.getParentEntities() != null && !studentDTO.getParentEntities().isEmpty()) {
+            for (ParentDTO parentDTO : studentDTO.getParentEntities()) {
                 ParentEntity parentEntity = modelMapper.map(parentDTO, ParentEntity.class);
                 parentEntity.setStudentEntity(studentEntity);
                 parentEntities.add(parentEntity);
@@ -57,10 +63,10 @@ public class StudentServiceImpl extends BaseService implements StudentService{
 
         // set student documents
         List<StudentDocumentEntity> studentDocumentEntities = new ArrayList<>();
-        if(studentDTO.getStudentDocuments() != null && !studentDTO.getStudentDocuments().isEmpty()){
-            for(StudentDocumentDTO studentDocumentDTO : studentDTO.getStudentDocuments()){
+        if (studentDTO.getStudentDocuments() != null && !studentDTO.getStudentDocuments().isEmpty()) {
+            for (StudentDocumentDTO studentDocumentDTO : studentDTO.getStudentDocuments()) {
                 StudentDocumentEntity studentDocumentEntity = modelMapper.map(studentDocumentDTO, StudentDocumentEntity.class);
-                if(studentDocumentDTO.getDocument() != null){
+                if (studentDocumentDTO.getDocument() != null) {
                     studentDocumentEntity.setDocument(Base64.getDecoder().decode(studentDocumentDTO.getDocument()));
                 }
                 studentDocumentEntity.setStudentEntity(studentEntity);
@@ -72,8 +78,8 @@ public class StudentServiceImpl extends BaseService implements StudentService{
 
         // set student academic information
         List<AcademicInformationEntity> academicInformationEntities = new ArrayList<>();
-        if(studentDTO.getAcademicInformation() != null && !studentDTO.getAcademicInformation().isEmpty()){
-            for(AcademicInformationDTO academicInformationDTO : studentDTO.getAcademicInformation()){
+        if (studentDTO.getAcademicInformation() != null && !studentDTO.getAcademicInformation().isEmpty()) {
+            for (AcademicInformationDTO academicInformationDTO : studentDTO.getAcademicInformation()) {
                 AcademicInformationEntity academicInformationEntity = modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
                 academicInformationEntity.setStudentEntity(studentEntity);
 
@@ -154,6 +160,12 @@ public class StudentServiceImpl extends BaseService implements StudentService{
         existingStudentEntity.setNationality(studentDTO.getNationality());
         existingStudentEntity.setStatus(studentDTO.getStatus());
         existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
+
+        if (studentDTO.getProfileImg() != null) {
+            existingStudentEntity.setProfileImg(Base64.getDecoder().decode(studentDTO.getProfileImg()));
+        }else{
+            existingStudentEntity.setProfileImg(null);
+        }
 
         // delete removed parents from existing entity
         Set<Long> requestParentIds = studentDTO.getParentEntities().stream()
@@ -407,11 +419,11 @@ public class StudentServiceImpl extends BaseService implements StudentService{
 
         CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
-        if(paginate){
+        if (paginate) {
             studentEntityPage = studentRepository.findAll(customQuerySpecification, pageable);
             studentEntities = studentEntityPage.getContent();
             totalElement = studentEntityPage.getTotalElements();
-        }else{
+        } else {
             studentEntities = studentRepository.findAll(customQuerySpecification);
             totalElement = studentEntities.size();
         }
