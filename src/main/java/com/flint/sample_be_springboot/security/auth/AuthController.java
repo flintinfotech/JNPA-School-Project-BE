@@ -25,7 +25,9 @@ public class AuthController {
     public ResponseEntity<?> login(@RequestBody LoginRequest request) {
 
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Login successful").data(authService.login(request)).build());
+
     }
+
 
     @GetMapping("/getLastFiveAcademicYears")
     public List<AcademicWorkYearDTO> getLastFiveAcademicYears() {

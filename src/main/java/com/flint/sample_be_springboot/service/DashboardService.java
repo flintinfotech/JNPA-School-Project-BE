@@ -7,7 +7,9 @@ import java.util.Map;
 
 public interface DashboardService {
 
-    Map<String, Long> getAllStudentsCount();
+//    Map<String, Long> getAllStudentsCount();
+
+    Map<String, Map<String, Long>> getAllStudentsCount();
 
     Map<String, Long> getAllUsersCount();
 

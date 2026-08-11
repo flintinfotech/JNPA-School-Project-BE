@@ -72,4 +72,5 @@ public class StudentEntity {
     @Embedded
     private AuditDetails auditDetails;
 
+
 }

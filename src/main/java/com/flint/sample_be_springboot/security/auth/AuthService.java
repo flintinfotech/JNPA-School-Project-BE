@@ -41,6 +41,7 @@ public class AuthService {
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
         if (!authentication.isAuthenticated()) {
+
             throw new RuntimeException("Authentication failed");
         }
 
