@@ -360,6 +360,12 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         StudentDTO savedDTO = modelMapper.map(studentEntity, StudentDTO.class);
 
+        if(studentEntity.getProfileImg() != null) {
+            String img = Base64.getEncoder().encodeToString(studentEntity.getProfileImg());
+
+            savedDTO.setProfileImg(img);
+        }
+
         // Set Parent DTOs
         List<ParentDTO> parentDTOs = new ArrayList<>();
         if (studentEntity.getParentEntities() != null && !studentEntity.getParentEntities().isEmpty()) {
@@ -431,6 +437,12 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         List<StudentDTO> studentDTOS = studentEntities.stream()
                 .map(s -> {
                     StudentDTO dto = modelMapper.map(s, StudentDTO.class);
+
+                    if(s.getProfileImg() != null) {
+                        String img = Base64.getEncoder().encodeToString(s.getProfileImg());
+
+                        dto.setProfileImg(img);
+                    }
 
                     // Set Parent DTOs
                     List<ParentDTO> parentDTOs = new ArrayList<>();

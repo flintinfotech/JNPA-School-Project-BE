@@ -61,6 +61,7 @@ public class StudentEntity {
     @Column(name = "STATUS")
     private StudentStatus status;
 
+    @Lob
     @Column(name = "PROFILE_IMG")
     private byte[] profileImg;
 
@@ -73,16 +74,19 @@ public class StudentEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     List<AcademicInformationEntity> academicInformationEntity;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity",cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentFeeEntity> studentFeeEntities;
+
     @Embedded
     private AuditDetails auditDetails;
 
 
-    private String getDocument()
-    {
-        if (profileImg !=null)
-        {
-            return Base64.getEncoder().encodeToString(profileImg);
-        }
-        return null;
-    }
+//    private String getProfileImg()
+//    {
+//        if (profileImg !=null)
+//        {
+//            return Base64.getEncoder().encodeToString(profileImg);
+//        }
+//        return null;
+//    }
 }
