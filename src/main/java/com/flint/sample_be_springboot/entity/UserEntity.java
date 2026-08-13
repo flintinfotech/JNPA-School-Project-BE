@@ -27,7 +27,6 @@ public class UserEntity {
     @Column(name = "USERNAME")
     private String userName;
 
-    @NotNull
     @Size(min = 8)
     @Column(name = "PASSWORD")
     private String password;

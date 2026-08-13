@@ -20,7 +20,6 @@ public class DashboardController {
 
     @GetMapping("/getAllStudentsCount")
     public ResponseEntity<?> getAllStudentsCount() {
-//        Map<String, Long> studentsCount = dashboardService.getAllStudentsCount();
         Map<String, Map<String, Long>> studentsCount = dashboardService.getAllStudentsCount();
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(studentsCount).build());
     }

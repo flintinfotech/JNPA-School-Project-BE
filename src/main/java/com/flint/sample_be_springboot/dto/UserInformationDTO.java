@@ -26,6 +26,8 @@ public class UserInformationDTO {
     private Integer experience;
     private String designation;
     private LocalDate joiningDate;
+    private LocalDate leavingDate;
+
     private String bloodGroup;
     private List<UserDocumentDTO> userDocumentDTOS;
 

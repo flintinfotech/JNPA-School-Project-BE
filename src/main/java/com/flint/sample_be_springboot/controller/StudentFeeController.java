@@ -32,16 +32,16 @@ public class StudentFeeController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data saved successfully").data(data).build());
     }
 
-    @PutMapping("/updateStudentFeeById/{studentFeeId}")
-    public ResponseEntity<?> updateStudentFeeById(@RequestBody StudentFeeDTO studentFeeDTO) {
-        StudentDTO data = studentFeeService.updateStudentFeeById(studentFeeDTO);
+    @PutMapping("/updateStudentFee")
+    public ResponseEntity<?> updateStudentFee(@RequestBody StudentFeeDTO studentFeeDTO) {
+        StudentDTO data = studentFeeService.updateStudentFee(studentFeeDTO);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data updated successfully").data(data).build());
     }
 
-    @DeleteMapping("/deleteStudentFeeById/{studentFeeId")
+    @DeleteMapping("/deleteStudentFeeById/{studentFeeId}")
     public ResponseEntity<?> deleteStudentFeeById(@PathVariable Long studentFeeId) {
-        StudentFeeDTO data = studentFeeService.deleteStudentFeeById(studentFeeId);
-        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data deleted successfully").data(data).build());
+        String message = studentFeeService.deleteStudentFeeById(studentFeeId);
+        return ResponseEntity.ok(APIResponse.builder().success(true).message(message).data(null).build());
     }
 
 

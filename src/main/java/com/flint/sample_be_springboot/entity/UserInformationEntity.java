@@ -62,6 +62,9 @@ public class UserInformationEntity {
     @Column(name = "JOINING_DATE")
     private LocalDate joiningDate;
 
+    @Column(name = "LEAVING_DATE")
+    private LocalDate leavingDate;
+
     @Column(name = "BLOOD_GROUP")
     private String bloodGroup;
 

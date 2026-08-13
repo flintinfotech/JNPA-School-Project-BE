@@ -6,19 +6,22 @@ import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.enums.Role;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import com.flint.sample_be_springboot.repository.AdmissionInquiryRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.repository.websiteModuleRepository.NewsRepository;
+import com.flint.sample_be_springboot.util.BaseService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
 @Service
-public class DashboardServiceImpl implements DashboardService {
+public class DashboardServiceImpl extends BaseService implements DashboardService {
 
     @Autowired
     private StudentRepository studentRepository;
@@ -44,6 +47,11 @@ public class DashboardServiceImpl implements DashboardService {
         long totalGirls = 0;
 
         for (StudentEntity student : students) {
+
+
+            if (student.getStatus() != StudentStatus.ACTIVE) {
+                continue;
+            }
 
             String gender = student.getGender();
 
@@ -172,7 +180,10 @@ public class DashboardServiceImpl implements DashboardService {
 
     public Map<String, Long> getAllUsersCount() {
         Map<String, Long> map = new HashMap<>();
-        List<UserEntity> entities = userRepository.findAll();
+        System.err.println(getStartDate());
+        System.err.println(getEndDate());
+        List<UserEntity> entities = userRepository.findCurrentWorkingUsersByAcademicYear(getStartDate(),getEndDate(), LocalDate.now());
+
 
         Long count = 0l;
 

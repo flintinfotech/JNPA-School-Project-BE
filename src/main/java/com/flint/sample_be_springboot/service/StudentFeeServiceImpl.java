@@ -26,12 +26,12 @@ public class StudentFeeServiceImpl implements StudentFeeService {
     }
 
     @Override
-    public StudentFeeDTO deleteStudentFeeById(Long id) {
+    public String deleteStudentFeeById(Long id) {
         return null;
     }
 
     @Override
-    public StudentDTO updateStudentFeeById(StudentFeeDTO studentFeeDTO) {
+    public StudentDTO updateStudentFee(StudentFeeDTO studentFeeDTO) {
         return null;
     }
 }

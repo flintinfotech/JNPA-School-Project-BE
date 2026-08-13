@@ -290,7 +290,7 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
 
         Optional<UserInformationEntity> userInformationEntity = userInformationRepository.findByUserEntity_UserId(userId);
 
-        if(userInformationEntity.isPresent()) {
+        if (userInformationEntity.isPresent()) {
 
             UserInformationEntity existingEntity = userInformationEntity.get();
 
@@ -347,11 +347,11 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
 
         CustomQuerySpecification<UserInformationEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
-        if(paginate){
+        if (paginate) {
             informationEntityPage = userInformationRepository.findAll(customQuerySpecification, pageable);
             userInformationEntities = informationEntityPage.getContent();
             totalElement = informationEntityPage.getTotalElements();
-        }else{
+        } else {
             userInformationEntities = userInformationRepository.findAll(customQuerySpecification);
             totalElement = (long) userInformationEntities.size();
         }

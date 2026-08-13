@@ -21,7 +21,7 @@ import org.springframework.stereotype.Service;
 import java.util.*;
 
 @Service
-public class AdmissionInquiryImpl extends BaseService implements AdmissionInquiryService {
+public class AdmissionInquiryServiceImpl extends BaseService implements AdmissionInquiryService {
 
 
     @Autowired

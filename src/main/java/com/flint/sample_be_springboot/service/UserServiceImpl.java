@@ -212,7 +212,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         Page<UserEntity> userEntityPage;
         List<UserEntity> userEntityList;
-        Long totalElement = 0l;
+        Long totalElement = 0L;
 
         CustomQuerySpecification<UserEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 

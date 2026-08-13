@@ -15,9 +15,11 @@ public interface StudentFeeService {
     StudentFeeDTO saveStudentFee(StudentFeeDTO studentFeeDTO);
 
 
-    StudentFeeDTO deleteStudentFeeById(Long id);
+    String deleteStudentFeeById(Long id);
 
-    StudentDTO updateStudentFeeById(StudentFeeDTO studentFeeDTO);
+    StudentDTO updateStudentFee(StudentFeeDTO studentFeeDTO);
 }
 
+
+//shift + f6 --- to rename from all the method
 
