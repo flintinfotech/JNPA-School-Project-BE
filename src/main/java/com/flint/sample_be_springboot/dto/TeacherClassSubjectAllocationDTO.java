@@ -1,6 +1,5 @@
 package com.flint.sample_be_springboot.dto;
 
-import com.flint.sample_be_springboot.entity.ClassSubjectAllocationEntity;
 import lombok.Data;
 
 import java.util.List;
@@ -9,7 +8,7 @@ import java.util.List;
 public class TeacherClassSubjectAllocationDTO {
 
     private Long teacherClassSubjectAllocationId;
-    private Long userInformationId;
+    private Long employeeDetailsId;
     private Long classMasterId;
     private List<Long> subjectIds;
 }

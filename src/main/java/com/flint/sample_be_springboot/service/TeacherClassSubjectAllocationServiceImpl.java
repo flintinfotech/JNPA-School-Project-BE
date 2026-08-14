@@ -4,9 +4,9 @@ import com.flint.sample_be_springboot.dto.ClassMasterDTO;
 import com.flint.sample_be_springboot.dto.SubjectMasterDTO;
 import com.flint.sample_be_springboot.dto.TeacherClassSubjectAllocationDTO;
 import com.flint.sample_be_springboot.entity.ClassMasterEntity;
+import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
 import com.flint.sample_be_springboot.entity.SubjectMasterEntity;
 import com.flint.sample_be_springboot.entity.TeacherClassSubjectAllocationEntity;
-import com.flint.sample_be_springboot.entity.UserInformationEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.*;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -27,7 +27,7 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
     private TeacherClassSubjectAllocationRepository teacherClassSubjectAllocationRepository;
 
     @Autowired
-    private UserInformationRepository userInformationRepository;
+    private EmployeeDetailsRepository employeeDetailsRepository;
 
     @Autowired
     private ClassMasterRepository classMasterRepository;
@@ -45,7 +45,7 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
 
         log.info("Enter into updateTeacherClassSubjectAllocation");
 
-        UserInformationEntity user = userInformationRepository.findById(dto.getUserInformationId())
+        EmployeeDetailsEntity user = employeeDetailsRepository.findById(dto.getEmployeeDetailsId())
                 .orElseThrow(() ->
                         new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
@@ -56,8 +56,8 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
         // Existing allocations ONLY for this teacher & this class
         List<TeacherClassSubjectAllocationEntity> existing =
                 teacherClassSubjectAllocationRepository
-                        .findByUserInformationIdAndClassMasterIdAndAcademicYear(
-                                dto.getUserInformationId(),
+                        .findByEmployeeDetailsIdAndClassMasterIdAndAcademicYear(
+                                dto.getEmployeeDetailsId(),
                                 dto.getClassMasterId(),
                                 getStartDate(),
                                 getEndDate());
@@ -114,7 +114,7 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
             TeacherClassSubjectAllocationEntity allocation =
                     new TeacherClassSubjectAllocationEntity();
 
-            allocation.setUserInformationEntity(user);
+            allocation.setEmployeeDetailsEntity(user);
             allocation.setClassMasterEntity(classEntity);
             allocation.setSubjectMasterEntity(subject);
             allocation.setStartDate(getStartDate());
@@ -139,7 +139,7 @@ public class TeacherClassSubjectAllocationServiceImpl extends BaseService implem
         Map<ClassMasterDTO, List<SubjectMasterDTO>> map;
 
         List<TeacherClassSubjectAllocationEntity> entities = teacherClassSubjectAllocationRepository.
-                findByUserInformationIdAndAcademicYear
+                findByEmployeeDetailsIdAndAcademicYear
                 (userInformationId, getStartDate(), getEndDate());
 
         map = entities.stream()

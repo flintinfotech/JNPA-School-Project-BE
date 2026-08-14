@@ -2,12 +2,14 @@ package com.flint.sample_be_springboot.service;
 
 
 import com.flint.sample_be_springboot.entity.AdmissionInquiry;
+import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.enums.StudentStatus;
 import com.flint.sample_be_springboot.repository.AdmissionInquiryRepository;
+import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.repository.websiteModuleRepository.NewsRepository;
@@ -34,6 +36,9 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 
     @Autowired
     private NewsRepository newsRepository;
+
+    @Autowired
+    private EmployeeDetailsRepository employeeDetailsRepository ;
 
 
     public Map<String, Map<String, Long>> getAllStudentsCount() {
@@ -182,12 +187,12 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         Map<String, Long> map = new HashMap<>();
         System.err.println(getStartDate());
         System.err.println(getEndDate());
-        List<UserEntity> entities = userRepository.findCurrentWorkingUsersByAcademicYear(getStartDate(),getEndDate(), LocalDate.now());
+        List<EmployeeDetailsEntity> entities = employeeDetailsRepository.findCurrentWorkingUsersByAcademicYear(getStartDate(),getEndDate());
 
 
         Long count = 0l;
 
-        for (UserEntity entity : entities) {
+        for (EmployeeDetailsEntity entity : entities) {
             if (!Role.ADMIN.toString().equals(entity.getRole().toString())
                     && !Role.PRINCIPAL.toString().equals(entity.getRole().toString()) &&
                     !Role. STUDENT.toString().equals(entity.getRole().toString())) {

@@ -18,21 +18,4 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
 
     Optional<UserEntity> findByUserNameAndUserIdNot(String userName, Long userId);
 
-    @Query("""
-    SELECT u.userEntity
-    FROM UserInformationEntity u
-    WHERE u.joiningDate <= :currentDate
-      AND (
-            u.leavingDate IS NULL
-            OR u.leavingDate >= :currentDate
-          )
-      AND u.joiningDate <= :endDate
-      AND u.leavingDate IS NULL OR u.leavingDate >= :startDate
-    """)
-    List<UserEntity> findCurrentWorkingUsersByAcademicYear(
-            @Param("startDate") LocalDate startDate,
-            @Param("endDate") LocalDate endDate,
-            @Param("currentDate") LocalDate currentDate
-    );
-
 }

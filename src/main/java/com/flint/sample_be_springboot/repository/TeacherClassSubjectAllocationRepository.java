@@ -16,12 +16,12 @@ public interface TeacherClassSubjectAllocationRepository extends JpaRepository<T
     @Query("""
             SELECT t
             FROM TeacherClassSubjectAllocationEntity t
-            WHERE t.userInformationEntity.userInformationId = :userId
+            WHERE t.employeeDetailsEntity.employeeDetailsId = :userId
               AND t.classMasterEntity.classMasterId = :classId
               AND t.startDate <= :endDate
               AND t.endDate >= :startDate
             """)
-    List<TeacherClassSubjectAllocationEntity> findByUserInformationIdAndClassMasterIdAndAcademicYear(
+    List<TeacherClassSubjectAllocationEntity> findByEmployeeDetailsIdAndClassMasterIdAndAcademicYear(
             @Param("userId") Long userId,
             @Param("classId") Long classId,
             @Param("startDate") LocalDate startDate,
@@ -31,12 +31,12 @@ public interface TeacherClassSubjectAllocationRepository extends JpaRepository<T
     @Query("""
             SELECT t
             FROM TeacherClassSubjectAllocationEntity t
-            WHERE t.userInformationEntity.userInformationId = :userInformationId
+            WHERE t.employeeDetailsEntity.employeeDetailsId = :employeeDetailsId
               AND t.startDate <= :endDate
               AND t.endDate >= :startDate
             """)
-    List<TeacherClassSubjectAllocationEntity> findByUserInformationIdAndAcademicYear(
-            @Param("userInformationId") Long userInformationId,
+    List<TeacherClassSubjectAllocationEntity> findByEmployeeDetailsIdAndAcademicYear(
+            @Param("employeeDetailsId") Long employeeDetailsId,
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );

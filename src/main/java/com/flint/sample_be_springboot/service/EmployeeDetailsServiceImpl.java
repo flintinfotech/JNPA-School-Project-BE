@@ -1,12 +1,12 @@
 package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.UserDocumentDTO;
-import com.flint.sample_be_springboot.dto.UserInformationDTO;
+import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
+import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
 import com.flint.sample_be_springboot.entity.UserDocumentEntity;
 import com.flint.sample_be_springboot.entity.UserEntity;
-import com.flint.sample_be_springboot.entity.UserInformationEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
-import com.flint.sample_be_springboot.repository.UserInformationRepository;
+import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
@@ -24,45 +24,45 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-public class UserInformationServiceImpl extends BaseService implements UserInformationService {
+public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeDetailsService {
 
     private final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
-    private UserInformationRepository userInformationRepository;
+    private EmployeeDetailsRepository employeeDetailsRepository;
 
     @Autowired
     private UserRepository userRepository;
 
     @Override
-    public UserInformationDTO saveUserInformation(UserInformationDTO userInformationDTO) {
+    public EmployeeDetailsDTO saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO) {
         log.info("Enter into saveUserInformation");
 
-        if (userInformationDTO == null) {
+        if (employeeDetailsDTO == null) {
             throw new CustomException("User information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        UserInformationEntity userInformationEntity =
-                modelMapper.map(userInformationDTO, UserInformationEntity.class);
+        EmployeeDetailsEntity employeeDetailsEntity =
+                modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
 
-        userInformationEntity.setAuditDetails(addAuditDetails(userInformationEntity.getAuditDetails()));
+        employeeDetailsEntity.setAuditDetails(addAuditDetails(employeeDetailsEntity.getAuditDetails()));
 
         // Set User Entity
-        if (userInformationDTO.getUserId() != null) {
-
-            UserEntity userEntity = userRepository.findById(userInformationDTO.getUserId())
-                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
-
-            userInformationEntity.setUserEntity(userEntity);
-        }
+//        if (employeeDetailsDTO.getUserId() != null) {
+//
+//            UserEntity userEntity = userRepository.findById(employeeDetailsDTO.getUserId())
+//                    .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
+//
+//            employeeDetailsEntity.setUserEntity(userEntity);
+//        }
 
         // Set User Document entities
         List<UserDocumentEntity> userDocumentEntities = new ArrayList<>();
 
-        if (userInformationDTO.getUserDocumentDTOS() != null &&
-                !userInformationDTO.getUserDocumentDTOS().isEmpty()) {
+        if (employeeDetailsDTO.getUserDocumentDTOS() != null &&
+                !employeeDetailsDTO.getUserDocumentDTOS().isEmpty()) {
 
-            for (UserDocumentDTO userDocumentDTO : userInformationDTO.getUserDocumentDTOS()) {
+            for (UserDocumentDTO userDocumentDTO : employeeDetailsDTO.getUserDocumentDTOS()) {
 
                 UserDocumentEntity userDocumentEntity =
                         modelMapper.map(userDocumentDTO, UserDocumentEntity.class);
@@ -72,24 +72,24 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
                             Base64.getDecoder().decode(userDocumentDTO.getDocument()));
                 }
 
-                userDocumentEntity.setUserInformationEntity(userInformationEntity);
+                userDocumentEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
                 userDocumentEntity.setAuditDetails(addAuditDetails(userDocumentEntity.getAuditDetails()));
 
                 userDocumentEntities.add(userDocumentEntity);
             }
         }
 
-        userInformationEntity.setUserDocumentEntities(userDocumentEntities);
+        employeeDetailsEntity.setUserDocumentEntities(userDocumentEntities);
 
         // Save
-        UserInformationEntity savedEntity = userInformationRepository.save(userInformationEntity);
+        EmployeeDetailsEntity savedEntity = employeeDetailsRepository.save(employeeDetailsEntity);
 
         // Return DTO
-        UserInformationDTO savedDTO = modelMapper.map(savedEntity, UserInformationDTO.class);
+        EmployeeDetailsDTO savedDTO = modelMapper.map(savedEntity, EmployeeDetailsDTO.class);
 
-        if (savedEntity.getUserEntity() != null) {
-            savedDTO.setUserId(savedEntity.getUserEntity().getUserId());
-        }
+//        if (savedEntity.getUserEntity() != null) {
+//            savedDTO.setUserId(savedEntity.getUserEntity().getUserId());
+//        }
 
         // Set User Document DTOs
         List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
@@ -115,50 +115,50 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
     }
 
     @Override
-    public UserInformationDTO updateUserInformation(UserInformationDTO userInformationDTO) {
+    public EmployeeDetailsDTO updateEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO) {
         log.info("Enter into updateUserInformation");
 
-        if (userInformationDTO == null) {
+        if (employeeDetailsDTO == null) {
             throw new CustomException("User information cannot be null",
                     HttpStatus.PRECONDITION_FAILED);
         }
 
-        UserInformationEntity existingEntity =
-                userInformationRepository.findById(userInformationDTO.getUserInformationId())
+        EmployeeDetailsEntity existingEntity =
+                employeeDetailsRepository.findById(employeeDetailsDTO.getEmployeeDetailsId())
                         .orElseThrow(() ->
                                 new CustomException("User information not found",
                                         HttpStatus.NOT_FOUND));
 
         // Update User reference
-        if (userInformationDTO.getUserId() != null) {
-
-            UserEntity userEntity = userRepository.findById(userInformationDTO.getUserId())
-                    .orElseThrow(() ->
-                            new CustomException("User not found", HttpStatus.NOT_FOUND));
-
-            existingEntity.setUserEntity(userEntity);
-        }
+//        if (employeeDetailsDTO.getUserId() != null) {
+//
+//            UserEntity userEntity = userRepository.findById(employeeDetailsDTO.getUserId())
+//                    .orElseThrow(() ->
+//                            new CustomException("User not found", HttpStatus.NOT_FOUND));
+//
+//            existingEntity.setUserEntity(userEntity);
+//        }
 
         // Update basic fields
-        existingEntity.setEmployeeCode(userInformationDTO.getEmployeeCode());
-        existingEntity.setFirstName(userInformationDTO.getFirstName());
-        existingEntity.setMiddleName(userInformationDTO.getMiddleName());
-        existingEntity.setLastName(userInformationDTO.getLastName());
-        existingEntity.setGender(userInformationDTO.getGender());
-        existingEntity.setDateOfBirth(userInformationDTO.getDateOfBirth());
-        existingEntity.setAddress(userInformationDTO.getAddress());
-        existingEntity.setQualification(userInformationDTO.getQualification());
-        existingEntity.setSpecialization(userInformationDTO.getSpecialization());
-        existingEntity.setExperience(userInformationDTO.getExperience());
-        existingEntity.setDesignation(userInformationDTO.getDesignation());
-        existingEntity.setJoiningDate(userInformationDTO.getJoiningDate());
-        existingEntity.setBloodGroup(userInformationDTO.getBloodGroup());
+        existingEntity.setEmployeeCode(employeeDetailsDTO.getEmployeeCode());
+        existingEntity.setFirstName(employeeDetailsDTO.getFirstName());
+        existingEntity.setMiddleName(employeeDetailsDTO.getMiddleName());
+        existingEntity.setLastName(employeeDetailsDTO.getLastName());
+        existingEntity.setGender(employeeDetailsDTO.getGender());
+        existingEntity.setDateOfBirth(employeeDetailsDTO.getDateOfBirth());
+        existingEntity.setAddress(employeeDetailsDTO.getAddress());
+        existingEntity.setQualification(employeeDetailsDTO.getQualification());
+        existingEntity.setSpecialization(employeeDetailsDTO.getSpecialization());
+        existingEntity.setExperience(employeeDetailsDTO.getExperience());
+        existingEntity.setDesignation(employeeDetailsDTO.getDesignation());
+        existingEntity.setJoiningDate(employeeDetailsDTO.getJoiningDate());
+        existingEntity.setBloodGroup(employeeDetailsDTO.getBloodGroup());
 
         existingEntity.setAuditDetails(
                 addAuditDetails(existingEntity.getAuditDetails()));
 
         // Remove deleted documents
-        Set<Long> requestDocumentIds = userInformationDTO.getUserDocumentDTOS().stream()
+        Set<Long> requestDocumentIds = employeeDetailsDTO.getUserDocumentDTOS().stream()
                 .map(UserDocumentDTO::getUserDocumentId)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toSet());
@@ -174,9 +174,9 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
                                 UserDocumentEntity::getUserDocumentId,
                                 Function.identity()));
 
-        if (userInformationDTO.getUserDocumentDTOS() != null) {
+        if (employeeDetailsDTO.getUserDocumentDTOS() != null) {
 
-            for (UserDocumentDTO documentDTO : userInformationDTO.getUserDocumentDTOS()) {
+            for (UserDocumentDTO documentDTO : employeeDetailsDTO.getUserDocumentDTOS()) {
 
                 UserDocumentEntity documentEntity;
 
@@ -197,7 +197,7 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
 
                     documentEntity = new UserDocumentEntity();
 
-                    documentEntity.setUserInformationEntity(existingEntity);
+                    documentEntity.setEmployeeDetailsEntity(existingEntity);
 
                     if (documentDTO.getDocument() != null) {
                         documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
@@ -215,14 +215,14 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
         }
 
         // Save
-        UserInformationEntity updatedEntity = userInformationRepository.save(existingEntity);
+        EmployeeDetailsEntity updatedEntity = employeeDetailsRepository.save(existingEntity);
 
         // Return DTO
-        UserInformationDTO updatedDTO = modelMapper.map(updatedEntity, UserInformationDTO.class);
+        EmployeeDetailsDTO updatedDTO = modelMapper.map(updatedEntity, EmployeeDetailsDTO.class);
 
-        if (updatedEntity.getUserEntity() != null) {
-            updatedDTO.setUserId(updatedEntity.getUserEntity().getUserId());
-        }
+//        if (updatedEntity.getUserEntity() != null) {
+//            updatedDTO.setUserId(updatedEntity.getUserEntity().getUserId());
+//        }
 
         // Set document DTOs
         List<UserDocumentDTO> documentDTOS = new ArrayList<>();
@@ -247,19 +247,19 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
     }
 
     @Override
-    public UserInformationDTO getUserInformationById(Long userInformationId) {
+    public EmployeeDetailsDTO getEmployeeDetailsById(Long userId) {
         log.info("Enter into getUserInformationById");
 
-        UserInformationEntity existingEntity = userInformationRepository.findById(userInformationId)
+        EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(userId)
                 .orElseThrow(() ->
                         new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
-        UserInformationDTO userInformationDTO =
-                modelMapper.map(existingEntity, UserInformationDTO.class);
+        EmployeeDetailsDTO employeeDetailsDTO =
+                modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
-        if (existingEntity.getUserEntity() != null) {
-            userInformationDTO.setUserId(existingEntity.getUserEntity().getUserId());
-        }
+//        if (existingEntity.getUserEntity() != null) {
+//            employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());
+//        }
 
         List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
 
@@ -275,31 +275,31 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
             }
         }
 
-        userInformationDTO.setUserDocumentDTOS(userDocumentDTOS);
+        employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
 
         log.info("Exit from getUserInformationById");
 
-        return userInformationDTO;
+        return employeeDetailsDTO;
     }
 
     @Override
-    public UserInformationDTO getUserInformationByUserId(Long userId) {
+    public EmployeeDetailsDTO getEmployeeDetailsByEmployeeId(Long employeeDetailsId) {
         log.info("Enter into getUserInformationById");
 
-        UserInformationDTO userInformationDTO = new UserInformationDTO();
+        EmployeeDetailsDTO employeeDetailsDTO = new EmployeeDetailsDTO();
 
-        Optional<UserInformationEntity> userInformationEntity = userInformationRepository.findByUserEntity_UserId(userId);
+        Optional<EmployeeDetailsEntity> employeeDetailsEntity = employeeDetailsRepository.findByUserEntity_UserId(employeeDetailsId);
 
-        if (userInformationEntity.isPresent()) {
+        if (employeeDetailsEntity.isPresent()) {
 
-            UserInformationEntity existingEntity = userInformationEntity.get();
+            EmployeeDetailsEntity existingEntity = employeeDetailsEntity.get();
 
-            userInformationDTO =
-                    modelMapper.map(existingEntity, UserInformationDTO.class);
+            employeeDetailsDTO =
+                    modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
-            if (existingEntity.getUserEntity() != null) {
-                userInformationDTO.setUserId(existingEntity.getUserEntity().getUserId());
-            }
+//            if (existingEntity.getUserEntity() != null) {
+//                employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());
+//            }
 
             List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
 
@@ -315,22 +315,22 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
                 }
             }
 
-            userInformationDTO.setUserDocumentDTOS(userDocumentDTOS);
+            employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
         }
         log.info("Exit from getUserInformationById");
 
-        return userInformationDTO;
+        return employeeDetailsDTO;
     }
 
     @Override
-    public String deleteUserInformation(Long userInformationId) {
+    public String deleteEmployeeDetails(Long employeeDetailsId) {
         log.info("Enter into deleteUserInformation");
 
-        UserInformationEntity existingEntity = userInformationRepository.findById(userInformationId)
+        EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeDetailsId)
                 .orElseThrow(() ->
                         new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
-        userInformationRepository.delete(existingEntity);
+        employeeDetailsRepository.delete(existingEntity);
 
         log.info("Exit from deleteUserInformation");
 
@@ -338,31 +338,31 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
     }
 
     @Override
-    public Map<String, Object> getAllUserInformationByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+    public Map<String, Object> getAllEmployeeDetailsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         log.info("Enter into getAllUserInformationByFilter");
 
-        Page<UserInformationEntity> informationEntityPage;
-        List<UserInformationEntity> userInformationEntities;
+        Page<EmployeeDetailsEntity> informationEntityPage;
+        List<EmployeeDetailsEntity> userInformationEntities;
         long totalElement;
 
-        CustomQuerySpecification<UserInformationEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+        CustomQuerySpecification<EmployeeDetailsEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {
-            informationEntityPage = userInformationRepository.findAll(customQuerySpecification, pageable);
+            informationEntityPage = employeeDetailsRepository.findAll(customQuerySpecification, pageable);
             userInformationEntities = informationEntityPage.getContent();
             totalElement = informationEntityPage.getTotalElements();
         } else {
-            userInformationEntities = userInformationRepository.findAll(customQuerySpecification);
+            userInformationEntities = employeeDetailsRepository.findAll(customQuerySpecification);
             totalElement = (long) userInformationEntities.size();
         }
 
-        List<UserInformationDTO> userInformationDTOS = userInformationEntities.stream()
+        List<EmployeeDetailsDTO> EmployeeDetailsDTOS = userInformationEntities.stream()
                 .map(existingEntity -> {
-                    UserInformationDTO userInformationDTO = modelMapper.map(existingEntity, UserInformationDTO.class);
+                    EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
-                    if (existingEntity.getUserEntity() != null) {
-                        userInformationDTO.setUserId(existingEntity.getUserEntity().getUserId());
-                    }
+//                    if (existingEntity.getUserEntity() != null) {
+//                        employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());
+//                    }
 
                     List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
 
@@ -378,15 +378,15 @@ public class UserInformationServiceImpl extends BaseService implements UserInfor
                         }
                     }
 
-                    userInformationDTO.setUserDocumentDTOS(userDocumentDTOS);
+                    employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
 
-                    return userInformationDTO;
+                    return employeeDetailsDTO;
                 }).collect(Collectors.toUnmodifiableList());
 
         log.info("Exit from getAllUserInformationByFilter");
 
         Map<String, Object> result = new HashMap<>();
-        result.put("Data", userInformationDTOS);
+        result.put("Data", EmployeeDetailsDTOS);
         result.put("total", totalElement);
         return result;
     }

@@ -23,6 +23,10 @@ public class UserEntity {
     @Column(name = "USER_ID")
     private Long userId;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EMPLOYEE_DETAILS_ID", unique = true)
+    private EmployeeDetailsEntity employeeDetails;
+
     @NotNull
     @Column(name = "USERNAME")
     private String userName;

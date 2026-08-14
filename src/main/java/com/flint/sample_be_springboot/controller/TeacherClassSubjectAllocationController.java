@@ -27,9 +27,9 @@ public class TeacherClassSubjectAllocationController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Records saved successfully").data(data).build());
     }
 
-    @GetMapping("/getSubjectsByUserInformationId/{userInformationId}")
-    public ResponseEntity<?> getSubjectsByUserInformationId(@PathVariable Long userInformationId) {
-        Map<ClassMasterDTO, List<SubjectMasterDTO>> map = teacherClassSubjectAllocationService.getTeacherClassSubjectAllocation(userInformationId);
+    @GetMapping("/getSubjectsByEmployeeDetailsId/{employeeDetailsId}")
+    public ResponseEntity<?> getSubjectsByEmployeeDetailsId(@PathVariable Long employeeDetailsId) {
+        Map<ClassMasterDTO, List<SubjectMasterDTO>> map = teacherClassSubjectAllocationService.getTeacherClassSubjectAllocation(employeeDetailsId);
         if(map.isEmpty()){
             return ResponseEntity.ok(APIResponse.builder().success(true).message("No subjects are assigned to this class").data(map).build());
         }

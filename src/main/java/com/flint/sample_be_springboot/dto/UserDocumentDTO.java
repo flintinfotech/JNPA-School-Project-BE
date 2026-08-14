@@ -8,7 +8,7 @@ import java.time.LocalDate;
 public class UserDocumentDTO {
 
     private Long userDocumentId;
-    private Long userInformationId;
+    private Long employeeDetailsId;
     private String documentName;
     private String documentType;
     private LocalDate uploadDate;

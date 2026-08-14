@@ -22,8 +22,8 @@ public class TeacherClassSubjectAllocationEntity {
     private Long teacherClassSubjectAllocationId;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "USER_INFORMATION_ID")
-    private UserInformationEntity userInformationEntity;
+    @JoinColumn(name = "EMPLOYEE_DETAILS_ID")
+    private EmployeeDetailsEntity employeeDetailsEntity;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CLASS_MASTER_ID")
