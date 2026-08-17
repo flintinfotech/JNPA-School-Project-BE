@@ -20,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -46,6 +47,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         if (employeeDetailsDTO == null) {
             throw new CustomException("User information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
+
 
         Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserName(employeeDetailsDTO.getUserName());
         if (existingUserEntity.isPresent()) {
@@ -177,6 +179,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setDesignation(employeeDetailsDTO.getDesignation());
         existingEntity.setJoiningDate(employeeDetailsDTO.getJoiningDate());
         existingEntity.setBloodGroup(employeeDetailsDTO.getBloodGroup());
+        existingEntity.setEmail(employeeDetailsDTO.getEmail());
+        existingEntity.setUserName(employeeDetailsDTO.getUserName());
+        existingEntity.setMobileNo(employeeDetailsDTO.getMobileNo());
+        existingEntity.setRole(employeeDetailsDTO.getRole());
+
+
 
         existingEntity.setAuditDetails(
                 addAuditDetails(existingEntity.getAuditDetails()));
@@ -272,7 +280,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
     @Override
     public EmployeeDetailsDTO getEmployeeDetailsById(Long userId) {
-        log.info("Enter into getUserInformationById");
+        log.info("Enter into getEmployeeDetailsById");
 
         EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(userId)
                 .orElseThrow(() ->
@@ -285,7 +293,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 //            employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());
 //        }
 
-        List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
+        List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();               
 
         if (existingEntity.getUserDocumentEntities() != null &&
                 !existingEntity.getUserDocumentEntities().isEmpty()) {
@@ -301,14 +309,14 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
         employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
 
-        log.info("Exit from getUserInformationById");
+        log.info("Exit from getEmployeeDetailsById");
 
         return employeeDetailsDTO;
     }
 
     @Override
     public EmployeeDetailsDTO getEmployeeDetailsByEmployeeId(Long employeeDetailsId) {
-        log.info("Enter into getUserInformationById");
+        log.info("Enter into getEmployeeDetailsByEmployeeId");
 
         EmployeeDetailsDTO employeeDetailsDTO = new EmployeeDetailsDTO();
 
@@ -341,14 +349,14 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
             employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
         }
-        log.info("Exit from getUserInformationById");
+        log.info("Exit from getEmployeeDetailsByEmployeeId");
 
         return employeeDetailsDTO;
     }
 
     @Override
     public String deleteEmployeeDetails(Long employeeDetailsId) {
-        log.info("Enter into deleteUserInformation");
+        log.info("Enter into deleteEmployeeDetails");
 
         EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeDetailsId)
                 .orElseThrow(() ->
@@ -356,14 +364,14 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
         employeeDetailsRepository.delete(existingEntity);
 
-        log.info("Exit from deleteUserInformation");
+        log.info("Exit from deleteEmployeeDetails");
 
         return "Record deleted successfully";
     }
 
     @Override
     public Map<String, Object> getAllEmployeeDetailsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
-        log.info("Enter into getAllUserInformationByFilter");
+        log.info("Enter into getAllEmployeeDetailsByFilter");
 
         Page<EmployeeDetailsEntity> informationEntityPage;
         List<EmployeeDetailsEntity> userInformationEntities;
@@ -407,7 +415,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                     return employeeDetailsDTO;
                 }).collect(Collectors.toUnmodifiableList());
 
-        log.info("Exit from getAllUserInformationByFilter");
+        log.info("Exit from getAllEmployeeDetailsByFilter");
 
         Map<String, Object> result = new HashMap<>();
         result.put("Data", EmployeeDetailsDTOS);
