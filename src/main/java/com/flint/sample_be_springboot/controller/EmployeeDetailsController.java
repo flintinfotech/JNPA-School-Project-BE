@@ -40,7 +40,7 @@ public class EmployeeDetailsController {
     @PostMapping("/saveEmployeeDetails")
     public ResponseEntity<?> saveEmployeeDetails(@RequestBody EmployeeDetailsDTO employeeDetailsDTO) {
 
-        EmployeeDetailsDTO data = employeeDetailsService.saveEmployeeDetails(employeeDetailsDTO);
+        Map<String, Object> data = employeeDetailsService.saveEmployeeDetails(employeeDetailsDTO);
 
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Employee information saved successfully").data(data).build());
     }

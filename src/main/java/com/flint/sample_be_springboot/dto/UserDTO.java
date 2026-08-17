@@ -21,4 +21,6 @@ public class UserDTO {
     private AuditDetails auditDetails;
 
     private List<ScreenMasterDTO> screens;
+
+    private String password;
 }

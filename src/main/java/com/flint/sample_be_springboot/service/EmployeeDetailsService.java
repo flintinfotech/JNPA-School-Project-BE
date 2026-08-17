@@ -11,7 +11,7 @@ public interface EmployeeDetailsService {
 
     EmployeeDetailsDTO getEmployeeDetailsByEmployeeId(Long employeeDetailsId);
 
-    EmployeeDetailsDTO saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO);
+    Map<String, Object> saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO);
 
     EmployeeDetailsDTO updateEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO);
 

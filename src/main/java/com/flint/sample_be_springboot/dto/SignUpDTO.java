@@ -21,4 +21,5 @@ public class SignUpDTO {
 
     private List<ScreenMasterDTO> screens;
 
+    private Long employeeDetailsId;
 }

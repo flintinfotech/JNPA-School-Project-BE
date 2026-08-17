@@ -3,16 +3,15 @@ package com.flint.sample_be_springboot.service;
 import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
-import com.flint.sample_be_springboot.entity.AuditDetails;
-import com.flint.sample_be_springboot.entity.ScreenMaster;
-import com.flint.sample_be_springboot.entity.UserEntity;
-import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
+import com.flint.sample_be_springboot.entity.*;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.ScreenMasterRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.UserScreenAccessRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import com.flint.sample_be_springboot.util.PasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +43,9 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Autowired
     UserScreenAccessRepository userScreenAccessRepository;
 
+    @Autowired
+    EmployeeDetailsRepository employeeDetailsRepository;
+
     public UserDTO getUserById(Long userId) {
         log.info("Enter into getUserById");
 
@@ -71,10 +73,15 @@ public class UserServiceImpl extends BaseService implements UserService {
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
         }
 
+        EmployeeDetailsEntity employeeDetails = employeeDetailsRepository.getById(signUpDTO.getEmployeeDetailsId());
         UserEntity userEntity = modelMapper.map(signUpDTO, UserEntity.class);
+        userEntity.setEmployeeDetails(employeeDetails);
         userEntity.setAuditDetails(addAuditDetails(userEntity.getAuditDetails()));
 
-        userEntity.setPassword(passwordEncoder.encode(signUpDTO.getPassword())); // encoded password
+        String password = PasswordGenerator.generatePassword(signUpDTO.getFirstName());
+        userEntity.setDecryptedPassword(password);
+
+        userEntity.setPassword(passwordEncoder.encode(password)); // encoded password
 
         UserEntity savedUserEntity = userRepository.save(userEntity);
 
@@ -101,6 +108,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         }
 
         UserDTO savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
+        savedUser.setPassword(password);
 
         savedUser.setScreens(
                 accesses.stream()

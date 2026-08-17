@@ -1,5 +1,7 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.SignUpDTO;
+import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.dto.UserDocumentDTO;
 import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
 import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
@@ -34,8 +36,11 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private UserService userService;
+
     @Override
-    public EmployeeDetailsDTO saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO) {
+    public Map<String, Object> saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO) {
         log.info("Enter into saveUserInformation");
 
         if (employeeDetailsDTO == null) {
@@ -89,7 +94,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         // Save
         EmployeeDetailsEntity savedEntity = employeeDetailsRepository.save(employeeDetailsEntity);
 
+        SignUpDTO signUpDTO = modelMapper.map(employeeDetailsDTO, SignUpDTO.class);
+        signUpDTO.setEmployeeDetailsId(savedEntity.getEmployeeDetailsId());
 
+        UserDTO userDTO = userService.saveUser(signUpDTO);
 
         // Return DTO
         EmployeeDetailsDTO savedDTO = modelMapper.map(savedEntity, EmployeeDetailsDTO.class);
@@ -118,7 +126,11 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
         log.info("Exit from saveUserInformation");
 
-        return savedDTO;
+        Map<String, Object> map = new HashMap<>();
+        map.put("Employee details", savedDTO);
+        map.put("user details", userDTO);
+
+        return map;
     }
 
     @Override

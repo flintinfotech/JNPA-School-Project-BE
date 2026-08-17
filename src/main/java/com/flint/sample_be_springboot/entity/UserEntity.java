@@ -68,6 +68,9 @@ public class UserEntity {
             orphanRemoval = true)
     private List<UserScreenAccessEntity> screenAccesses;
 
+    @Column(name = "DECRYPTED_PASSWORD")
+    private String decryptedPassword;
+
     @Embedded
     private AuditDetails auditDetails;
 
