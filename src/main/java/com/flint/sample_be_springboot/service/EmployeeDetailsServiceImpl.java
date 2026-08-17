@@ -363,6 +363,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                 .orElseThrow(() ->
                         new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
+        UserEntity user = existingEntity.getUserEntity();
+
+        if (user != null) {
+            userRepository.delete(user);
+        }
+
         employeeDetailsRepository.delete(existingEntity);
 
         log.info("Exit from deleteEmployeeDetails");
