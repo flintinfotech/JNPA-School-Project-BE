@@ -39,8 +39,8 @@ public class StudentEntity {
     private String DOB;
 
     @NotNull
-    @Column(name = "AADHAR_CARD")
-    private String adharCard;
+    @Column(name = "AADHAAR_CARD")
+    private String aadhaarCard;
 
     @Column(name = "ADDRESS")
     private String address;
