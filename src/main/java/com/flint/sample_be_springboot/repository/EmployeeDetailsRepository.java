@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.repository;
 
 import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
+import com.flint.sample_be_springboot.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -31,4 +32,7 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
     );
 
     Optional<EmployeeDetailsEntity> findByUserName(String userName);
+
+    Optional<EmployeeDetailsEntity> findByUserNameAndEmployeeDetailsIdNot(String userName, Long userId);
+
 }

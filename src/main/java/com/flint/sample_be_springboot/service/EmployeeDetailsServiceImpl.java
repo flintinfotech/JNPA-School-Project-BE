@@ -148,7 +148,8 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                                 new CustomException("User information not found",
                                         HttpStatus.NOT_FOUND));
 
-        Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserName(employeeDetailsDTO.getUserName());
+        Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserNameAndEmployeeDetailsIdNot
+                (employeeDetailsDTO.getUserName(), employeeDetailsDTO.getEmployeeDetailsId());
         if (existingUserEntity.isPresent()) {
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
         }
