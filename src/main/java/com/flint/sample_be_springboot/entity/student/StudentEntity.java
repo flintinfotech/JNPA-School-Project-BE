@@ -6,7 +6,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
-import java.util.Base64;
 import java.util.List;
 
 @Table(name = "STUDENT_ENTITY")
@@ -65,28 +64,33 @@ public class StudentEntity {
     @Column(name = "PROFILE_IMG")
     private byte[] profileImg;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<ParentEntity> parentEntities;
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+//    List<ParentEntity> parentEntities;
+//
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+//    List<StudentDocumentEntity> studentDocumentEntities;
+//
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+//    List<AcademicInformationEntity> academicInformationEntity;
+//
+//    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity",cascade = CascadeType.ALL, orphanRemoval = true)
+//    private List<StudentFeeEntity> studentFeeEntities;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<StudentDocumentEntity> studentDocumentEntities;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    List<AcademicInformationEntity> academicInformationEntity;
+    @OneToOne(fetch = FetchType.LAZY,mappedBy = "studentEntity",cascade = CascadeType.ALL,orphanRemoval = true)
+    private ParentEntity parentEntity;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity",cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "studentEntity",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<StudentDocumentEntity> studentDocumentEntities;
+
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "studentEntity",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<AcademicInformationEntity> academicInformationEntity;
+
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "studentEntity",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<StudentFeeEntity> studentFeeEntities;
 
     @Embedded
     private AuditDetails auditDetails;
 
 
-//    private String getProfileImg()
-//    {
-//        if (profileImg !=null)
-//        {
-//            return Base64.getEncoder().encodeToString(profileImg);
-//        }
-//        return null;
-//    }
 }

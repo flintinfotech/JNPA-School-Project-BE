@@ -51,15 +51,28 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         studentEntity.setAuditDetails(addAuditDetails(studentEntity.getAuditDetails()));
 
         // set parent entities
-        List<ParentEntity> parentEntities = new ArrayList<>();
-        if (studentDTO.getParentEntities() != null && !studentDTO.getParentEntities().isEmpty()) {
-            for (ParentDTO parentDTO : studentDTO.getParentEntities()) {
-                ParentEntity parentEntity = modelMapper.map(parentDTO, ParentEntity.class);
-                parentEntity.setStudentEntity(studentEntity);
-                parentEntities.add(parentEntity);
-            }
+//        List<ParentEntity> parentEntities = new ArrayList<>();
+//        if (studentDTO.getParentEntities() != null && !studentDTO.getParentEntities().isEmpty()) {
+//            for (ParentDTO parentDTO : studentDTO.getParentEntities()) {
+//                ParentEntity parentEntity = modelMapper.map(parentDTO, ParentEntity.class);
+//                parentEntity.setStudentEntity(studentEntity);
+//                parentEntities.add(parentEntity);
+//            }
+//        }
+//        studentEntity.setParentEntities(parentEntities);
+
+
+        if (studentDTO.getParentDTO() != null) {
+
+            ParentEntity parentEntity =
+                    modelMapper.map(
+                            studentDTO.getParentDTO(),
+                            ParentEntity.class
+                    );
+
+            // This sets both sides of the relationship
+            studentEntity.setParentEntity(parentEntity);
         }
-        studentEntity.setParentEntities(parentEntities);
 
         // set student documents
         List<StudentDocumentEntity> studentDocumentEntities = new ArrayList<>();
@@ -96,14 +109,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);
 
         // Set Parent DTOs
-        List<ParentDTO> parentDTOs = new ArrayList<>();
-        if (savedEntity.getParentEntities() != null && !savedEntity.getParentEntities().isEmpty()) {
-            for (ParentEntity parentEntity : savedEntity.getParentEntities()) {
-                ParentDTO parentDTO = modelMapper.map(parentEntity, ParentDTO.class);
-                parentDTOs.add(parentDTO);
-            }
+        ParentDTO parentDTO = null;
+        if (savedEntity.getParentEntity() != null) {
+            parentDTO = modelMapper.map(savedEntity.getParentEntity(), ParentDTO.class);
         }
-        savedDTO.setParentEntities(parentDTOs);
+        savedDTO.setParentDTO(parentDTO);
 
         // Set Student Document DTOs
         List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
@@ -163,56 +173,40 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         if (studentDTO.getProfileImg() != null) {
             existingStudentEntity.setProfileImg(Base64.getDecoder().decode(studentDTO.getProfileImg()));
-        }else{
+        } else {
             existingStudentEntity.setProfileImg(null);
         }
 
-        // delete removed parents from existing entity
-        Set<Long> requestParentIds = studentDTO.getParentEntities().stream()
-                .map(ParentDTO::getParentId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toSet());
+        if (studentDTO.getParentDTO() != null) {
 
-        existingStudentEntity.getParentEntities().removeIf(parent ->
-                parent.getParentId() != null &&
-                        !requestParentIds.contains(parent.getParentId()));
+            ParentEntity parentEntity = existingStudentEntity.getParentEntity();
 
-        // Existing parents from DB
-        Map<Long, ParentEntity> existingParents = existingStudentEntity.getParentEntities()
-                .stream()
-                .collect(Collectors.toMap(ParentEntity::getParentId, Function.identity()));
+            modelMapper.map(studentDTO.getParentDTO(), parentEntity);
 
-        if (studentDTO.getParentEntities() != null) {
+//                if (parentDTO.getParentId() != null &&
+//                        existingParents.containsKey(parentDTO.getParentId())) {
+//
+//                    // Update existing
+//                    parentEntity = existingParents.get(parentDTO.getParentId());
+//
+//                } else {
+//
+//                    // New parent
+//                    parentEntity = new ParentEntity();
+//                    parentEntity.setStudentEntity(existingStudentEntity);
+//
+//                    existingStudentEntity.getParentEntities().add(parentEntity);
+//
+//                }
 
-            for (ParentDTO parentDTO : studentDTO.getParentEntities()) {
+//                parentEntity.setName(parentDTO.getName());
+//                parentEntity.setRelation(parentDTO.getRelation());
+//                parentEntity.setOccupation(parentDTO.getOccupation());
+//                parentEntity.setPhone(parentDTO.getPhone());
+//                parentEntity.setEmail(parentDTO.getEmail());
+//                parentEntity.setAddress(parentDTO.getAddress());
+//                parentEntity.setAnnualIncome(parentDTO.getAnnualIncome());
 
-                ParentEntity parentEntity;
-
-                if (parentDTO.getParentId() != null &&
-                        existingParents.containsKey(parentDTO.getParentId())) {
-
-                    // Update existing
-                    parentEntity = existingParents.get(parentDTO.getParentId());
-
-                } else {
-
-                    // New parent
-                    parentEntity = new ParentEntity();
-                    parentEntity.setStudentEntity(existingStudentEntity);
-
-                    existingStudentEntity.getParentEntities().add(parentEntity);
-
-                }
-
-                parentEntity.setName(parentDTO.getName());
-                parentEntity.setRelation(parentDTO.getRelation());
-                parentEntity.setOccupation(parentDTO.getOccupation());
-                parentEntity.setPhone(parentDTO.getPhone());
-                parentEntity.setEmail(parentDTO.getEmail());
-                parentEntity.setAddress(parentDTO.getAddress());
-                parentEntity.setAnnualIncome(parentDTO.getAnnualIncome());
-
-            }
         }
 
         // Delete removed student documents
@@ -315,15 +309,12 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         // return updated student DTO
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);
 
-        // Set Parent DTOs
-        List<ParentDTO> parentDTOs = new ArrayList<>();
-        if (savedEntity.getParentEntities() != null && !savedEntity.getParentEntities().isEmpty()) {
-            for (ParentEntity parentEntity : savedEntity.getParentEntities()) {
-                ParentDTO parentDTO = modelMapper.map(parentEntity, ParentDTO.class);
-                parentDTOs.add(parentDTO);
-            }
+        // Set Parent DTO
+        ParentDTO parentDTO = null;
+        if (savedEntity.getParentEntity() != null) {
+            parentDTO = modelMapper.map(savedEntity.getParentEntity(), ParentDTO.class);
         }
-        savedDTO.setParentEntities(parentDTOs);
+        savedDTO.setParentDTO(parentDTO);
 
         // Set Student Document DTOs
         List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
@@ -360,21 +351,18 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         StudentDTO savedDTO = modelMapper.map(studentEntity, StudentDTO.class);
 
-        if(studentEntity.getProfileImg() != null) {
+        if (studentEntity.getProfileImg() != null) {
             String img = Base64.getEncoder().encodeToString(studentEntity.getProfileImg());
 
             savedDTO.setProfileImg(img);
         }
 
-        // Set Parent DTOs
-        List<ParentDTO> parentDTOs = new ArrayList<>();
-        if (studentEntity.getParentEntities() != null && !studentEntity.getParentEntities().isEmpty()) {
-            for (ParentEntity parentEntity : studentEntity.getParentEntities()) {
-                ParentDTO parentDTO = modelMapper.map(parentEntity, ParentDTO.class);
-                parentDTOs.add(parentDTO);
-            }
+        // Set Parent DTO
+        ParentDTO parentDTO = null;
+        if (studentEntity.getParentEntity() != null) {
+            parentDTO = modelMapper.map(studentEntity.getParentEntity(), ParentDTO.class);
         }
-        savedDTO.setParentEntities(parentDTOs);
+        savedDTO.setParentDTO(parentDTO);
 
         // Set Student Document DTOs
         List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
@@ -438,21 +426,18 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 .map(s -> {
                     StudentDTO dto = modelMapper.map(s, StudentDTO.class);
 
-                    if(s.getProfileImg() != null) {
+                    if (s.getProfileImg() != null) {
                         String img = Base64.getEncoder().encodeToString(s.getProfileImg());
 
                         dto.setProfileImg(img);
                     }
 
                     // Set Parent DTOs
-                    List<ParentDTO> parentDTOs = new ArrayList<>();
-                    if (s.getParentEntities() != null && !s.getParentEntities().isEmpty()) {
-                        for (ParentEntity parentEntity : s.getParentEntities()) {
-                            ParentDTO parentDTO = modelMapper.map(parentEntity, ParentDTO.class);
-                            parentDTOs.add(parentDTO);
-                        }
+                    ParentDTO parentDTO = null;
+                    if (s.getParentEntity() != null) {
+                        parentDTO = modelMapper.map(s.getParentEntity(), ParentDTO.class);
                     }
-                    dto.setParentEntities(parentDTOs);
+                    dto.setParentDTO(parentDTO);
 
                     // Set Student Document DTOs
                     List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();

@@ -21,7 +21,8 @@ public class StudentDTO {
     private String caste;
     private String nationality;
     private StudentStatus status;
-    private List<ParentDTO> parentEntities;
+    //    private List<ParentDTO> parentEntities;
+    private ParentDTO parentDTO;
     private List<StudentDocumentDTO> studentDocuments;
     private List<AcademicInformationDTO> academicInformation;
     private AuditDetails auditDetails;

@@ -23,8 +23,12 @@ public class ParentEntity {
     @Column(name = "PARENT_ID")
     private Long parentId;
 
-    @ManyToOne(targetEntity = StudentEntity.class, fetch = FetchType.LAZY)
-    @JoinColumn(name = "STUDENT_ID")
+//    @ManyToOne(targetEntity = StudentEntity.class, fetch = FetchType.LAZY)
+//    @JoinColumn(name = "STUDENT_ID")
+//    private StudentEntity studentEntity;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STUDENT_ID",referencedColumnName = "STUDENT_ID",unique = true,nullable = false)
     private StudentEntity studentEntity;
 
     @NotNull

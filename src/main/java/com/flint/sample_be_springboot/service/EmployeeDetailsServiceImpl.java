@@ -1,9 +1,9 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.dto.UserDocumentDTO;
-import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
 import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
 import com.flint.sample_be_springboot.entity.UserDocumentEntity;
 import com.flint.sample_be_springboot.entity.UserEntity;
@@ -20,7 +20,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.security.SecureRandom;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -185,8 +184,6 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setMobileNo(employeeDetailsDTO.getMobileNo());
         existingEntity.setRole(employeeDetailsDTO.getRole());
 
-
-
         existingEntity.setAuditDetails(
                 addAuditDetails(existingEntity.getAuditDetails()));
 
@@ -294,7 +291,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 //            employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());
 //        }
 
-        List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();               
+        List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
 
         if (existingEntity.getUserDocumentEntities() != null &&
                 !existingEntity.getUserDocumentEntities().isEmpty()) {
