@@ -366,6 +366,13 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         UserEntity user = existingEntity.getUserEntity();
 
         if (user != null) {
+
+            existingEntity.setUserEntity(null);
+
+            user.setEmployeeDetails(null);
+
+            employeeDetailsRepository.save(existingEntity);
+
             userRepository.delete(user);
         }
 
