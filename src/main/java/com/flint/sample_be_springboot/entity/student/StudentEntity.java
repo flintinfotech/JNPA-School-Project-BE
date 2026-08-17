@@ -38,6 +38,10 @@ public class StudentEntity {
     @Column(name = "DOB")
     private String DOB;
 
+    @NotNull
+    @Column(name = "AADHAR_CARD")
+    private String adharCard;
+
     @Column(name = "ADDRESS")
     private String address;
 
