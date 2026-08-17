@@ -42,6 +42,11 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             throw new CustomException("User information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
+        Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserName(employeeDetailsDTO.getUserName());
+        if (existingUserEntity.isPresent()) {
+            throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
+        }
+
         EmployeeDetailsEntity employeeDetailsEntity =
                 modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
 
@@ -83,6 +88,8 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
         // Save
         EmployeeDetailsEntity savedEntity = employeeDetailsRepository.save(employeeDetailsEntity);
+
+
 
         // Return DTO
         EmployeeDetailsDTO savedDTO = modelMapper.map(savedEntity, EmployeeDetailsDTO.class);
@@ -128,6 +135,11 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                         .orElseThrow(() ->
                                 new CustomException("User information not found",
                                         HttpStatus.NOT_FOUND));
+
+        Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserName(employeeDetailsDTO.getUserName());
+        if (existingUserEntity.isPresent()) {
+            throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
+        }
 
         // Update User reference
 //        if (employeeDetailsDTO.getUserId() != null) {

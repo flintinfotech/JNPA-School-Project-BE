@@ -30,4 +30,5 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
             @Param("endDate") LocalDate endDate
     );
 
+    Optional<EmployeeDetailsEntity> findByUserName(String userName);
 }
