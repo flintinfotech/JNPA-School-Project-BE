@@ -2,6 +2,7 @@ package com.flint.sample_be_springboot.dto.student;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.enums.StudentStatus;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.util.List;
@@ -13,7 +14,9 @@ public class StudentDTO {
     private String firstName;
     private String lastName;
     private String gender;
-    private String dob;
+    private String DOB;
+    private String aadhaarCard;
+    private String phone;
     private String address;
     private String bloodGroup;
     private String category;
@@ -21,11 +24,13 @@ public class StudentDTO {
     private String caste;
     private String nationality;
     private StudentStatus status;
-    //    private List<ParentDTO> parentEntities;
     private ParentDTO parentDTO;
     private List<StudentDocumentDTO> studentDocuments;
+
     private List<AcademicInformationDTO> academicInformation;
+
     private AuditDetails auditDetails;
+
     private String profileImg;
 
 }

@@ -42,6 +42,9 @@ public class StudentEntity {
     @Column(name = "AADHAAR_CARD")
     private String aadhaarCard;
 
+    @Column(name = "PHONE")
+    private String phone;
+
     @Column(name = "ADDRESS")
     private String address;
 

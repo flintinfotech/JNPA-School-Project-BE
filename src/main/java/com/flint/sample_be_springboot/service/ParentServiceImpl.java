@@ -50,20 +50,20 @@ public class ParentServiceImpl extends BaseService implements ParentService {
             throw new CustomException("Parent information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        Optional<ParentEntity> parentEntity = parentRepository.findById(parentDTO.getParentId());
-        if (parentEntity.isPresent()) {
-            throw new CustomException("Parent id is already exist", HttpStatus.CONFLICT);
-        }
+//        Optional<ParentEntity> parentEntity = parentRepository.findById(parentDTO.getParentId());
+//        if (parentEntity.isPresent()) {
+//            throw new CustomException("Parent id is already exist", HttpStatus.CONFLICT);
+//        }
 
         ParentEntity parent = modelMapper.map(parentDTO, ParentEntity.class);
-
+        StudentEntity studentEntity = studentRepository.findById(parentDTO.getStudentId()).get();
+        parent.setStudentEntity(studentEntity);
         ParentEntity parent1 = parentRepository.save(parent);
         ParentDTO savedDTO = modelMapper.map(parent1, ParentDTO.class);
 
         return savedDTO;
 
     }
-
     @Override
     public ParentDTO updateParent(ParentDTO parentDTO) {
 

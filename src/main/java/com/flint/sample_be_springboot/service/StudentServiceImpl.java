@@ -42,10 +42,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
+        studentEntity.setPhone(studentDTO.getParentDTO().getPhone());
 
         if (studentDTO.getProfileImg() != null) {
             studentEntity.setProfileImg(Base64.getDecoder().decode(studentDTO.getProfileImg()));
-
         }
 
         studentEntity.setAuditDetails(addAuditDetails(studentEntity.getAuditDetails()));
@@ -61,17 +61,16 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 //        }
 //        studentEntity.setParentEntities(parentEntities);
 
-
         if (studentDTO.getParentDTO() != null) {
 
-            ParentEntity parentEntity =
-                    modelMapper.map(
-                            studentDTO.getParentDTO(),
-                            ParentEntity.class
-                    );
+            ParentEntity parentEntity = modelMapper.map(studentDTO.getParentDTO(), ParentEntity.class);
 
-            // This sets both sides of the relationship
+            // Set both sides of relationship
+            parentEntity.setStudentEntity(studentEntity);
             studentEntity.setParentEntity(parentEntity);
+
+            // Parent audit details
+            parentEntity.setAuditDetails(addAuditDetails(parentEntity.getAuditDetails()));
         }
 
         // set student documents
@@ -104,15 +103,18 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         // save student entity
         StudentEntity savedEntity = studentRepository.save(studentEntity);
 
-
         // return saved student DTO
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);
 
         // Set Parent DTOs
         ParentDTO parentDTO = null;
+
         if (savedEntity.getParentEntity() != null) {
+
             parentDTO = modelMapper.map(savedEntity.getParentEntity(), ParentDTO.class);
+            parentDTO.setStudentId(savedEntity.getStudentId());
         }
+
         savedDTO.setParentDTO(parentDTO);
 
         // Set Student Document DTOs
@@ -142,6 +144,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         return savedDTO;
     }
 
+
     @Override
     public StudentDTO updateStudent(StudentDTO studentDTO) {
         log.info("Enter into updateStudent");
@@ -155,13 +158,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 .orElseThrow(() ->
                         new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
-//        modelMapper.map(studentDTO, existingStudentEntity);
-
         // Update basic fields
         existingStudentEntity.setFirstName(studentDTO.getFirstName());
         existingStudentEntity.setLastName(studentDTO.getLastName());
         existingStudentEntity.setGender(studentDTO.getGender());
-        existingStudentEntity.setDOB(studentDTO.getDob());
+        existingStudentEntity.setDOB(studentDTO.getDOB());
         existingStudentEntity.setAddress(studentDTO.getAddress());
         existingStudentEntity.setBloodGroup(studentDTO.getBloodGroup());
         existingStudentEntity.setCategory(studentDTO.getCategory());
@@ -169,6 +170,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         existingStudentEntity.setCaste(studentDTO.getCaste());
         existingStudentEntity.setNationality(studentDTO.getNationality());
         existingStudentEntity.setStatus(studentDTO.getStatus());
+        existingStudentEntity.setPhone(studentDTO.getParentDTO().getPhone());
+        existingStudentEntity.setAadhaarCard(studentDTO.getAadhaarCard());
         existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
 
         if (studentDTO.getProfileImg() != null) {
@@ -177,36 +180,26 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             existingStudentEntity.setProfileImg(null);
         }
 
+        // Setting parentInfo
         if (studentDTO.getParentDTO() != null) {
 
-            ParentEntity parentEntity = existingStudentEntity.getParentEntity();
+            ParentEntity parentEntity = modelMapper.map(studentDTO.getParentDTO(), ParentEntity.class);
 
-            modelMapper.map(studentDTO.getParentDTO(), parentEntity);
+            // Set both sides of relationship
+            parentEntity.setStudentEntity(existingStudentEntity);
+            existingStudentEntity.setParentEntity(parentEntity);
 
-//                if (parentDTO.getParentId() != null &&
-//                        existingParents.containsKey(parentDTO.getParentId())) {
-//
-//                    // Update existing
-//                    parentEntity = existingParents.get(parentDTO.getParentId());
-//
-//                } else {
-//
-//                    // New parent
-//                    parentEntity = new ParentEntity();
-//                    parentEntity.setStudentEntity(existingStudentEntity);
-//
-//                    existingStudentEntity.getParentEntities().add(parentEntity);
-//
-//                }
+            // Parent audit
+            parentEntity.setAuditDetails(
+                    addAuditDetails(parentEntity.getAuditDetails())
+            );
 
-//                parentEntity.setName(parentDTO.getName());
-//                parentEntity.setRelation(parentDTO.getRelation());
-//                parentEntity.setOccupation(parentDTO.getOccupation());
-//                parentEntity.setPhone(parentDTO.getPhone());
-//                parentEntity.setEmail(parentDTO.getEmail());
-//                parentEntity.setAddress(parentDTO.getAddress());
-//                parentEntity.setAnnualIncome(parentDTO.getAnnualIncome());
-
+            // If phone is stored in StudentEntity also
+            if (studentDTO.getParentDTO().getPhone() != null) {
+                existingStudentEntity.setPhone(
+                        studentDTO.getParentDTO().getPhone()
+                );
+            }
         }
 
         // Delete removed student documents
@@ -220,11 +213,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                         !requestDocumentIds.contains(document.getStudentDocumentId()));
 
         // Existing documents map
-        Map<Long, StudentDocumentEntity> existingDocuments =
-                existingStudentEntity.getStudentDocumentEntities().stream()
-                        .collect(Collectors.toMap(
-                                StudentDocumentEntity::getStudentDocumentId,
-                                Function.identity()));
+        Map<Long, StudentDocumentEntity> existingDocuments = existingStudentEntity.getStudentDocumentEntities().stream()
+                .collect(Collectors.toMap(StudentDocumentEntity::getStudentDocumentId, Function.identity()));
 
         for (StudentDocumentDTO documentDTO : studentDTO.getStudentDocuments()) {
 
@@ -272,9 +262,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         // Existing academic map
         Map<Long, AcademicInformationEntity> existingAcademics =
                 existingStudentEntity.getAcademicInformationEntity().stream()
-                        .collect(Collectors.toMap(
-                                AcademicInformationEntity::getAcademicInformationId,
-                                Function.identity()));
+                        .collect(Collectors.toMap(AcademicInformationEntity::getAcademicInformationId, Function.identity()));
 
         for (AcademicInformationDTO academicDTO : studentDTO.getAcademicInformation()) {
 
@@ -291,7 +279,6 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 // New academic record
                 academicEntity = new AcademicInformationEntity();
                 academicEntity.setStudentEntity(existingStudentEntity);
-
                 existingStudentEntity.getAcademicInformationEntity().add(academicEntity);
             }
 
@@ -310,11 +297,21 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);
 
         // Set Parent DTO
-        ParentDTO parentDTO = null;
         if (savedEntity.getParentEntity() != null) {
-            parentDTO = modelMapper.map(savedEntity.getParentEntity(), ParentDTO.class);
+
+            ParentDTO parentDTO =
+                    modelMapper.map(
+                            savedEntity.getParentEntity(),
+                            ParentDTO.class
+                    );
+
+            savedDTO.setParentDTO(parentDTO);
+
+        } else {
+
+            savedDTO.setParentDTO(null);
         }
-        savedDTO.setParentDTO(parentDTO);
+
 
         // Set Student Document DTOs
         List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
@@ -341,6 +338,403 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         log.info("Exist from updateStudent");
         return savedDTO;
     }
+
+
+//    @Transactional
+//    @Override
+//    public StudentDTO updateStudent(StudentDTO studentDTO) {
+//
+//        log.info("Enter into updateStudent");
+//
+//        if (studentDTO == null || studentDTO.getStudentId() == null) {
+//            throw new CustomException(
+//                    "Student info cannot be null",
+//                    HttpStatus.PRECONDITION_FAILED
+//            );
+//        }
+//
+//        // =========================
+//        // Find existing student
+//        // =========================
+//        StudentEntity existingStudentEntity = studentRepository
+//                .findById(studentDTO.getStudentId())
+//                .orElseThrow(() ->
+//                        new CustomException(
+//                                "Student not found",
+//                                HttpStatus.NOT_FOUND
+//                        )
+//                );
+//
+//        // =========================
+//        // Update Student details
+//        // =========================
+//        existingStudentEntity.setFirstName(studentDTO.getFirstName());
+//        existingStudentEntity.setLastName(studentDTO.getLastName());
+//        existingStudentEntity.setGender(studentDTO.getGender());
+//        existingStudentEntity.setDOB(studentDTO.getDOB());
+//        existingStudentEntity.setAddress(studentDTO.getAddress());
+//        existingStudentEntity.setBloodGroup(studentDTO.getBloodGroup());
+//        existingStudentEntity.setCategory(studentDTO.getCategory());
+//        existingStudentEntity.setReligion(studentDTO.getReligion());
+//        existingStudentEntity.setCaste(studentDTO.getCaste());
+//        existingStudentEntity.setNationality(studentDTO.getNationality());
+//        existingStudentEntity.setStatus(studentDTO.getStatus());
+//        existingStudentEntity.setAadhaarCard(studentDTO.getAadhaarCard());
+//
+//        // Student audit
+//        existingStudentEntity.setAuditDetails(
+//                addAuditDetails(existingStudentEntity.getAuditDetails())
+//        );
+//
+//        // =========================
+//        // Update Profile Image
+//        // =========================
+//        if (studentDTO.getProfileImg() != null
+//                && !studentDTO.getProfileImg().isEmpty()) {
+//
+//            existingStudentEntity.setProfileImg(
+//                    Base64.getDecoder().decode(studentDTO.getProfileImg())
+//            );
+//        }
+//
+//        // =========================
+//        // UPDATE PARENT
+//        // =========================
+//        if (studentDTO.getParentDTO() != null) {
+//
+//            ParentEntity parentEntity = modelMapper.map(studentDTO.getParentDTO(), ParentEntity.class);
+//
+//            // Set both sides of relationship
+//            parentEntity.setStudentEntity(existingStudentEntity);
+//            existingStudentEntity.setParentEntity(parentEntity);
+//
+//            // Parent audit
+//            parentEntity.setAuditDetails(
+//                    addAuditDetails(parentEntity.getAuditDetails())
+//            );
+//
+//            // If phone is stored in StudentEntity also
+//            if (studentDTO.getParentDTO().getPhone() != null) {
+//                existingStudentEntity.setPhone(
+//                        studentDTO.getParentDTO().getPhone()
+//                );
+//            }
+//        }
+//
+//        // =====================================================
+//        // UPDATE STUDENT DOCUMENTS
+//        // =====================================================
+//
+//        if (studentDTO.getStudentDocuments() != null) {
+//
+//            // IDs coming from request
+//            Set<Long> requestDocumentIds =
+//                    studentDTO.getStudentDocuments()
+//                            .stream()
+//                            .map(StudentDocumentDTO::getStudentDocumentId)
+//                            .filter(Objects::nonNull)
+//                            .collect(Collectors.toSet());
+//
+//            // Delete documents removed from request
+//            if (existingStudentEntity.getStudentDocumentEntities() != null) {
+//
+//                existingStudentEntity
+//                        .getStudentDocumentEntities()
+//                        .removeIf(document ->
+//                                document.getStudentDocumentId() != null
+//                                        && !requestDocumentIds.contains(
+//                                        document.getStudentDocumentId()
+//                                )
+//                        );
+//            }
+//
+//            // Existing documents map
+//            Map<Long, StudentDocumentEntity> existingDocuments =
+//                    existingStudentEntity
+//                            .getStudentDocumentEntities()
+//                            .stream()
+//                            .filter(document ->
+//                                    document.getStudentDocumentId() != null
+//                            )
+//                            .collect(Collectors.toMap(
+//                                    StudentDocumentEntity::getStudentDocumentId,
+//                                    Function.identity()
+//                            ));
+//
+//            // Process documents from request
+//            for (StudentDocumentDTO documentDTO :
+//                    studentDTO.getStudentDocuments()) {
+//
+//                StudentDocumentEntity documentEntity;
+//
+//                // =========================
+//                // Existing document
+//                // =========================
+//                if (documentDTO.getStudentDocumentId() != null
+//                        && existingDocuments.containsKey(
+//                        documentDTO.getStudentDocumentId())) {
+//
+//                    documentEntity =
+//                            existingDocuments.get(
+//                                    documentDTO.getStudentDocumentId()
+//                            );
+//
+//                    // Update document only if new document is provided
+//                    if (documentDTO.getDocument() != null
+//                            && !documentDTO.getDocument().isEmpty()) {
+//
+//                        documentEntity.setDocument(
+//                                Base64.getDecoder().decode(
+//                                        documentDTO.getDocument()
+//                                )
+//                        );
+//                    }
+//
+//                    documentEntity.setAuditDetails(
+//                            addAuditDetails(
+//                                    documentEntity.getAuditDetails()
+//                            )
+//                    );
+//
+//                }
+//                // =========================
+//                // New document
+//                // =========================
+//                else {
+//
+//                    documentEntity = new StudentDocumentEntity();
+//
+//                    documentEntity.setStudentEntity(
+//                            existingStudentEntity
+//                    );
+//
+//                    if (documentDTO.getDocument() != null
+//                            && !documentDTO.getDocument().isEmpty()) {
+//
+//                        documentEntity.setDocument(
+//                                Base64.getDecoder().decode(
+//                                        documentDTO.getDocument()
+//                                )
+//                        );
+//                    }
+//
+//                    documentEntity.setAuditDetails(
+//                            addAuditDetails(
+//                                    documentEntity.getAuditDetails()
+//                            )
+//                    );
+//
+//                    existingStudentEntity
+//                            .getStudentDocumentEntities()
+//                            .add(documentEntity);
+//                }
+//
+//                documentEntity.setDocumentName(
+//                        documentDTO.getDocumentName()
+//                );
+//
+//                documentEntity.setUploadDate(
+//                        documentDTO.getUploadDate()
+//                );
+//            }
+//        }
+//
+//        // =====================================================
+//        // UPDATE ACADEMIC INFORMATION
+//        // =====================================================
+//
+//        if (studentDTO.getAcademicInformation() != null) {
+//
+//            // IDs coming from request
+//            Set<Long> requestAcademicIds =
+//                    studentDTO.getAcademicInformation()
+//                            .stream()
+//                            .map(AcademicInformationDTO::getAcademicInformationId)
+//                            .filter(Objects::nonNull)
+//                            .collect(Collectors.toSet());
+//
+//            // Delete removed academic records
+//            if (existingStudentEntity.getAcademicInformationEntity() != null) {
+//
+//                existingStudentEntity
+//                        .getAcademicInformationEntity()
+//                        .removeIf(academic ->
+//                                academic.getAcademicInformationId() != null
+//                                        && !requestAcademicIds.contains(
+//                                        academic.getAcademicInformationId()
+//                                )
+//                        );
+//            }
+//
+//            // Existing academic records map
+//            Map<Long, AcademicInformationEntity> existingAcademics =
+//                    existingStudentEntity
+//                            .getAcademicInformationEntity()
+//                            .stream()
+//                            .filter(academic ->
+//                                    academic.getAcademicInformationId() != null
+//                            )
+//                            .collect(Collectors.toMap(
+//                                    AcademicInformationEntity::getAcademicInformationId,
+//                                    Function.identity()
+//                            ));
+//
+//            // Process academic information
+//            for (AcademicInformationDTO academicDTO :
+//                    studentDTO.getAcademicInformation()) {
+//
+//                AcademicInformationEntity academicEntity;
+//
+//                // =========================
+//                // Existing academic record
+//                // =========================
+//                if (academicDTO.getAcademicInformationId() != null
+//                        && existingAcademics.containsKey(
+//                        academicDTO.getAcademicInformationId())) {
+//
+//                    academicEntity =
+//                            existingAcademics.get(
+//                                    academicDTO.getAcademicInformationId()
+//                            );
+//
+//                }
+//                // =========================
+//                // New academic record
+//                // =========================
+//                else {
+//
+//                    academicEntity =
+//                            new AcademicInformationEntity();
+//
+//                    academicEntity.setStudentEntity(
+//                            existingStudentEntity
+//                    );
+//
+//                    existingStudentEntity
+//                            .getAcademicInformationEntity()
+//                            .add(academicEntity);
+//                }
+//
+//                academicEntity.setAdmissionNo(
+//                        academicDTO.getAdmissionNo()
+//                );
+//
+//                academicEntity.setAdmissionDate(
+//                        academicDTO.getAdmissionDate()
+//                );
+//
+//                academicEntity.setStandard(
+//                        academicDTO.getStandard()
+//                );
+//
+//                academicEntity.setSection(
+//                        academicDTO.getSection()
+//                );
+//
+//                academicEntity.setRollNo(
+//                        academicDTO.getRollNo()
+//                );
+//
+//                academicEntity.setAcademicYear(
+//                        academicDTO.getAcademicYear()
+//                );
+//            }
+//        }
+//
+//        // =====================================================
+//        // SAVE STUDENT
+//        // =====================================================
+//
+//        StudentEntity savedEntity =
+//                studentRepository.save(existingStudentEntity);
+//
+//        // =====================================================
+//        // CONVERT ENTITY -> DTO
+//        // =====================================================
+//
+//        StudentDTO savedDTO =
+//                modelMapper.map(
+//                        savedEntity,
+//                        StudentDTO.class
+//                );
+//
+//        // =====================================================
+//        // SET PARENT DTO
+//        // =====================================================
+//
+//        if (savedEntity.getParentEntity() != null) {
+//
+//            ParentDTO parentDTO =
+//                    modelMapper.map(
+//                            savedEntity.getParentEntity(),
+//                            ParentDTO.class
+//                    );
+//
+//            savedDTO.setParentDTO(parentDTO);
+//
+//        } else {
+//
+//            savedDTO.setParentDTO(null);
+//        }
+//
+//        // =====================================================
+//        // SET STUDENT DOCUMENT DTOs
+//        // =====================================================
+//
+//        List<StudentDocumentDTO> studentDocumentDTOs =
+//                new ArrayList<>();
+//
+//        if (savedEntity.getStudentDocumentEntities() != null) {
+//
+//            for (StudentDocumentEntity documentEntity :
+//                    savedEntity.getStudentDocumentEntities()) {
+//
+//                StudentDocumentDTO documentDTO =
+//                        modelMapper.map(
+//                                documentEntity,
+//                                StudentDocumentDTO.class
+//                        );
+//
+//                studentDocumentDTOs.add(documentDTO);
+//            }
+//        }
+//
+//        savedDTO.setStudentDocuments(
+//                studentDocumentDTOs
+//        );
+//
+//        // =====================================================
+//        // SET ACADEMIC INFORMATION DTOs
+//        // =====================================================
+//
+//        List<AcademicInformationDTO> academicInformationDTOs =
+//                new ArrayList<>();
+//
+//        if (savedEntity.getAcademicInformationEntity() != null) {
+//
+//            for (AcademicInformationEntity academicEntity :
+//                    savedEntity.getAcademicInformationEntity()) {
+//
+//                AcademicInformationDTO academicDTO =
+//                        modelMapper.map(
+//                                academicEntity,
+//                                AcademicInformationDTO.class
+//                        );
+//
+//                academicInformationDTOs.add(
+//                        academicDTO
+//                );
+//            }
+//        }
+//
+//        savedDTO.setAcademicInformation(
+//                academicInformationDTOs
+//        );
+//
+//        log.info("Exit from updateStudent");
+//
+//        return savedDTO;
+//    }
 
     @Override
     public StudentDTO getStudentById(Long studentId) {
