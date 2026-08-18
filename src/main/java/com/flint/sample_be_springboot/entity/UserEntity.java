@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.entity;
 
+import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.enums.Role;
 import jakarta.persistence.*;
 import lombok.*;
@@ -26,6 +27,10 @@ public class UserEntity {
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMPLOYEE_DETAILS_ID", unique = true)
     private EmployeeDetailsEntity employeeDetails;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "STUDENT_ID", unique = true)
+    private StudentEntity studentEntity;
 
     @NotNull
     @Column(name = "USERNAME")

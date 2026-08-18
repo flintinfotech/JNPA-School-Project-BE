@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.entity.student;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.enums.StudentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -21,6 +22,9 @@ public class StudentEntity {
     @EqualsAndHashCode.Include
     @Column(name = "STUDENT_ID")
     private Long studentId;
+
+    @OneToOne(mappedBy = "studentEntity", fetch = FetchType.LAZY)
+    private UserEntity userEntity;
 
     @NotNull
     @Column(name = "FIRST_NAME")

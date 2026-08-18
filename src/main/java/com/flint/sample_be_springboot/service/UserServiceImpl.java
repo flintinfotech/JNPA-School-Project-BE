@@ -4,11 +4,14 @@ import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.entity.*;
+import com.flint.sample_be_springboot.entity.student.StudentEntity;
+import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.ScreenMasterRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.UserScreenAccessRepository;
+import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import com.flint.sample_be_springboot.util.PasswordGenerator;
@@ -46,6 +49,9 @@ public class UserServiceImpl extends BaseService implements UserService {
     @Autowired
     EmployeeDetailsRepository employeeDetailsRepository;
 
+    @Autowired
+    StudentRepository studentRepository;
+
     public UserDTO getUserById(Long userId) {
         log.info("Enter into getUserById");
 
@@ -68,55 +74,108 @@ public class UserServiceImpl extends BaseService implements UserService {
     public UserDTO saveUser(SignUpDTO signUpDTO) {
         log.info("Enter into saveUser");
 
-        Optional<UserEntity> existingUserEntity = userRepository.findByUserName(signUpDTO.getUserName());
-        if (existingUserEntity.isPresent()) {
-            throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
+        UserDTO savedUser;
+
+        if(!Role.STUDENT.equals(signUpDTO.getRole())) {
+            Optional<UserEntity> existingUserEntity = userRepository.findByUserName(signUpDTO.getUserName());
+            if (existingUserEntity.isPresent()) {
+                throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
+            }
+
+            EmployeeDetailsEntity employeeDetails = employeeDetailsRepository.findById(signUpDTO.getEmployeeDetailsId()).get();
+            UserEntity userEntity = modelMapper.map(signUpDTO, UserEntity.class);
+            userEntity.setEmployeeDetails(employeeDetails);
+            userEntity.setAuditDetails(addAuditDetails(userEntity.getAuditDetails()));
+
+            String password = PasswordGenerator.generatePassword(signUpDTO.getFirstName());
+            userEntity.setDecryptedPassword(password);
+
+            userEntity.setPassword(passwordEncoder.encode(password)); // encoded password
+
+            UserEntity savedUserEntity = userRepository.save(userEntity);
+
+            List<UserScreenAccessEntity> accesses = new ArrayList<>();
+
+            if (signUpDTO.getScreens() != null && !signUpDTO.getScreens().isEmpty()) {
+
+                accesses = signUpDTO.getScreens()
+                        .stream()
+                        .map(screenId -> {
+
+                            ScreenMaster screen = screenRepository.findById(screenId.getScreenId())
+                                    .orElseThrow(() ->
+                                            new CustomException("Screen not found", HttpStatus.NOT_FOUND));
+
+                            return UserScreenAccessEntity.builder()
+                                    .user(savedUserEntity)
+                                    .screen(screen)
+                                    .build();
+                        })
+                        .toList();
+
+                userScreenAccessRepository.saveAll(accesses);
+            }
+
+            savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
+            savedUser.setPassword(password);
+
+            savedUser.setScreens(
+                    accesses.stream()
+                            .map(UserScreenAccessEntity::getScreen)
+                            .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                            .toList()
+            );
+        } else {
+
+            Optional<UserEntity> existingUserEntity = userRepository.findByMobileNo(signUpDTO.getMobileNo());
+            if (existingUserEntity.isPresent()) {
+                throw new CustomException("Mobile no. is already exist", HttpStatus.CONFLICT);
+            }
+
+            StudentEntity studentEntity = studentRepository.findById(signUpDTO.getStudentId()).get();
+            UserEntity userEntity = modelMapper.map(signUpDTO, UserEntity.class);
+            userEntity.setStudentEntity(studentEntity);
+            userEntity.setAuditDetails(addAuditDetails(userEntity.getAuditDetails()));
+
+            String password = PasswordGenerator.generatePassword(signUpDTO.getFirstName(), signUpDTO.getAadhaarNo());
+            userEntity.setDecryptedPassword(password);
+
+            userEntity.setPassword(passwordEncoder.encode(password)); // encoded password
+
+            UserEntity savedUserEntity = userRepository.save(userEntity);
+
+//            List<UserScreenAccessEntity> accesses = new ArrayList<>();
+//
+//            if (signUpDTO.getScreens() != null && !signUpDTO.getScreens().isEmpty()) {
+//
+//                accesses = signUpDTO.getScreens()
+//                        .stream()
+//                        .map(screenId -> {
+//
+//                            ScreenMaster screen = screenRepository.findById(screenId.getScreenId())
+//                                    .orElseThrow(() ->
+//                                            new CustomException("Screen not found", HttpStatus.NOT_FOUND));
+//
+//                            return UserScreenAccessEntity.builder()
+//                                    .user(savedUserEntity)
+//                                    .screen(screen)
+//                                    .build();
+//                        })
+//                        .toList();
+//
+//                userScreenAccessRepository.saveAll(accesses);
+//            }
+
+            savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
+            savedUser.setPassword(password);
+
+//            savedUser.setScreens(
+//                    accesses.stream()
+//                            .map(UserScreenAccessEntity::getScreen)
+//                            .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+//                            .toList()
+//            );
         }
-
-        EmployeeDetailsEntity employeeDetails = employeeDetailsRepository.getById(signUpDTO.getEmployeeDetailsId());
-        UserEntity userEntity = modelMapper.map(signUpDTO, UserEntity.class);
-        userEntity.setEmployeeDetails(employeeDetails);
-        userEntity.setAuditDetails(addAuditDetails(userEntity.getAuditDetails()));
-
-        String password = PasswordGenerator.generatePassword(signUpDTO.getFirstName());
-        userEntity.setDecryptedPassword(password);
-
-        userEntity.setPassword(passwordEncoder.encode(password)); // encoded password
-
-        UserEntity savedUserEntity = userRepository.save(userEntity);
-
-        List<UserScreenAccessEntity> accesses = new ArrayList<>();
-
-        if (signUpDTO.getScreens() != null && !signUpDTO.getScreens().isEmpty()) {
-
-            accesses = signUpDTO.getScreens()
-                    .stream()
-                    .map(screenId -> {
-
-                        ScreenMaster screen = screenRepository.findById(screenId.getScreenId())
-                                .orElseThrow(() ->
-                                        new CustomException("Screen not found", HttpStatus.NOT_FOUND));
-
-                        return UserScreenAccessEntity.builder()
-                                .user(savedUserEntity)
-                                .screen(screen)
-                                .build();
-                    })
-                    .toList();
-
-            userScreenAccessRepository.saveAll(accesses);
-        }
-
-        UserDTO savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
-        savedUser.setPassword(password);
-
-        savedUser.setScreens(
-                accesses.stream()
-                        .map(UserScreenAccessEntity::getScreen)
-                        .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
-                        .toList()
-        );
-
 
         log.info("Exit from saveUser");
         return savedUser;

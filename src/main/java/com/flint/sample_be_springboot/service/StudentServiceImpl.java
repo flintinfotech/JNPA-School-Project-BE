@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.student.AcademicInformationDTO;
 import com.flint.sample_be_springboot.dto.student.ParentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentDTO;
@@ -8,6 +9,7 @@ import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.ParentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
+import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -32,6 +34,9 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private UserService userService;
 
     @Override
     public StudentDTO saveStudent(StudentDTO studentDTO) {
@@ -101,6 +106,18 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // save student entity
         StudentEntity savedEntity = studentRepository.save(studentEntity);
+
+        SignUpDTO signUpDTO = modelMapper.map(studentDTO.getParentDTO(), SignUpDTO.class);
+        signUpDTO.setStudentId(savedEntity.getStudentId());
+        signUpDTO.setUserName(studentDTO.getParentDTO().getPhone());
+        signUpDTO.setMobileNo(studentDTO.getParentDTO().getPhone());
+        signUpDTO.setFirstName(studentDTO.getFirstName());
+        signUpDTO.setLastName(studentDTO.getLastName());
+        signUpDTO.setRole(Role.STUDENT);
+        signUpDTO.setEmail(studentDTO.getParentDTO().getEmail());
+        signUpDTO.setAadhaarNo(studentDTO.getAadhaarCard());
+
+        userService.saveUser(signUpDTO);
 
         // return saved student DTO
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);

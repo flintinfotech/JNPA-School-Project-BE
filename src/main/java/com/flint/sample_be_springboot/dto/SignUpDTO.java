@@ -16,10 +16,12 @@ public class SignUpDTO {
     private Role role;
     private String mobileNo;
     private String email;
+    private String aadhaarNo;
     private String section;
     private String medium;
 
     private List<ScreenMasterDTO> screens;
 
     private Long employeeDetailsId;
+    private Long studentId;
 }
