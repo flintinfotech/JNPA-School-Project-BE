@@ -47,10 +47,14 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             throw new CustomException("User information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-
         Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserName(employeeDetailsDTO.getUserName());
         if (existingUserEntity.isPresent()) {
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
+        }
+
+        Optional<EmployeeDetailsEntity> existingUserEntity1 = employeeDetailsRepository.findByEmployeeCode(employeeDetailsDTO.getEmployeeCode());
+        if (existingUserEntity1.isPresent()) {
+            throw new CustomException("Employee code is already exist", HttpStatus.CONFLICT);
         }
 
         EmployeeDetailsEntity employeeDetailsEntity =
@@ -153,6 +157,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                 (employeeDetailsDTO.getUserName(), employeeDetailsDTO.getEmployeeDetailsId());
         if (existingUserEntity.isPresent()) {
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
+        }
+
+        Optional<EmployeeDetailsEntity> existingUserEntity1 = employeeDetailsRepository.findByEmployeeCodeAndEmployeeDetailsIdNot
+                (employeeDetailsDTO.getEmployeeCode(), employeeDetailsDTO.getEmployeeDetailsId());
+        if (existingUserEntity1.isPresent()) {
+            throw new CustomException("Employee code is already exist", HttpStatus.CONFLICT);
         }
 
         // Update User reference
