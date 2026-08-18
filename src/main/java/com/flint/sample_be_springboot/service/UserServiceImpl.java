@@ -139,6 +139,11 @@ public class UserServiceImpl extends BaseService implements UserService {
         AuditDetails auditDetails = existingEntity.getAuditDetails();
 
         modelMapper.map(userDTO, existingEntity);
+
+        if(!existingEntity.equals(userDTO.getRole())){
+            existingEntity.getEmployeeDetails().setRole(userDTO.getRole());
+        }
+
         existingEntity.setPassword(encryptedPass);
         existingEntity.setDecryptedPassword(decryptedPass);
 
