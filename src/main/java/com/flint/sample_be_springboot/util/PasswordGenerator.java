@@ -20,6 +20,25 @@ public class PasswordGenerator {
         return firstPart + digitsPart;
     }
 
+    public static String generatePassword(String name, String aadhaarCard) {
+
+        if (name == null || name.isBlank()) {
+            throw new IllegalArgumentException("Username can't be null");
+        }
+        if (aadhaarCard == null || aadhaarCard.isEmpty()) {
+            throw new IllegalArgumentException("Aadhaar card at least contain 4 digits");
+        }
+
+        //For username
+        String firstPart = name.length() >= 4 ? name.substring(0, 4) : padUsername(name);
+
+        //For taking last 4 digits of Aadhaar Card
+        String lastPart = aadhaarCard.substring(aadhaarCard.length() - 4);
+
+        return firstPart + lastPart;
+    }
+
+
     private static String padUsername(String username) {
         StringBuilder padded = new StringBuilder(username);
         while (padded.length() < 4) {
