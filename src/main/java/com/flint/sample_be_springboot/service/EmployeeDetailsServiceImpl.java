@@ -291,10 +291,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
     }
 
     @Override
-    public EmployeeDetailsDTO getEmployeeDetailsById(Long userId) {
+    public EmployeeDetailsDTO getEmployeeDetailsById(Long employeeId) {
         log.info("Enter into getEmployeeDetailsById");
 
-        EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(userId)
+        EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeId)
                 .orElseThrow(() ->
                         new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
@@ -327,8 +327,8 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
     }
 
     @Override
-    public EmployeeDetailsDTO getEmployeeDetailsByEmployeeId(Long employeeDetailsId) {
-        log.info("Enter into getEmployeeDetailsByEmployeeId");
+    public EmployeeDetailsDTO getEmployeeDetailsByUserId(Long employeeDetailsId) {
+        log.info("Enter into getEmployeeDetailsByUserId");
 
         EmployeeDetailsDTO employeeDetailsDTO = new EmployeeDetailsDTO();
 

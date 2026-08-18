@@ -7,9 +7,9 @@ import java.util.Map;
 
 public interface EmployeeDetailsService {
 
-    EmployeeDetailsDTO getEmployeeDetailsById(Long userId);
+    EmployeeDetailsDTO getEmployeeDetailsById(Long employeeId);
 
-    EmployeeDetailsDTO getEmployeeDetailsByEmployeeId(Long employeeDetailsId);
+    EmployeeDetailsDTO getEmployeeDetailsByUserId(Long userId);
 
     Map<String, Object> saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO);
 

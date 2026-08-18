@@ -20,19 +20,19 @@ public class EmployeeDetailsController {
     @Autowired
     private EmployeeDetailsService employeeDetailsService;
 
-    @GetMapping("/getEmployeeDetailsById/{userId}")
+    @GetMapping("/getEmployeeDetailsById/{employeeId}")
 
-    public ResponseEntity<?> getEmployeeDetailsById(@PathVariable Long userId) {
+    public ResponseEntity<?> getEmployeeDetailsById(@PathVariable Long employeeId) {
 
-        EmployeeDetailsDTO employeeDetailsDTO = employeeDetailsService.getEmployeeDetailsById(userId);
+        EmployeeDetailsDTO employeeDetailsDTO = employeeDetailsService.getEmployeeDetailsById(employeeId);
 
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(employeeDetailsDTO).build());
     }
 
-    @GetMapping("/getEmployeeDetailsByEmployeeId/{employeeId}")
-    public ResponseEntity<?> getEmployeeDetailsByEmployeeId(@PathVariable Long employeeId) {
+    @GetMapping("/getEmployeeDetailsByUserId/{userId}")
+    public ResponseEntity<?> getEmployeeDetailsByUserId(@PathVariable Long userId) {
 
-        EmployeeDetailsDTO employeeDetailsDTO = employeeDetailsService.getEmployeeDetailsByEmployeeId(employeeId);
+        EmployeeDetailsDTO employeeDetailsDTO = employeeDetailsService.getEmployeeDetailsByUserId(userId);
 
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(employeeDetailsDTO).build());
     }
