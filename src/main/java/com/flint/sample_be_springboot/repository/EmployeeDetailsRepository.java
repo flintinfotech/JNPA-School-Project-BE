@@ -33,6 +33,10 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
 
     Optional<EmployeeDetailsEntity> findByUserName(String userName);
 
+    Optional<EmployeeDetailsEntity> findByEmployeeCode(String employeeCode);
+
     Optional<EmployeeDetailsEntity> findByUserNameAndEmployeeDetailsIdNot(String userName, Long userId);
+
+    Optional<EmployeeDetailsEntity> findByEmployeeCodeAndEmployeeDetailsIdNot(String employeeCode, Long userId);
 
 }

@@ -128,6 +128,9 @@ public class UserServiceImpl extends BaseService implements UserService {
         UserEntity existingEntity = userRepository.findById(userDTO.getUserId())
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
+        String encryptedPass = existingEntity.getPassword();
+        String decryptedPass = existingEntity.getDecryptedPassword();
+
         Optional<UserEntity> existingUserEntity = userRepository.findByUserNameAndUserIdNot(userDTO.getUserName(), userDTO.getUserId());
         if (existingUserEntity.isPresent()) {
             throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
@@ -136,6 +139,8 @@ public class UserServiceImpl extends BaseService implements UserService {
         AuditDetails auditDetails = existingEntity.getAuditDetails();
 
         modelMapper.map(userDTO, existingEntity);
+        existingEntity.setPassword(encryptedPass);
+        existingEntity.setDecryptedPassword(decryptedPass);
 
         existingEntity.setAuditDetails(addAuditDetails(auditDetails));
 
