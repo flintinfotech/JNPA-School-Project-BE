@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface StudentService {
 
-    StudentDTO saveStudent(StudentDTO studentDTO);
+    Map<String, Object> saveStudent(StudentDTO studentDTO);
 
     StudentDTO updateStudent(StudentDTO studentDTO);
 

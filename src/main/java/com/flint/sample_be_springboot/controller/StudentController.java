@@ -28,7 +28,7 @@ public class StudentController {
 
     @PostMapping("/saveStudent")
     public ResponseEntity<?> saveStudent(@RequestBody StudentDTO studentDTO) {
-        StudentDTO data = studentService.saveStudent(studentDTO);
+        Map<String, Object> data = studentService.saveStudent(studentDTO);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Student saved successfully").data(data).build());
     }
 

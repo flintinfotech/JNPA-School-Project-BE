@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.SignUpDTO;
+import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.dto.student.AcademicInformationDTO;
 import com.flint.sample_be_springboot.dto.student.ParentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentDTO;
@@ -21,6 +22,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -39,11 +41,16 @@ public class StudentServiceImpl extends BaseService implements StudentService {
     private UserService userService;
 
     @Override
-    public StudentDTO saveStudent(StudentDTO studentDTO) {
+    public Map<String, Object> saveStudent(StudentDTO studentDTO) {
         log.info("Enter into saveStudent");
 
         if (studentDTO == null) {
             throw new CustomException("Student info cannot be null", HttpStatus.PRECONDITION_FAILED);
+        }
+
+        StudentEntity existingStudentEntity = studentRepository.findByAadhaarCard(studentDTO.getAadhaarCard());
+        if (ObjectUtils.isEmpty(existingStudentEntity) && existingStudentEntity == null) {
+            throw new CustomException("Student aadhaar no. already registered", HttpStatus.PRECONDITION_FAILED);
         }
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
@@ -117,7 +124,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         signUpDTO.setEmail(studentDTO.getParentDTO().getEmail());
         signUpDTO.setAadhaarNo(studentDTO.getAadhaarCard());
 
-        userService.saveUser(signUpDTO);
+        UserDTO userDTO = userService.saveUser(signUpDTO);
 
         // return saved student DTO
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);
@@ -156,7 +163,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         savedDTO.setAcademicInformation(academicInformationDTOs);
         log.info("Exit from saveStudent");
 
-        return savedDTO;
+        Map<String, Object> map = new HashMap<>();
+        map.put("Student information", savedDTO);
+        map.put("User DTO", userDTO);
+        return map;
     }
 
 
