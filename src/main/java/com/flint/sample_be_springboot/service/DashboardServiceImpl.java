@@ -11,6 +11,7 @@ import com.flint.sample_be_springboot.enums.StudentStatus;
 import com.flint.sample_be_springboot.repository.AdmissionInquiryRepository;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
+import com.flint.sample_be_springboot.repository.student.ParentRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.repository.websiteModuleRepository.NewsRepository;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -39,6 +40,9 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 
     @Autowired
     private EmployeeDetailsRepository employeeDetailsRepository ;
+
+    @Autowired
+    private ParentRepository parentRepository ;
 
 
     public Map<String, Map<String, Long>> getAllStudentsCount() {
@@ -190,17 +194,26 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 
         Long count = 0L;
 
-        for (EmployeeDetailsEntity entity : entities) {
+        for (EmployeeDetailsEntity entity : entities)
+        {
             if (!Role.ADMIN.toString().equals(entity.getRole().toString())
                     && !Role.PRINCIPAL.toString().equals(entity.getRole().toString()) &&
-                    !Role. STUDENT.toString().equals(entity.getRole().toString())) {
-                if (map.containsKey(entity.getRole().toString())) {
+                    !Role. STUDENT.toString().equals(entity.getRole().toString()))
+            {
+                if (map.containsKey(entity.getRole().toString()))
+                {
                     map.put(entity.getRole().toString(), map.get(entity.getRole().toString()) + 1);
-                } else {
+                }
+                else
+                {
                     map.put(entity.getRole().toString(), 1L);
                 }
             }
         }
+        // Count parents separately
+        long parentCount = parentRepository.count();
+
+        map.put("PARENT", parentCount);
         return map;
     }
 
