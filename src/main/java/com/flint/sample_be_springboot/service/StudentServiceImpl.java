@@ -508,10 +508,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
     }
 
     @Override
-    public StudentDTO getStudentByUserId(Long studentId) {
+    public StudentDTO getStudentByUserId(Long userId) {
         log.info("Enter into getStudentById");
 
-        StudentEntity studentEntity = studentRepository.findByUserEntity_UserId(studentId)
+        StudentEntity studentEntity = studentRepository.findByUserEntity_UserId(userId)
                 .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
         StudentDTO savedDTO = modelMapper.map(studentEntity, StudentDTO.class);
