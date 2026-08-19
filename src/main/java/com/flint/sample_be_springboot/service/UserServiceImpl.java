@@ -199,13 +199,15 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         modelMapper.map(userDTO, existingEntity);
 
-        if(!existingEntity.equals(userDTO.getRole())){
+        if (!Role.STUDENT.equals(existingEntity.getRole()) && !existingEntity.equals(userDTO.getRole())) {
             existingEntity.getEmployeeDetails().setRole(userDTO.getRole());
         }
 
+        // In future, Password reset functionality is required here
+        //---------------------------------------------------------
         existingEntity.setPassword(encryptedPass);
         existingEntity.setDecryptedPassword(decryptedPass);
-
+        //---------------------------------------------------------
         existingEntity.setAuditDetails(addAuditDetails(auditDetails));
 
         // Existing Screen Mappings
