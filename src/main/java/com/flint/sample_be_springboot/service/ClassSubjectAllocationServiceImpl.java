@@ -93,9 +93,7 @@ public class ClassSubjectAllocationServiceImpl extends BaseService implements Cl
                 .map(a -> {
 
                     SubjectMasterEntity subject = a.getSubjectMasterEntity();
-
                     SubjectMasterDTO dto = new SubjectMasterDTO();
-
                     dto.setSubjectMasterId(subject.getSubjectMasterId());
                     dto.setSubjectName(subject.getSubjectName());
                     dto.setSubjectCode(subject.getSubjectCode());
