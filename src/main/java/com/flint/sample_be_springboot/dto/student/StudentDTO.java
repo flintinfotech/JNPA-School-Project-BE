@@ -13,6 +13,7 @@ public class StudentDTO {
     private Long studentId;
     private String firstName;
     private String lastName;
+    private String studentCode;
     private String gender;
     private String DOB;
     private String aadhaarCard;

@@ -34,6 +34,9 @@ public class StudentEntity {
     @Column(name = "LAST_NAME")
     private String lastName;
 
+    @Column(name = "STUDENT_CODE")
+    private String studentCode;
+
     @NotNull
     @Column(name = "GENDER")
     private String gender;

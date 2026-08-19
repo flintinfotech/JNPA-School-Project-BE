@@ -15,6 +15,7 @@ import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import com.flint.sample_be_springboot.util.PasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -54,6 +55,12 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
+
+        String lastStudentCode = studentRepository.findLastStudentCode() != null ? studentRepository.findLastStudentCode() : null;
+        String nextStudentCode = PasswordGenerator.generateStudentCode(lastStudentCode);
+
+        studentEntity.setStudentCode(nextStudentCode);
+
         studentEntity.setPhone(studentDTO.getParentDTO().getPhone());
 
         if (studentDTO.getProfileImg() != null) {
