@@ -49,7 +49,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
 
         StudentEntity existingStudentEntity = studentRepository.findByAadhaarCard(studentDTO.getAadhaarCard());
-        if (ObjectUtils.isEmpty(existingStudentEntity) && existingStudentEntity == null) {
+        if (!ObjectUtils.isEmpty(existingStudentEntity)) {
             throw new CustomException("Student aadhaar no. already registered", HttpStatus.PRECONDITION_FAILED);
         }
 

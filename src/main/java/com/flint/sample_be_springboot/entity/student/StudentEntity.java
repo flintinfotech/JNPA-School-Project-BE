@@ -42,7 +42,6 @@ public class StudentEntity {
     @Column(name = "DOB")
     private String DOB;
 
-    @NotNull
     @Column(name = "AADHAAR_CARD")
     private String aadhaarCard;
 
