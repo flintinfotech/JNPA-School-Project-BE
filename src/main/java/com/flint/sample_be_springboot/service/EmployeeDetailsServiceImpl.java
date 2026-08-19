@@ -258,8 +258,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             }
         }
 
-        // Save
+        // update
         EmployeeDetailsEntity updatedEntity = employeeDetailsRepository.save(existingEntity);
+
+        // update its particular user entity
+        UserDTO userDTO = modelMapper.map(existingEntity, UserDTO.class);
+        UserDTO updatedUserDTO = userService.updateUser(userDTO);
 
         // Return DTO
         EmployeeDetailsDTO updatedDTO = modelMapper.map(updatedEntity, EmployeeDetailsDTO.class);

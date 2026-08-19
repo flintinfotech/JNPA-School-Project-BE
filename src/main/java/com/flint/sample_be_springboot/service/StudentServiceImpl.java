@@ -58,7 +58,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         String lastStudentCode = studentRepository.findLastStudentCode() != null ? studentRepository.findLastStudentCode() : null;
         String nextStudentCode = PasswordGenerator.generateStudentCode(lastStudentCode);
-
+        System.err.println(nextStudentCode);
         studentEntity.setStudentCode(nextStudentCode);
 
         studentEntity.setPhone(studentDTO.getParentDTO().getPhone());
@@ -323,6 +323,17 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // update student entity
         StudentEntity savedEntity = studentRepository.save(existingStudentEntity);
+
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserId(existingStudentEntity.getUserEntity().getUserId());
+        userDTO.setUserName(existingStudentEntity.getParentEntity().getPhone());
+        userDTO.setMobileNo(existingStudentEntity.getParentEntity().getPhone());
+        userDTO.setFirstName(existingStudentEntity.getFirstName());
+        userDTO.setLastName(existingStudentEntity.getLastName());
+        userDTO.setRole(Role.STUDENT);
+        userDTO.setEmail(existingStudentEntity.getParentEntity().getEmail());
+
+        UserDTO updatedUserDTO = userService.updateUser(userDTO);
 
         // return updated student DTO
         StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);

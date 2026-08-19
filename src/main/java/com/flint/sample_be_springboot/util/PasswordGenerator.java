@@ -57,7 +57,7 @@ public class PasswordGenerator {
             String numericPart = lastStudentCode.substring(3);
             nextCodeNum = Integer.parseInt(numericPart) + 1;
         }
-        String nextCode = String.format("STD%03d", nextCodeNum); // e.g., STD006
+        String nextCode = String.format("STD%04d", nextCodeNum); // e.g., STD0006
 
         return nextCode;
     }
