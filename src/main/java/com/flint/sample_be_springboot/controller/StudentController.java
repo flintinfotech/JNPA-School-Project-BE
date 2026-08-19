@@ -26,6 +26,12 @@ public class StudentController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(studentDTO).build());
     }
 
+    @GetMapping("/getStudentByUserId/{userId}")
+    public ResponseEntity<?> getStudentByUserId(@PathVariable Long userId) {
+        StudentDTO studentDTO = studentService.getStudentByUserId(userId);
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(studentDTO).build());
+    }
+
     @PostMapping("/saveStudent")
     public ResponseEntity<?> saveStudent(@RequestBody StudentDTO studentDTO) {
         Map<String, Object> data = studentService.saveStudent(studentDTO);
