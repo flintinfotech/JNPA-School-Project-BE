@@ -18,14 +18,14 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
     Optional<EmployeeDetailsEntity> findByUserEntity_UserId(Long userId);
 
     @Query("""
-        SELECT u
-        FROM EmployeeDetailsEntity u
-        WHERE u.joiningDate <= :startDate
-          AND (
-                u.leavingDate IS NULL
-                OR u.leavingDate >= :endDate
-              )
-        """)
+    SELECT e
+    FROM EmployeeDetailsEntity e
+    WHERE e.joiningDate <= :endDate
+      AND (
+            e.leavingDate IS NULL
+            OR e.leavingDate >= :startDate
+          )
+    """)
     List<EmployeeDetailsEntity> findCurrentWorkingUsersByAcademicYear(
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate

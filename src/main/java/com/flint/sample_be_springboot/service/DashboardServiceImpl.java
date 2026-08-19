@@ -53,7 +53,6 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 
         for (StudentEntity student : students) {
 
-
             if (student.getStatus() != StudentStatus.ACTIVE) {
                 continue;
             }
@@ -189,8 +188,7 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         System.err.println(getEndDate());
         List<EmployeeDetailsEntity> entities = employeeDetailsRepository.findCurrentWorkingUsersByAcademicYear(getStartDate(),getEndDate());
 
-
-        Long count = 0l;
+        Long count = 0L;
 
         for (EmployeeDetailsEntity entity : entities) {
             if (!Role.ADMIN.toString().equals(entity.getRole().toString())
