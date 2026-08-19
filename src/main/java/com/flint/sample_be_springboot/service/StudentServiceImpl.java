@@ -507,4 +507,52 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         return result;
     }
 
+    @Override
+    public StudentDTO getStudentByUserId(Long studentId) {
+        log.info("Enter into getStudentById");
+
+        StudentEntity studentEntity = studentRepository.findByUserEntity_UserId(studentId)
+                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
+
+        StudentDTO savedDTO = modelMapper.map(studentEntity, StudentDTO.class);
+
+        if (studentEntity.getProfileImg() != null) {
+            String img = Base64.getEncoder().encodeToString(studentEntity.getProfileImg());
+
+            savedDTO.setProfileImg(img);
+        }
+
+        // Set Parent DTO
+        ParentDTO parentDTO = null;
+        if (studentEntity.getParentEntity() != null) {
+            parentDTO = modelMapper.map(studentEntity.getParentEntity(), ParentDTO.class);
+        }
+        savedDTO.setParentDTO(parentDTO);
+
+        // Set Student Document DTOs
+        List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
+        if (studentEntity.getStudentDocumentEntities() != null && !studentEntity.getStudentDocumentEntities().isEmpty()) {
+            for (StudentDocumentEntity studentDocumentEntity : studentEntity.getStudentDocumentEntities()) {
+                StudentDocumentDTO studentDocumentDTO = modelMapper.map(studentDocumentEntity, StudentDocumentDTO.class);
+                studentDocumentDTOs.add(studentDocumentDTO);
+            }
+        }
+        savedDTO.setStudentDocuments(studentDocumentDTOs);
+
+        // Set Academic Information DTOs
+        List<AcademicInformationDTO> academicInformationDTOs = new ArrayList<>();
+        if (studentEntity.getAcademicInformationEntity() != null && !studentEntity.getAcademicInformationEntity().isEmpty()) {
+            for (AcademicInformationEntity academicInformationEntity : studentEntity.getAcademicInformationEntity()) {
+                AcademicInformationDTO academicInformationDTO =
+                        modelMapper.map(academicInformationEntity, AcademicInformationDTO.class);
+
+                academicInformationDTOs.add(academicInformationDTO);
+            }
+        }
+        savedDTO.setAcademicInformation(academicInformationDTOs);
+
+        log.info("Exit from getStudentById");
+        return savedDTO;
+    }
+
 }

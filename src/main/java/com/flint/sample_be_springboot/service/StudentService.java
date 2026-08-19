@@ -17,4 +17,5 @@ public interface StudentService {
 
     Map<String, Object> getAllStudentsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 
+    StudentDTO getStudentByUserId(Long studentId);
 }

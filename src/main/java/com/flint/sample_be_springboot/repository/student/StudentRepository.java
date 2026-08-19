@@ -6,6 +6,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.util.Optional;
+
 @Repository
 public interface StudentRepository extends JpaRepository<StudentEntity, Long>, JpaSpecificationExecutor<StudentEntity> {
 
@@ -13,5 +15,7 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long>, J
 
     @Query(value = "SELECT TOP 1  student_code FROM STUDENT_ENTITY ORDER BY student_id DESC", nativeQuery = true)
     String findLastStudentCode();
+
+    Optional<StudentEntity> findByUserEntity_UserId(Long studentId);
 
 }
