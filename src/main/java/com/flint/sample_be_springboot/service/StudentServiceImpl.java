@@ -123,6 +123,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         signUpDTO.setRole(Role.STUDENT);
         signUpDTO.setEmail(studentDTO.getParentDTO().getEmail());
         signUpDTO.setAadhaarNo(studentDTO.getAadhaarCard());
+        signUpDTO.setDOB(studentDTO.getDOB());
 
         UserDTO userDTO = userService.saveUser(signUpDTO);
 

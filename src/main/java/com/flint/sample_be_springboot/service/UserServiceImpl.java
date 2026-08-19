@@ -137,7 +137,7 @@ public class UserServiceImpl extends BaseService implements UserService {
             userEntity.setStudentEntity(studentEntity);
             userEntity.setAuditDetails(addAuditDetails(userEntity.getAuditDetails()));
 
-            String password = PasswordGenerator.generatePassword(signUpDTO.getFirstName(), signUpDTO.getAadhaarNo());
+            String password = PasswordGenerator.generatePassword(signUpDTO.getFirstName(), signUpDTO.getDOB());
             userEntity.setDecryptedPassword(password);
 
             userEntity.setPassword(passwordEncoder.encode(password)); // encoded password
