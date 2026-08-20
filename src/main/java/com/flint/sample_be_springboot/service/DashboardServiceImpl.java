@@ -225,7 +225,7 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         for (AdmissionInquiry inquiry : inquiries) {
             total++;
 
-            String status = inquiry.getStatus().toString();
+            String status = inquiry.getStatus();
             map.put(status, map.getOrDefault(status, 0L) + 1);
         }
         map.put("Total", total);

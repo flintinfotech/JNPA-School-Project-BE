@@ -14,9 +14,9 @@ import java.util.stream.Collectors;
 @Service
 public class StaticDataServiceImpl implements StaticDataService {
 
-    private static Logger LOGGER = LoggerFactory.getLogger(StaticDataServiceImpl.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(StaticDataServiceImpl.class);
 
-    private StaticDataRepository staticDataRepository;
+    private final StaticDataRepository staticDataRepository;
 
     StaticDataServiceImpl(StaticDataRepository staticDataRepository) {
         this.staticDataRepository = staticDataRepository;

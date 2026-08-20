@@ -27,7 +27,7 @@ import java.util.stream.Collectors;
 @Service
 public class AcademicServiceImpl extends BaseService implements AcademicYearService {
 
-    private ModelMapper modelMapper = new ModelMapper();
+    private final ModelMapper modelMapper = new ModelMapper();
 
     @Autowired
     AcademicYearRepository academicYearRepository;

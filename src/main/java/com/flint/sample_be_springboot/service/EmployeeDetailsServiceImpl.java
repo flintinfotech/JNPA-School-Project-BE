@@ -414,7 +414,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             totalElement = informationEntityPage.getTotalElements();
         } else {
             userInformationEntities = employeeDetailsRepository.findAll(customQuerySpecification);
-            totalElement = (long) userInformationEntities.size();
+            totalElement = userInformationEntities.size();
         }
 
         List<EmployeeDetailsDTO> EmployeeDetailsDTOS = userInformationEntities.stream()

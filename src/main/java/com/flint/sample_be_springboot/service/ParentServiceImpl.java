@@ -139,7 +139,7 @@ public class ParentServiceImpl extends BaseService implements ParentService {
             totalElement = informationEntityPage.getTotalElements();
         } else {
             parentEntities = parentRepository.findAll(customQuerySpecification);
-            totalElement = (long) parentEntities.size();
+            totalElement = parentEntities.size();
         }
 
         List<ParentDTO> parentDTOS = parentEntities.stream()
