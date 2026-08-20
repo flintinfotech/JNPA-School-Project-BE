@@ -195,6 +195,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         existingStudentEntity.setFirstName(studentDTO.getFirstName());
         existingStudentEntity.setLastName(studentDTO.getLastName());
         existingStudentEntity.setGender(studentDTO.getGender());
+        existingStudentEntity.setStudentCode(studentDTO.getStudentCode());
         existingStudentEntity.setDOB(studentDTO.getDOB());
         existingStudentEntity.setAddress(studentDTO.getAddress());
         existingStudentEntity.setBloodGroup(studentDTO.getBloodGroup());
