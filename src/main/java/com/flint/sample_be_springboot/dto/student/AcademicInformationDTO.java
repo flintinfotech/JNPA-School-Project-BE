@@ -13,7 +13,7 @@ public class AcademicInformationDTO {
     private Long studentId;
     private LocalDate admissionDate;
     private String standard;
-    private String section;
+    private String division;
     private String rollNo;
     private String academicYear;
     private AuditDetails auditDetails;

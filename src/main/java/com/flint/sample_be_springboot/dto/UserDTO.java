@@ -17,6 +17,8 @@ public class UserDTO {
     private String mobileNo;
     private String email;
     private String section;
+    private String standard;
+    private String division;
     private String medium;
     private AuditDetails auditDetails;
 

@@ -35,8 +35,8 @@ public class AcademicInformationEntity {
     @Column(name = "STANDARD")
     private String standard;
 
-    @Column(name = "SECTION")
-    private String section;
+    @Column(name = "DIVISION")
+    private String division;
 
     @Column(name = "ROLL_NO")
     private String rollNo;

@@ -68,6 +68,12 @@ public class UserEntity {
     @Column(name = "MEDIUM")
     private String medium;
 
+    @Column(name = "STANDARD")
+    private String standard;
+
+    @Column(name = "DIVISION")
+    private String division;
+
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)
