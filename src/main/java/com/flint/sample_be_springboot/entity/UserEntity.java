@@ -56,8 +56,7 @@ public class UserEntity {
     @Column(name = "MOBILE_NO")
     private String mobileNo;
 
-    @NotNull
-    @Size(max = 50)
+    @Size(max = 100)
     @Email
     @Column(name = "EMAIL")
     private String email;

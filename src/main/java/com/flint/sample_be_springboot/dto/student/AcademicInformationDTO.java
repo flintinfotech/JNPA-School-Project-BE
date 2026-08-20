@@ -8,12 +8,13 @@ import java.time.LocalDate;
 @Data
 public class AcademicInformationDTO {
 
-    private Long academicInformationId;
+    private Long academicInformationId; 
     private Long admissionNo;
     private Long studentId;
     private LocalDate admissionDate;
     private String standard;
     private String division;
+    private String medium;
     private String rollNo;
     private String academicYear;
     private AuditDetails auditDetails;

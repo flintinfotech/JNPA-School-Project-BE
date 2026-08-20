@@ -12,6 +12,7 @@ import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import com.flint.sample_be_springboot.util.GenerateCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,6 +60,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
         EmployeeDetailsEntity employeeDetailsEntity =
                 modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
+
+        String lastEmployeeCode = employeeDetailsRepository.findLastEmployeeCode();
+        String latestEmployeeCode = GenerateCodes.generateEmployeeCode(lastEmployeeCode);
+        employeeDetailsEntity.setEmployeeCode(latestEmployeeCode);
 
         employeeDetailsEntity.setAuditDetails(addAuditDetails(employeeDetailsEntity.getAuditDetails()));
 

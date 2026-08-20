@@ -6,16 +6,20 @@ import com.flint.sample_be_springboot.dto.student.AcademicInformationDTO;
 import com.flint.sample_be_springboot.dto.student.ParentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentDocumentDTO;
+import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.ParentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import com.flint.sample_be_springboot.util.GenerateCodes;
 import com.flint.sample_be_springboot.util.PasswordGenerator;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,6 +45,9 @@ public class StudentServiceImpl extends BaseService implements StudentService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private UserRepository userRepository;
+
     @Override
     public Map<String, Object> saveStudent(StudentDTO studentDTO) {
         log.info("Enter into saveStudent");
@@ -57,7 +64,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
 
         String lastStudentCode = studentRepository.findLastStudentCode() != null ? studentRepository.findLastStudentCode() : null;
-        String nextStudentCode = PasswordGenerator.generateStudentCode(lastStudentCode);
+        String nextStudentCode = GenerateCodes.generateStudentCode(lastStudentCode);
         System.err.println(nextStudentCode);
         studentEntity.setStudentCode(nextStudentCode);
 
@@ -318,6 +325,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             academicEntity.setAdmissionDate(academicDTO.getAdmissionDate());
             academicEntity.setStandard(academicDTO.getStandard());
             academicEntity.setDivision(academicDTO.getDivision());
+            academicEntity.setMedium(academicDTO.getMedium());
             academicEntity.setRollNo(academicDTO.getRollNo());
             academicEntity.setAcademicYear(academicDTO.getAcademicYear());
         }
@@ -426,15 +434,32 @@ public class StudentServiceImpl extends BaseService implements StudentService {
     }
 
     @Override
+    @Transactional
     public String deleteStudent(Long studentId) {
+
         log.info("Enter into deleteStudent");
 
         StudentEntity studentEntity = studentRepository.findById(studentId)
-                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() ->
+                        new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
+        // Get associated user
+        UserEntity userEntity = studentEntity.getUserEntity();
+
+        if (userEntity != null) {
+            // Break the FK relationship first
+            userEntity.setStudentEntity(null);
+            studentEntity.setUserEntity(null);
+
+            // Delete User
+            userRepository.delete(userEntity);
+        }
+
+        // Now delete student
         studentRepository.delete(studentEntity);
 
         log.info("Exit from deleteStudent");
+
         return "Student record deleted successfully";
     }
 
