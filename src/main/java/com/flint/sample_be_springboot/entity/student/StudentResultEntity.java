@@ -27,7 +27,7 @@ public class StudentResultEntity {
 
     @ManyToOne
     @JoinColumn(name = "STUDENT_ID", nullable = false)
-    private StudentEntity student;
+    private StudentEntity studentEntity;
 
     @Column(name = "STANDARD")
     private String standard;
