@@ -29,7 +29,7 @@ public class StudentResultController {
 
     @GetMapping("/getStudentResultById/{resultId}")
     public ResponseEntity<?> getStudentResultById(@PathVariable Long resultId) {
-        StudentResultDTO studentResultDTO = studentResultService.getStudentResultById(resultId);
+        StudentResultDTO studentResultDTO = studentResultService.getStudentResultByStudentId(resultId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(studentResultDTO).build());
     }
 

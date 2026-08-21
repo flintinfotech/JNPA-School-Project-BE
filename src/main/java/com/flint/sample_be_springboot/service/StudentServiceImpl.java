@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.dto.student.AcademicInformationDTO;
@@ -7,6 +8,7 @@ import com.flint.sample_be_springboot.dto.student.ParentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentDocumentDTO;
 import com.flint.sample_be_springboot.entity.UserEntity;
+import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
 import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.ParentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
@@ -56,10 +58,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             throw new CustomException("Student info cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        StudentEntity existingStudentEntity = studentRepository.findByAadhaarCard(studentDTO.getAadhaarCard());
-        if (!ObjectUtils.isEmpty(existingStudentEntity)) {
-            throw new CustomException("Student aadhaar no. already registered", HttpStatus.PRECONDITION_FAILED);
-        }
+//        StudentEntity existingStudentEntity = studentRepository.findByAadhaarCard(studentDTO.getAadhaarCard());
+//        if (!ObjectUtils.isEmpty(existingStudentEntity)) {
+//            throw new CustomException("Student aadhaar no. already registered", HttpStatus.PRECONDITION_FAILED);
+//        }
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
 
@@ -333,14 +335,18 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         // update student entity
         StudentEntity savedEntity = studentRepository.save(existingStudentEntity);
 
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUserId(existingStudentEntity.getUserEntity().getUserId());
-        userDTO.setUserName(existingStudentEntity.getParentEntity().getPhone());
-        userDTO.setMobileNo(existingStudentEntity.getParentEntity().getPhone());
-        userDTO.setFirstName(existingStudentEntity.getFirstName());
-        userDTO.setLastName(existingStudentEntity.getLastName());
-        userDTO.setRole(Role.STUDENT);
-        userDTO.setEmail(existingStudentEntity.getParentEntity().getEmail());
+        UserEntity user = userRepository.findByStudentEntity_StudentId(savedEntity.getStudentId())
+                .orElseThrow(() -> new CustomException("Student user not found", HttpStatus.NOT_FOUND));
+
+        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+
+        List<ScreenMasterDTO> screens = user.getScreenAccesses()
+                .stream()
+                .map(UserScreenAccessEntity::getScreen)
+                .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                .toList();
+
+        userDTO.setScreens(screens);
 
         UserDTO updatedUserDTO = userService.updateUser(userDTO);
 

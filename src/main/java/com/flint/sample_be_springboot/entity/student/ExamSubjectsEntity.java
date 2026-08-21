@@ -2,6 +2,7 @@ package com.flint.sample_be_springboot.entity.student;
 
 
 import com.flint.sample_be_springboot.dto.SubjectMasterDTO;
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.entity.SubjectMasterEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -41,4 +42,7 @@ public class ExamSubjectsEntity {
 
     @Column(name = "STATUS")
     private String status;
+
+    @Embedded
+    private AuditDetails auditDetails;
 }

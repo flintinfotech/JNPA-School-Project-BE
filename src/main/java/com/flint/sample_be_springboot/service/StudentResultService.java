@@ -9,9 +9,9 @@ public interface StudentResultService {
 
     StudentResultDTO saveStudentResult(StudentResultDTO studentResultDTO);
 
-    StudentResultDTO getStudentResultById(Long resultId);
-
     StudentResultDTO updateStudentResult(StudentResultDTO studentResultDTO);
+
+    StudentResultDTO getStudentResultByStudentId(Long resultId);
 
     String deleteStudentResult(Long resultId);
 

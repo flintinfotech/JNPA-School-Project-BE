@@ -20,4 +20,6 @@ public interface UserRepository extends JpaRepository<UserEntity, Long>, JpaSpec
 
     Optional<UserEntity> findByUserNameAndUserIdNot(String userName, Long userId);
 
+    Optional<UserEntity> findByStudentEntity_StudentId(Long studentId);
+
 }

@@ -7,6 +7,7 @@ public class PasswordGenerator {
     private static final String DIGITS = "0123456789";
     private static final SecureRandom RANDOM = new SecureRandom();
 
+    // for employee
     public static String generatePassword(String name) {
         // Ensure username has at least 4 characters
         String firstPart = name.length() >= 4 ? name.substring(0, 4) : padUsername(name);
@@ -20,6 +21,7 @@ public class PasswordGenerator {
         return firstPart + digitsPart;
     }
 
+    // for student
     public static String generatePassword(String name, String dob) {
 
         if (name == null || name.isBlank()) {
