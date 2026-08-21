@@ -94,37 +94,24 @@ public class UserServiceImpl extends BaseService implements UserService {
 
             UserEntity savedUserEntity = userRepository.save(userEntity);
 
-            List<UserScreenAccessEntity> accesses = new ArrayList<>();
+            savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
+            savedUser.setPassword(password);
 
-            if (signUpDTO.getScreens() != null && !signUpDTO.getScreens().isEmpty()) {
+            // for employee users set profile as a default screen
+            ScreenMaster screenMaster = screenRepository.findById(14L).get();
+            UserScreenAccessEntity access = new UserScreenAccessEntity();
+            access.setUser(savedUserEntity);
+            access.setScreen(screenMaster);
 
-                accesses = signUpDTO.getScreens()
-                        .stream()
-                        .map(screenId -> {
-
-                            ScreenMaster screen = screenRepository.findById(screenId.getScreenId())
-                                    .orElseThrow(() ->
-                                            new CustomException("Screen not found", HttpStatus.NOT_FOUND));
-
-                            return UserScreenAccessEntity.builder()
-                                    .user(savedUserEntity)
-                                    .screen(screen)
-                                    .build();
-                        })
-                        .toList();
-
-                userScreenAccessRepository.saveAll(accesses);
-            }
+            userScreenAccessRepository.save(access);
 
             savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
             savedUser.setPassword(password);
 
             savedUser.setScreens(
-                    accesses.stream()
-                            .map(UserScreenAccessEntity::getScreen)
-                            .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
-                            .toList()
-            );
+                    List.of(
+                            modelMapper.map(screenMaster, ScreenMasterDTO.class)
+                    ));
         } else {
 
             Optional<UserEntity> existingUserEntity = userRepository.findByMobileNo(signUpDTO.getMobileNo());
@@ -144,37 +131,21 @@ public class UserServiceImpl extends BaseService implements UserService {
 
             UserEntity savedUserEntity = userRepository.save(userEntity);
 
-//            List<UserScreenAccessEntity> accesses = new ArrayList<>();
-//
-//            if (signUpDTO.getScreens() != null && !signUpDTO.getScreens().isEmpty()) {
-//
-//                accesses = signUpDTO.getScreens()
-//                        .stream()
-//                        .map(screenId -> {
-//
-//                            ScreenMaster screen = screenRepository.findById(screenId.getScreenId())
-//                                    .orElseThrow(() ->
-//                                            new CustomException("Screen not found", HttpStatus.NOT_FOUND));
-//
-//                            return UserScreenAccessEntity.builder()
-//                                    .user(savedUserEntity)
-//                                    .screen(screen)
-//                                    .build();
-//                        })
-//                        .toList();
-//
-//                userScreenAccessRepository.saveAll(accesses);
-//            }
+            // for student users set student profile as a default screen
+            ScreenMaster screenMaster = screenRepository.findById(15L).get();
+            UserScreenAccessEntity access = new UserScreenAccessEntity();
+            access.setUser(savedUserEntity);
+            access.setScreen(screenMaster);
+
+            userScreenAccessRepository.save(access);
 
             savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
             savedUser.setPassword(password);
 
-//            savedUser.setScreens(
-//                    accesses.stream()
-//                            .map(UserScreenAccessEntity::getScreen)
-//                            .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
-//                            .toList()
-//            );
+            savedUser.setScreens(
+                    List.of(
+                            modelMapper.map(screenMaster, ScreenMasterDTO.class)
+                    ));
         }
 
         log.info("Exit from saveUser");
