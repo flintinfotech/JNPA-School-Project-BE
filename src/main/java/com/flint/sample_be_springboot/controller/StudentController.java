@@ -60,4 +60,11 @@ public class StudentController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }
 
+    @PostMapping("/getAllCurrentYearStudentsData")
+    public ResponseEntity<?> getAllCurrentYearStudentsData(@RequestBody Map<String, Object> filter, Pageable pageable,
+                                                           @RequestParam(defaultValue = "true") boolean paginate) {
+        Map<String, Object> data = studentService.getAllCurrentYearStudentsData(filter, pageable, paginate);
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
+    }
+
 }

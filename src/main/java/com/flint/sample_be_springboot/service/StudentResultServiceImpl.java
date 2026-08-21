@@ -80,6 +80,7 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
         log.info("Exit from saveStudentResult");
 
         return resultDTO;
+
     }
 
 
@@ -195,7 +196,7 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
     }
 
     @Override
-    public Map<String, Object> getAllStudentResultByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+    public Map<String, Object> getAllStudentsResultByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         return Map.of();
     }
 }

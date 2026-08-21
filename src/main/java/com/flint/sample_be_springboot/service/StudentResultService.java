@@ -15,6 +15,8 @@ public interface StudentResultService {
 
     String deleteStudentResult(Long resultId);
 
-    Map<String, Object> getAllStudentResultByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
+    Map<String, Object> getAllStudentsResultByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
+
+
 
 }

@@ -199,7 +199,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setMobileNo(employeeDetailsDTO.getMobileNo());
         existingEntity.setRole(employeeDetailsDTO.getRole());
 
-        if(!existingEntity.equals(employeeDetailsDTO.getRole())){
+        if (!existingEntity.equals(employeeDetailsDTO.getRole())) {
             existingEntity.getUserEntity().setRole(employeeDetailsDTO.getRole());
         }
 
@@ -432,14 +432,11 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
                     List<UserDocumentDTO> userDocumentDTOS = new ArrayList<>();
 
-                    if (existingEntity.getUserDocumentEntities() != null &&
-                            !existingEntity.getUserDocumentEntities().isEmpty()) {
+                    if (existingEntity.getUserDocumentEntities() != null && !existingEntity.getUserDocumentEntities().isEmpty()) {
 
                         for (UserDocumentEntity documentEntity : existingEntity.getUserDocumentEntities()) {
 
-                            UserDocumentDTO documentDTO =
-                                    modelMapper.map(documentEntity, UserDocumentDTO.class);
-
+                            UserDocumentDTO documentDTO = modelMapper.map(documentEntity, UserDocumentDTO.class);
                             userDocumentDTOS.add(documentDTO);
                         }
                     }

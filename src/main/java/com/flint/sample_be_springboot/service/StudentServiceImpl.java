@@ -20,7 +20,6 @@ import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import com.flint.sample_be_springboot.util.GenerateCodes;
-import com.flint.sample_be_springboot.util.PasswordGenerator;
 import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
@@ -31,6 +30,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -356,7 +356,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         // Set Parent DTO
         if (savedEntity.getParentEntity() != null) {
 
-            ParentDTO parentDTO =modelMapper.map(savedEntity.getParentEntity(),ParentDTO.class);
+            ParentDTO parentDTO = modelMapper.map(savedEntity.getParentEntity(), ParentDTO.class);
             savedDTO.setParentDTO(parentDTO);
 
         } else {
@@ -488,6 +488,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             totalElement = studentEntities.size();
         }
 
+
         List<StudentDTO> studentDTOS = studentEntities.stream()
                 .map(s -> {
                     StudentDTO dto = modelMapper.map(s, StudentDTO.class);
@@ -585,6 +586,80 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         log.info("Exit from getStudentById");
         return savedDTO;
+    }
+
+
+    @Override
+    public Map<String, Object> getAllCurrentYearStudentsData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+
+        log.info("Enter into getAllCurrentYearStudentsData");
+
+        Map<String, Object> response = new HashMap<>();
+        LocalDate startDate = getStartDate();
+        LocalDate endDate = getEndDate();
+
+        String currentAcademicYear = startDate.getYear() + "-" + endDate.getYear();
+
+        String standard = filter.get("standard") != null
+                ? filter.get("standard").toString()
+                : null;
+
+        String division = filter.get("division") != null
+                ? filter.get("division").toString()
+                : null;
+
+        String medium = filter.get("medium") != null
+                ? filter.get("medium").toString()
+                : null;
+
+        Page<StudentEntity> studentEntityPage = null;
+        List<StudentEntity> studentEntities;
+        long totalElement;
+
+        if (paginate) {
+            studentEntityPage = studentRepository.findAllCurrentYearStudents(currentAcademicYear,standard,division,medium,pageable);
+            studentEntities = studentEntityPage.getContent();
+            totalElement = studentEntityPage.getTotalElements();
+        } else {
+            studentEntities = studentRepository.findAllCurrentYearStudents(currentAcademicYear,standard,division,medium);
+            totalElement = studentEntities.size();
+        }
+
+        // Convert Entity -> DTO
+        List<StudentDTO> studentDTOs = studentEntities.stream()
+                .map(student -> convertToCurrentYearStudentDTO(student, currentAcademicYear))
+                .toList();
+
+        response.put("data", studentDTOs);
+        response.put("totalElements", totalElement);
+
+        if (paginate && studentEntityPage != null) {
+
+            response.put("totalPages", studentEntityPage.getTotalPages());
+            response.put("currentPage", studentEntityPage.getNumber());
+            response.put("pageSize", studentEntityPage.getSize());
+        }
+
+        log.info("Exit into getAllCurrentYearStudentsData");
+        return response;
+
+    }
+
+    private StudentDTO convertToCurrentYearStudentDTO(StudentEntity student, String currentAcademicYear) {
+
+        StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
+
+        List<AcademicInformationDTO> currentYearAcademicInfo = student.getAcademicInformationEntity()
+                .stream()
+                .filter(info ->
+                        currentAcademicYear.equals(info.getAcademicYear()))
+                .map(info ->
+                        modelMapper.map(info, AcademicInformationDTO.class))
+                .toList();
+
+        studentDTO.setAcademicInformation(currentYearAcademicInfo);
+
+        return studentDTO;
     }
 
 }

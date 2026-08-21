@@ -47,10 +47,12 @@ public class StudentResultController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message(msg).build());
     }
 
-    @PostMapping("/getAllStudentResultByFilter")
-    public ResponseEntity<?> getAllStudentResultByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
+    @PostMapping("/getAllStudentsResultByFilter")
+    public ResponseEntity<?> getAllStudentsResultByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
                                                          @RequestParam(defaultValue = "true") boolean paginate) {
-        Map<String, Object> data = studentResultService.getAllStudentResultByFilter(filter, pageable, paginate);
+        Map<String, Object> data = studentResultService.getAllStudentsResultByFilter(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }
+
+
 }
