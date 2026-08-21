@@ -8,7 +8,7 @@ public class ExamSubjectsDTO {
 
     private Long ExamSubjectsId;
     private Long resultId;
-    private Long subject;
+    private String subjectName;
     private BigDecimal maximumMarks;
     private BigDecimal obtainedMarks;
     private String status;

@@ -30,9 +30,8 @@ public class ExamSubjectsEntity {
     @JoinColumn(name = "RESULT_ID", nullable = false)
     private StudentResultEntity studentResult;
 
-    @ManyToOne
-    @JoinColumn(name = "SUBJECT_ID", nullable = false)
-    private SubjectMasterEntity subject;
+    @Column(name = "SUBJECT_NAME")
+    private String subjectName;
 
     @Column(name = "MAXIMUM_MARKS")
     private BigDecimal maximumMarks;

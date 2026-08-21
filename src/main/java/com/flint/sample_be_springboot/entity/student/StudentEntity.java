@@ -102,6 +102,9 @@ public class StudentEntity {
     @OneToMany(fetch = FetchType.LAZY,mappedBy = "studentEntity",cascade = CascadeType.ALL,orphanRemoval = true)
     private List<StudentFeeEntity> studentFeeEntities;
 
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "studentEntity",cascade = CascadeType.ALL,orphanRemoval = true)
+    private List<StudentResultEntity> studentResultEntities;
+
     @Embedded
     private AuditDetails auditDetails;
 

@@ -1,11 +1,8 @@
 package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.student.ExamSubjectsDTO;
-import com.flint.sample_be_springboot.dto.student.StudentDocumentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentResultDTO;
-import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.entity.student.ExamSubjectsEntity;
-import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentResultEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.student.ExamSubjectsRepository;
@@ -19,20 +16,18 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Base64;
 import java.util.List;
 import java.util.Map;
+
 @Slf4j
 @Service
 public class StudentResultServiceImpl extends BaseService implements StudentResultService {
 
+    ModelMapper modelMapper = new ModelMapper();
     @Autowired
     private StudentResultRepository studentResultRepository;
-
     @Autowired
     private ExamSubjectsRepository examSubjectsRepository;
-
-    ModelMapper modelMapper = new ModelMapper();
 
     @Override
     public StudentResultDTO saveStudentResult(StudentResultDTO studentResultDTO) {
@@ -42,12 +37,36 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
             throw new CustomException("Student result info can't be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        StudentResultEntity studentResultEntity =modelMapper.map(studentResultDTO, StudentResultEntity.class);
+
+        StudentResultEntity studentResultEntity = modelMapper.map(studentResultDTO, StudentResultEntity.class);
         studentResultEntity.setAuditDetails(addAuditDetails(studentResultEntity.getAuditDetails()));
 
+        List<ExamSubjectsEntity> examSubjectsEntities = new ArrayList<>();
+        for (ExamSubjectsDTO examSubjectsDTO : studentResultDTO.getExamSubjectsDTOS()) {
 
-        StudentResultEntity savedResult =studentResultRepository.save(studentResultEntity);
-        return modelMapper.map(savedResult, StudentResultDTO.class);
+            ExamSubjectsEntity examSubjectsEntity = modelMapper.map(examSubjectsDTO, ExamSubjectsEntity.class);
+            examSubjectsEntity.setStudentResult(studentResultEntity);
+            examSubjectsEntities.add(examSubjectsEntity);
+
+        }
+        studentResultEntity.setExamSubjectsEntities(examSubjectsEntities);
+
+        // saving the studenResultEntity
+        StudentResultEntity savedResult = studentResultRepository.save(studentResultEntity);
+
+        StudentResultDTO resultDTO = modelMapper.map(savedResult, StudentResultDTO.class);
+
+        List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+        if (savedResult.getExamSubjectsEntities() != null && !savedResult.getExamSubjectsEntities().isEmpty()) {
+            for (ExamSubjectsEntity examSubjectsEntity : savedResult.getExamSubjectsEntities()) {
+                ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                examSubjectsDTO.setResultId(resultDTO.getResultId());
+                examSubjectsDTOS.add(examSubjectsDTO);
+            }
+        }
+        resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+
+        return resultDTO;
 
     }
 
