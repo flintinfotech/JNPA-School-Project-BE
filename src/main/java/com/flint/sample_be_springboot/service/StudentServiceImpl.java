@@ -363,7 +363,14 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         UserEntity user = userRepository.findByStudentEntity_StudentId(savedEntity.getStudentId())
                 .orElseThrow(() -> new CustomException("Student user not found", HttpStatus.NOT_FOUND));
 
-        UserDTO userDTO = modelMapper.map(user, UserDTO.class);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserId(savedEntity.getUserEntity().getUserId());
+        userDTO.setUserName(studentDTO.getParentDTO().getPhone());
+        userDTO.setMobileNo(studentDTO.getParentDTO().getPhone());
+        userDTO.setFirstName(studentDTO.getFirstName());
+        userDTO.setLastName(studentDTO.getLastName());
+        userDTO.setRole(Role.STUDENT);
+        userDTO.setEmail(studentDTO.getParentDTO().getEmail());
 
         List<ScreenMasterDTO> screens = user.getScreenAccesses()
                 .stream()
