@@ -28,7 +28,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -617,11 +616,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         long totalElement;
 
         if (paginate) {
-            studentEntityPage = studentRepository.findAllCurrentYearStudents(currentAcademicYear,standard,division,medium,pageable);
+            studentEntityPage = studentRepository.findAllCurrentYearStudents(currentAcademicYear, standard, division, medium, pageable);
             studentEntities = studentEntityPage.getContent();
             totalElement = studentEntityPage.getTotalElements();
         } else {
-            studentEntities = studentRepository.findAllCurrentYearStudents(currentAcademicYear,standard,division,medium);
+            studentEntities = studentRepository.findAllCurrentYearStudents(currentAcademicYear, standard, division, medium);
             totalElement = studentEntities.size();
         }
 
@@ -658,7 +657,6 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 .toList();
 
         studentDTO.setAcademicInformation(currentYearAcademicInfo);
-
         return studentDTO;
     }
 
