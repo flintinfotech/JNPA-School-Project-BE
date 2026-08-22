@@ -10,6 +10,7 @@ import com.flint.sample_be_springboot.repository.student.ExamSubjectsRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.repository.student.StudentResultRepository;
 import com.flint.sample_be_springboot.util.BaseService;
+import jakarta.transaction.Transactional;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,10 +18,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -109,76 +107,211 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
         return resultDTO;
     }
 
+//    @Override
+//    public StudentResultDTO updateStudentResult(StudentResultDTO studentResultDTO) {
+//        log.info("Enter into updateStudentResult");
+//
+//        StudentResultEntity existingStudentResultEntity = studentResultRepository.findById(studentResultDTO.getResultId())
+//                .orElseThrow(() -> new CustomException("Student result not found", HttpStatus.NOT_FOUND));
+//
+//        modelMapper.map(existingStudentResultEntity, existingStudentResultEntity);
+//
+//        // collect incoming Ids
+//        Set<Long> incomingIds = studentResultDTO.getExamSubjectsDTOS().stream()
+//                .map(ExamSubjectsDTO::getExamSubjectsId)
+//                .collect(Collectors.toSet());
+//
+//        // remove deleted exam subjects
+//        existingStudentResultEntity.getExamSubjectsEntities().removeIf(e ->
+//                e.getExamSubjectsId() != null && !incomingIds.contains(e.getExamSubjectsId()));
+//
+//        // existing exam result map
+//        Map<Long, ExamSubjectsEntity> map = existingStudentResultEntity.getExamSubjectsEntities().stream()
+//                .collect(Collectors.toMap(ExamSubjectsEntity::getExamSubjectsId, Function.identity()));
+//
+//        if (studentResultDTO.getExamSubjectsDTOS() != null && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
+//            for (ExamSubjectsDTO examSubjectsDTO : studentResultDTO.getExamSubjectsDTOS()) {
+//
+//                ExamSubjectsEntity examSubjectsEntity;
+//
+//                // UPDATE existing record
+//                if (examSubjectsDTO.getExamSubjectsId() != null
+//                        && map.containsKey(examSubjectsDTO.getExamSubjectsId())) {
+//
+//                    examSubjectsEntity = map.get(examSubjectsDTO.getExamSubjectsId());
+//
+//                    modelMapper.map(examSubjectsDTO, examSubjectsEntity);
+//
+//                    examSubjectsEntity.setAuditDetails(addAuditDetails(examSubjectsEntity.getAuditDetails()));
+//
+//                } else {
+//
+//                    // CREATE new record
+//                    examSubjectsEntity = new ExamSubjectsEntity();
+//
+//                    modelMapper.map(examSubjectsDTO, examSubjectsEntity);
+//
+//                    examSubjectsEntity.setStudentResult(existingStudentResultEntity);
+//
+//                    examSubjectsEntity.setAuditDetails(addAuditDetails(examSubjectsEntity.getAuditDetails()));
+//
+//                    // Add to parent's collection
+//                    existingStudentResultEntity.getExamSubjectsEntities().add(examSubjectsEntity);
+//                }
+//            }
+//        }
+//
+//        StudentResultEntity updatedEntity = studentResultRepository.save(existingStudentResultEntity);
+//
+//        StudentResultDTO resultDTO = modelMapper.map(updatedEntity, StudentResultDTO.class);
+//        resultDTO.setStudentId(updatedEntity.getStudentEntity().getStudentId());
+//
+//        List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+//        if (updatedEntity.getExamSubjectsEntities() != null && !updatedEntity.getExamSubjectsEntities().isEmpty()) {
+//            for (ExamSubjectsEntity examSubjectsEntity : updatedEntity.getExamSubjectsEntities()) {
+//                ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+//                examSubjectsDTO.setResultId(resultDTO.getResultId());
+//                examSubjectsDTOS.add(examSubjectsDTO);
+//            }
+//        }
+//        resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+//
+//        log.info("Exit from updateStudentResult");
+//        return resultDTO;
+//    }
+//
+
     @Override
+    @Transactional
     public StudentResultDTO updateStudentResult(StudentResultDTO studentResultDTO) {
+
         log.info("Enter into updateStudentResult");
 
         StudentResultEntity existingStudentResultEntity = studentResultRepository.findById(studentResultDTO.getResultId())
                 .orElseThrow(() -> new CustomException("Student result not found", HttpStatus.NOT_FOUND));
 
-        modelMapper.map(existingStudentResultEntity, existingStudentResultEntity);
+        // Update parent StudentResult fields
+        existingStudentResultEntity.setStandard(studentResultDTO.getStandard());
+        existingStudentResultEntity.setDivision(studentResultDTO.getDivision());
+        existingStudentResultEntity.setExamType(studentResultDTO.getExamType());
+        existingStudentResultEntity.setAcademicYear(studentResultDTO.getAcademicYear());
+        existingStudentResultEntity.setStartDate(studentResultDTO.getStartDate());
+        existingStudentResultEntity.setEndDate(studentResultDTO.getEndDate());
+        existingStudentResultEntity.setTotalMarks(studentResultDTO.getTotalMarks());
+        existingStudentResultEntity.setObtainedMarks(studentResultDTO.getObtainedMarks());
+        existingStudentResultEntity.setPercentage(studentResultDTO.getPercentage());
+        existingStudentResultEntity.setGrade(studentResultDTO.getGrade());
+        existingStudentResultEntity.setResultStatus(studentResultDTO.getResultStatus());
 
-        // collect incoming Ids
-        Set<Long> incomingIds = studentResultDTO.getExamSubjectsDTOS().stream()
-                .map(ExamSubjectsDTO::getExamSubjectsId)
-                .collect(Collectors.toSet());
+        // Existing ExamSubjects collection
+        // IMPORTANT: Do NOT replace this collection
+        List<ExamSubjectsEntity> existingSubjects = existingStudentResultEntity.getExamSubjectsEntities();
 
-        // remove deleted exam subjects
-        existingStudentResultEntity.getExamSubjectsEntities().removeIf(e ->
-                e.getExamSubjectsId() != null && !incomingIds.contains(e.getExamSubjectsId()));
+        if (existingSubjects == null) {
+            existingSubjects = new ArrayList<>();
+            existingStudentResultEntity.setExamSubjectsEntities(existingSubjects);
+        }
 
-        // existing exam result map
-        Map<Long, ExamSubjectsEntity> map = existingStudentResultEntity.getExamSubjectsEntities().stream()
-                .collect(Collectors.toMap(ExamSubjectsEntity::getExamSubjectsId, Function.identity()));
+        // Incoming IDs
+        Set<Long> incomingIds =
+                studentResultDTO.getExamSubjectsDTOS() == null
+                        ? Collections.emptySet()
+                        : studentResultDTO.getExamSubjectsDTOS()
+                        .stream()
+                        .map(ExamSubjectsDTO::getExamSubjectsId)
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toSet());
 
-        if (studentResultDTO.getExamSubjectsDTOS() != null && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
-            for (ExamSubjectsDTO examSubjectsDTO : studentResultDTO.getExamSubjectsDTOS()) {
+        // Remove deleted ExamSubjects
+        existingSubjects.removeIf(existingSubject ->
+                existingSubject.getExamSubjectsId() != null
+                        && !incomingIds.contains(existingSubject.getExamSubjectsId())
+        );
+
+        // Existing subjects map
+        Map<Long, ExamSubjectsEntity> existingSubjectMap =
+                existingSubjects.stream()
+                        .filter(subject ->
+                                subject.getExamSubjectsId() != null)
+                        .collect(Collectors.toMap(
+                                ExamSubjectsEntity::getExamSubjectsId,
+                                Function.identity()
+                        ));
+
+        // Update / Create ExamSubjects
+        if (studentResultDTO.getExamSubjectsDTOS() != null
+                && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
+
+            for (ExamSubjectsDTO examSubjectsDTO :
+                    studentResultDTO.getExamSubjectsDTOS()) {
 
                 ExamSubjectsEntity examSubjectsEntity;
 
-                // UPDATE existing record
-                if (examSubjectsDTO.getExamSubjectsId() != null
-                        && map.containsKey(examSubjectsDTO.getExamSubjectsId())) {
 
-                    examSubjectsEntity = map.get(examSubjectsDTO.getExamSubjectsId());
+                // UPDATE EXISTING SUBJECT
+                if (examSubjectsDTO.getExamSubjectsId() != null && existingSubjectMap.containsKey(examSubjectsDTO.getExamSubjectsId())) {
 
-                    modelMapper.map(examSubjectsDTO, examSubjectsEntity);
+                    examSubjectsEntity = existingSubjectMap.get(examSubjectsDTO.getExamSubjectsId());
 
+                    // Map only subject fields
+                    examSubjectsEntity.setMaximumMarks(examSubjectsDTO.getMaximumMarks());
+                    examSubjectsEntity.setObtainedMarks(examSubjectsDTO.getObtainedMarks());
+                    examSubjectsEntity.setStatus(examSubjectsDTO.getStatus());
+                    examSubjectsEntity.setSubjectName(examSubjectsDTO.getSubjectName());
                     examSubjectsEntity.setAuditDetails(addAuditDetails(examSubjectsEntity.getAuditDetails()));
 
-                } else {
+                }
 
-                    // CREATE new record
+                // CREATE NEW SUBJECT
+                else {
+
                     examSubjectsEntity = new ExamSubjectsEntity();
 
-                    modelMapper.map(examSubjectsDTO, examSubjectsEntity);
+                    examSubjectsEntity.setMaximumMarks(examSubjectsDTO.getMaximumMarks());
+                    examSubjectsEntity.setObtainedMarks(examSubjectsDTO.getObtainedMarks());
+                    examSubjectsEntity.setStatus(examSubjectsDTO.getStatus());
+                    examSubjectsEntity.setSubjectName(examSubjectsDTO.getSubjectName());
 
+                    // IMPORTANT: Set parent
                     examSubjectsEntity.setStudentResult(existingStudentResultEntity);
 
                     examSubjectsEntity.setAuditDetails(addAuditDetails(examSubjectsEntity.getAuditDetails()));
 
-                    // Add to parent's collection
-                    existingStudentResultEntity.getExamSubjectsEntities().add(examSubjectsEntity);
+                    // Add to the existing Hibernate-managed collection
+                    existingSubjects.add(examSubjectsEntity);
                 }
             }
         }
 
+        // Update parent audit
+        existingStudentResultEntity.setAuditDetails(addAuditDetails(existingStudentResultEntity.getAuditDetails()));
+
+        // Save
         StudentResultEntity updatedEntity = studentResultRepository.save(existingStudentResultEntity);
 
+        // Convert to DTO
         StudentResultDTO resultDTO = modelMapper.map(updatedEntity, StudentResultDTO.class);
+
         resultDTO.setStudentId(updatedEntity.getStudentEntity().getStudentId());
 
         List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+
         if (updatedEntity.getExamSubjectsEntities() != null && !updatedEntity.getExamSubjectsEntities().isEmpty()) {
+
             for (ExamSubjectsEntity examSubjectsEntity : updatedEntity.getExamSubjectsEntities()) {
+
                 ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+
                 examSubjectsDTO.setResultId(resultDTO.getResultId());
+
                 examSubjectsDTOS.add(examSubjectsDTO);
             }
         }
+
         resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
 
         log.info("Exit from updateStudentResult");
+
         return resultDTO;
     }
 

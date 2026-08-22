@@ -17,6 +17,4 @@ public interface StudentResultService {
 
     Map<String, Object> getAllStudentsResultByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 
-
-
 }

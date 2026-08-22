@@ -3,16 +3,10 @@ package com.flint.sample_be_springboot.service;
 import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
-import com.flint.sample_be_springboot.dto.student.AcademicInformationDTO;
-import com.flint.sample_be_springboot.dto.student.ParentDTO;
-import com.flint.sample_be_springboot.dto.student.StudentDTO;
-import com.flint.sample_be_springboot.dto.student.StudentDocumentDTO;
+import com.flint.sample_be_springboot.dto.student.*;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
-import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
-import com.flint.sample_be_springboot.entity.student.ParentEntity;
-import com.flint.sample_be_springboot.entity.student.StudentDocumentEntity;
-import com.flint.sample_be_springboot.entity.student.StudentEntity;
+import com.flint.sample_be_springboot.entity.student.*;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.UserRepository;
@@ -177,6 +171,26 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             }
         }
         savedDTO.setAcademicInformation(academicInformationDTOs);
+
+        // set student results
+        List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
+            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
+                StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+
+                List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
+                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                        ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                        examSubjectsDTOS.add(examSubjectsDTO);
+                    }
+                }
+                studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+                studentResultDTOS.add(studentResultDTO);
+            }
+        }
+        savedDTO.setStudentResultDTOS(studentResultDTOS);
+
         log.info("Exit from saveStudent");
 
         Map<String, Object> map = new HashMap<>();
@@ -350,17 +364,17 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         UserDTO updatedUserDTO = userService.updateUser(userDTO);
 
         // return updated student DTO
-        StudentDTO savedDTO = modelMapper.map(savedEntity, StudentDTO.class);
+        StudentDTO updatedStudentDTO = modelMapper.map(savedEntity, StudentDTO.class);
 
         // Set Parent DTO
         if (savedEntity.getParentEntity() != null) {
 
             ParentDTO parentDTO = modelMapper.map(savedEntity.getParentEntity(), ParentDTO.class);
-            savedDTO.setParentDTO(parentDTO);
+            updatedStudentDTO.setParentDTO(parentDTO);
 
         } else {
 
-            savedDTO.setParentDTO(null);
+            updatedStudentDTO.setParentDTO(null);
         }
 
 
@@ -372,7 +386,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 studentDocumentDTOs.add(studentDocumentDTO);
             }
         }
-        savedDTO.setStudentDocuments(studentDocumentDTOs);
+        studentDTO.setStudentDocuments(studentDocumentDTOs);
 
         // Set Academic Information DTOs
         List<AcademicInformationDTO> academicInformationDTOs = new ArrayList<>();
@@ -384,10 +398,29 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicInformationDTOs.add(academicInformationDTO);
             }
         }
-        savedDTO.setAcademicInformation(academicInformationDTOs);
+        updatedStudentDTO.setAcademicInformation(academicInformationDTOs);
+
+        // set student results
+        List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+        if(savedEntity.getStudentResultEntities() != null && !savedEntity.getStudentResultEntities().isEmpty()){
+            for(StudentResultEntity studentResultEntity : savedEntity.getStudentResultEntities()){
+                StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+
+                List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
+                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                        ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                        examSubjectsDTOS.add(examSubjectsDTO);
+                    }
+                }
+                studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+                studentResultDTOS.add(studentResultDTO);
+            }
+        }
+        updatedStudentDTO.setStudentResultDTOS(studentResultDTOS);
 
         log.info("Exist from updateStudent");
-        return savedDTO;
+        return updatedStudentDTO;
     }
 
     @Override
@@ -397,12 +430,12 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         StudentEntity studentEntity = studentRepository.findById(studentId)
                 .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
-        StudentDTO savedDTO = modelMapper.map(studentEntity, StudentDTO.class);
+        StudentDTO studentDTO = modelMapper.map(studentEntity, StudentDTO.class);
 
         if (studentEntity.getProfileImg() != null) {
             String img = Base64.getEncoder().encodeToString(studentEntity.getProfileImg());
 
-            savedDTO.setProfileImg(img);
+            studentDTO.setProfileImg(img);
         }
 
         // Set Parent DTO
@@ -410,7 +443,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         if (studentEntity.getParentEntity() != null) {
             parentDTO = modelMapper.map(studentEntity.getParentEntity(), ParentDTO.class);
         }
-        savedDTO.setParentDTO(parentDTO);
+        studentDTO.setParentDTO(parentDTO);
 
         // Set Student Document DTOs
         List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
@@ -420,7 +453,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 studentDocumentDTOs.add(studentDocumentDTO);
             }
         }
-        savedDTO.setStudentDocuments(studentDocumentDTOs);
+        studentDTO.setStudentDocuments(studentDocumentDTOs);
 
         // Set Academic Information DTOs
         List<AcademicInformationDTO> academicInformationDTOs = new ArrayList<>();
@@ -432,10 +465,29 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicInformationDTOs.add(academicInformationDTO);
             }
         }
-        savedDTO.setAcademicInformation(academicInformationDTOs);
+        studentDTO.setAcademicInformation(academicInformationDTOs);
+
+        // set student results
+        List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
+            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
+                StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+
+                List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
+                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                        ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                        examSubjectsDTOS.add(examSubjectsDTO);
+                    }
+                }
+                studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+                studentResultDTOS.add(studentResultDTO);
+            }
+        }
+        studentDTO.setStudentResultDTOS(studentResultDTOS);
 
         log.info("Exit from getStudentById");
-        return savedDTO;
+        return studentDTO;
     }
 
     @Override
@@ -527,6 +579,25 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                     }
                     dto.setAcademicInformation(academicInformationDTOs);
 
+                    // set student results
+                    List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+                    if(s.getStudentResultEntities() != null && !s.getStudentResultEntities().isEmpty()){
+                        for(StudentResultEntity studentResultEntity : s.getStudentResultEntities()){
+                            StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+
+                            List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+                            if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
+                                for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                                    ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                                    examSubjectsDTOS.add(examSubjectsDTO);
+                                }
+                            }
+                            studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+                            studentResultDTOS.add(studentResultDTO);
+                        }
+                    }
+                    dto.setStudentResultDTOS(studentResultDTOS);
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -546,12 +617,12 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         StudentEntity studentEntity = studentRepository.findByUserEntity_UserId(userId)
                 .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
-        StudentDTO savedDTO = modelMapper.map(studentEntity, StudentDTO.class);
+        StudentDTO studentDTO = modelMapper.map(studentEntity, StudentDTO.class);
 
         if (studentEntity.getProfileImg() != null) {
             String img = Base64.getEncoder().encodeToString(studentEntity.getProfileImg());
 
-            savedDTO.setProfileImg(img);
+            studentDTO.setProfileImg(img);
         }
 
         // Set Parent DTO
@@ -559,7 +630,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         if (studentEntity.getParentEntity() != null) {
             parentDTO = modelMapper.map(studentEntity.getParentEntity(), ParentDTO.class);
         }
-        savedDTO.setParentDTO(parentDTO);
+        studentDTO.setParentDTO(parentDTO);
 
         // Set Student Document DTOs
         List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
@@ -569,7 +640,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 studentDocumentDTOs.add(studentDocumentDTO);
             }
         }
-        savedDTO.setStudentDocuments(studentDocumentDTOs);
+        studentDTO.setStudentDocuments(studentDocumentDTOs);
 
         // Set Academic Information DTOs
         List<AcademicInformationDTO> academicInformationDTOs = new ArrayList<>();
@@ -581,10 +652,29 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicInformationDTOs.add(academicInformationDTO);
             }
         }
-        savedDTO.setAcademicInformation(academicInformationDTOs);
+        studentDTO.setAcademicInformation(academicInformationDTOs);
+
+        // set student results
+        List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
+            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
+                StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+
+                List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
+                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                        ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                        examSubjectsDTOS.add(examSubjectsDTO);
+                    }
+                }
+                studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+                studentResultDTOS.add(studentResultDTO);
+            }
+        }
+        studentDTO.setStudentResultDTOS(studentResultDTOS);
 
         log.info("Exit from getStudentById");
-        return savedDTO;
+        return studentDTO;
     }
 
 
@@ -644,11 +734,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
     }
 
-    private StudentDTO convertToCurrentYearStudentDTO(StudentEntity student, String currentAcademicYear) {
+    private StudentDTO convertToCurrentYearStudentDTO(StudentEntity studentEntity, String currentAcademicYear) {
 
-        StudentDTO studentDTO = modelMapper.map(student, StudentDTO.class);
+        StudentDTO studentDTO = modelMapper.map(studentEntity, StudentDTO.class);
 
-        List<AcademicInformationDTO> currentYearAcademicInfo = student.getAcademicInformationEntity()
+        List<AcademicInformationDTO> currentYearAcademicInfo = studentEntity.getAcademicInformationEntity()
                 .stream()
                 .filter(info ->
                         currentAcademicYear.equals(info.getAcademicYear()))
@@ -657,6 +747,63 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 .toList();
 
         studentDTO.setAcademicInformation(currentYearAcademicInfo);
+
+        // Set Parent DTO
+        ParentDTO parentDTO = null;
+        if (studentEntity.getParentEntity() != null) {
+            parentDTO = modelMapper.map(studentEntity.getParentEntity(), ParentDTO.class);
+        }
+        studentDTO.setParentDTO(parentDTO);
+
+        // Set Student Document DTOs
+        List<StudentDocumentDTO> studentDocumentDTOs = new ArrayList<>();
+        if (studentEntity.getStudentDocumentEntities() != null && !studentEntity.getStudentDocumentEntities().isEmpty()) {
+            for (StudentDocumentEntity studentDocumentEntity : studentEntity.getStudentDocumentEntities()) {
+                StudentDocumentDTO studentDocumentDTO = modelMapper.map(studentDocumentEntity, StudentDocumentDTO.class);
+                studentDocumentDTOs.add(studentDocumentDTO);
+            }
+        }
+        studentDTO.setStudentDocuments(studentDocumentDTOs);
+
+        // Set student result data for current academic year
+        List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+
+        if (studentEntity.getStudentResultEntities() != null
+                && !studentEntity.getStudentResultEntities().isEmpty()) {
+
+            studentResultDTOS = studentEntity.getStudentResultEntities()
+                    .stream()
+
+                    // Filter results based on current academic year
+                    .filter(result ->
+                            currentAcademicYear.equals(result.getAcademicYear()))
+
+                    // Map StudentResultEntity -> StudentResultDTO
+                    .map(result -> {
+
+                        StudentResultDTO studentResultDTO =
+                                modelMapper.map(result, StudentResultDTO.class);
+
+                        // Set exam subjects
+                        List<ExamSubjectsDTO> examSubjectsDTOS =
+                                result.getExamSubjectsEntities() == null
+                                        ? new ArrayList<>()
+                                        : result.getExamSubjectsEntities()
+                                        .stream()
+                                        .map(examSubjectsEntity ->
+                                                modelMapper.map(
+                                                        examSubjectsEntity,
+                                                        ExamSubjectsDTO.class))
+                                        .toList();
+
+                        studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+
+                        return studentResultDTO;
+                    })
+                    .toList();
+        }
+        studentDTO.setStudentResultDTOS(studentResultDTOS);
+
         return studentDTO;
     }
 
