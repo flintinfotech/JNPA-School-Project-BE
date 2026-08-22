@@ -10,6 +10,7 @@ import com.flint.sample_be_springboot.entity.student.*;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.UserRepository;
+import com.flint.sample_be_springboot.repository.student.AcademicInformationRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
@@ -43,6 +44,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private AcademicInformationRepository academicInformationRepository;
+
+
     @Override
     public Map<String, Object> saveStudent(StudentDTO studentDTO) {
         log.info("Enter into saveStudent");
@@ -54,7 +59,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 //        StudentEntity existingStudentEntity = studentRepository.findByAadhaarCard(studentDTO.getAadhaarCard());
 //        if (!ObjectUtils.isEmpty(existingStudentEntity)) {
 //            throw new CustomException("Student aadhaar no. already registered", HttpStatus.PRECONDITION_FAILED);
-//        }
+//
 
         StudentEntity studentEntity = modelMapper.map(studentDTO, StudentEntity.class);
 
@@ -62,6 +67,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         String nextStudentCode = GenerateCodes.generateStudentCode(lastStudentCode);
         System.err.println(nextStudentCode);
         studentEntity.setStudentCode(nextStudentCode);
+
 
         studentEntity.setPhone(studentDTO.getParentDTO().getPhone());
 
@@ -109,11 +115,15 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         studentEntity.setStudentDocumentEntities(studentDocumentEntities);
 
         // set student academic information
+        String lastAdmissionCode = academicInformationRepository.findLastAdmissionNo() != null ? academicInformationRepository.findLastAdmissionNo() : null;
+        String nextStudentAdmissionCode = GenerateCodes.generateStudentAdmissionNo(lastAdmissionCode);
+
         List<AcademicInformationEntity> academicInformationEntities = new ArrayList<>();
         if (studentDTO.getAcademicInformation() != null && !studentDTO.getAcademicInformation().isEmpty()) {
             for (AcademicInformationDTO academicInformationDTO : studentDTO.getAcademicInformation()) {
                 AcademicInformationEntity academicInformationEntity = modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
                 academicInformationEntity.setStudentEntity(studentEntity);
+                academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
 
                 academicInformationEntities.add(academicInformationEntity);
             }
@@ -133,6 +143,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         signUpDTO.setEmail(studentDTO.getParentDTO().getEmail());
         signUpDTO.setAadhaarNo(studentDTO.getAadhaarCard());
         signUpDTO.setDOB(studentDTO.getDOB());
+
 
         UserDTO userDTO = userService.saveUser(signUpDTO);
 
@@ -168,6 +179,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                         modelMapper.map(academicInformationEntity, AcademicInformationDTO.class);
 
                 academicInformationDTOs.add(academicInformationDTO);
+
             }
         }
         savedDTO.setAcademicInformation(academicInformationDTOs);
@@ -392,9 +404,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         List<AcademicInformationDTO> academicInformationDTOs = new ArrayList<>();
         if (savedEntity.getAcademicInformationEntity() != null && !savedEntity.getAcademicInformationEntity().isEmpty()) {
             for (AcademicInformationEntity academicInformationEntity : savedEntity.getAcademicInformationEntity()) {
-                AcademicInformationDTO academicInformationDTO =
-                        modelMapper.map(academicInformationEntity, AcademicInformationDTO.class);
-
+                AcademicInformationDTO academicInformationDTO =modelMapper.map(academicInformationEntity, AcademicInformationDTO.class);
                 academicInformationDTOs.add(academicInformationDTO);
             }
         }

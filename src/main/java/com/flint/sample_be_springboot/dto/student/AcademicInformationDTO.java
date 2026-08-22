@@ -9,7 +9,7 @@ import java.time.LocalDate;
 public class AcademicInformationDTO {
 
     private Long academicInformationId; 
-    private Long admissionNo;
+    private String admissionNo;
     private Long studentId;
     private LocalDate admissionDate;
     private String standard;
