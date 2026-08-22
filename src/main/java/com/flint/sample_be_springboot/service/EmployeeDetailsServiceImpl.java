@@ -58,8 +58,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             throw new CustomException("Employee code is already exist", HttpStatus.CONFLICT);
         }
 
-        EmployeeDetailsEntity employeeDetailsEntity =
-                modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
+        EmployeeDetailsEntity employeeDetailsEntity =modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
 
         String lastEmployeeCode = employeeDetailsRepository.findLastEmployeeCode();
         String latestEmployeeCode = GenerateCodes.generateEmployeeCode(lastEmployeeCode);
@@ -84,17 +83,14 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
             for (UserDocumentDTO userDocumentDTO : employeeDetailsDTO.getUserDocumentDTOS()) {
 
-                UserDocumentEntity userDocumentEntity =
-                        modelMapper.map(userDocumentDTO, UserDocumentEntity.class);
+                UserDocumentEntity userDocumentEntity =modelMapper.map(userDocumentDTO, UserDocumentEntity.class);
 
                 if (userDocumentDTO.getDocument() != null) {
-                    userDocumentEntity.setDocument(
-                            Base64.getDecoder().decode(userDocumentDTO.getDocument()));
+                    userDocumentEntity.setDocument(Base64.getDecoder().decode(userDocumentDTO.getDocument()));
                 }
 
                 userDocumentEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
                 userDocumentEntity.setAuditDetails(addAuditDetails(userDocumentEntity.getAuditDetails()));
-
                 userDocumentEntities.add(userDocumentEntity);
             }
         }
@@ -347,8 +343,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
             EmployeeDetailsEntity existingEntity = employeeDetailsEntity.get();
 
-            employeeDetailsDTO =
-                    modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
+            employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
 //            if (existingEntity.getUserEntity() != null) {
 //                employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());

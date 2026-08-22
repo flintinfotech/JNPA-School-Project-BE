@@ -203,6 +203,15 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
         savedDTO.setStudentResultDTOS(studentResultDTOS);
 
+        List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
+        if(studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()){
+            for(StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()){
+                StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
+                studentAchievementsDTOS.add(achievementsDTO);
+            }
+        }
+        savedDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
+
         log.info("Exit from saveStudent");
 
         Map<String, Object> map = new HashMap<>();
@@ -436,6 +445,16 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
         updatedStudentDTO.setStudentResultDTOS(studentResultDTOS);
 
+        // set student achievements
+        List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
+        if(savedEntity.getStudentAchievementsEntities() != null && !savedEntity.getStudentAchievementsEntities().isEmpty()){
+            for(StudentAchievementsEntity studentAchievementsEntity : savedEntity.getStudentAchievementsEntities()){
+                StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
+                studentAchievementsDTOS.add(achievementsDTO);
+            }
+        }
+        updatedStudentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
+
         log.info("Exist from updateStudent");
         return updatedStudentDTO;
     }
@@ -502,6 +521,16 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             }
         }
         studentDTO.setStudentResultDTOS(studentResultDTOS);
+
+        // set student achievements
+        List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
+        if(studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()){
+            for(StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()){
+                StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
+                studentAchievementsDTOS.add(achievementsDTO);
+            }
+        }
+        studentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
 
         log.info("Exit from getStudentById");
         return studentDTO;
@@ -615,6 +644,16 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                     }
                     dto.setStudentResultDTOS(studentResultDTOS);
 
+                    // set student achievements
+                    List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
+                    if(s.getStudentAchievementsEntities() != null && !s.getStudentAchievementsEntities().isEmpty()){
+                        for(StudentAchievementsEntity studentAchievementsEntity : s.getStudentAchievementsEntities()){
+                            StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
+                            studentAchievementsDTOS.add(achievementsDTO);
+                        }
+                    }
+                    dto.setStudentAchievementsDTOS(studentAchievementsDTOS);
+
                     return dto;
                 })
                 .collect(Collectors.toList());
@@ -689,6 +728,16 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             }
         }
         studentDTO.setStudentResultDTOS(studentResultDTOS);
+
+        // set student achievements
+        List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
+        if(studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()){
+            for(StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()){
+                StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
+                studentAchievementsDTOS.add(achievementsDTO);
+            }
+        }
+        studentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
 
         log.info("Exit from getStudentById");
         return studentDTO;
@@ -820,6 +869,17 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                     .toList();
         }
         studentDTO.setStudentResultDTOS(studentResultDTOS);
+
+        // set student achievements
+        List<StudentAchievementsDTO> studentAchievementsDTOS =
+                studentEntity.getStudentAchievementsEntities()
+                        .stream()
+                        .map(studentAchievementsEntity ->
+                                modelMapper.map(
+                                        studentAchievementsEntity,
+                                        StudentAchievementsDTO.class
+                                ))
+                        .toList();
 
         return studentDTO;
     }
