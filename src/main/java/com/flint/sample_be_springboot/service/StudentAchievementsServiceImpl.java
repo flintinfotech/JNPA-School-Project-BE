@@ -23,8 +23,10 @@ import java.util.Map;
 public class StudentAchievementsServiceImpl extends BaseService implements StudentAchievementsService {
 
     ModelMapper modelMapper = new ModelMapper();
+
     @Autowired
     private StudentAchievementsRepository studentAchievementsRepository;
+
     @Autowired
     private StudentRepository studentRepository;
 
@@ -114,6 +116,7 @@ public class StudentAchievementsServiceImpl extends BaseService implements Stude
 
         return "Record deleted successfully";
     }
+
 
 
 }
