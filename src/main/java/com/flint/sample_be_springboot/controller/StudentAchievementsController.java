@@ -5,12 +5,9 @@ import com.flint.sample_be_springboot.response.APIResponse;
 import com.flint.sample_be_springboot.service.StudentAchievementsService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.Map;
 
 @Slf4j
 @RestController
@@ -36,8 +33,6 @@ public class StudentAchievementsController {
     }
 
 
-
-
     @PutMapping("/updateStudentAchievements")
     public ResponseEntity<?> updateStudentAchievements(@RequestBody StudentAchievementsDTO studentAchievementsDTO) {
 
@@ -53,11 +48,5 @@ public class StudentAchievementsController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message(msg).build());
     }
 
-    @PostMapping("/getAllStudentAchievementsByFilter")
-    public ResponseEntity<?> getAllStudentAchievementsByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
-                                                               @RequestParam(defaultValue = "true") boolean paginate) {
 
-        Map<String, Object> data = studentAchievementsService.getAllStudentAchievementsByFilter(filter, pageable, paginate);
-        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
-    }
 }

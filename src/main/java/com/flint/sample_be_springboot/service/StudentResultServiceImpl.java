@@ -233,17 +233,12 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
                 existingSubjects.stream()
                         .filter(subject ->
                                 subject.getExamSubjectsId() != null)
-                        .collect(Collectors.toMap(
-                                ExamSubjectsEntity::getExamSubjectsId,
-                                Function.identity()
-                        ));
+                        .collect(Collectors.toMap(ExamSubjectsEntity::getExamSubjectsId,Function.identity()));
 
         // Update / Create ExamSubjects
-        if (studentResultDTO.getExamSubjectsDTOS() != null
-                && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
+        if (studentResultDTO.getExamSubjectsDTOS() != null && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
 
-            for (ExamSubjectsDTO examSubjectsDTO :
-                    studentResultDTO.getExamSubjectsDTOS()) {
+            for (ExamSubjectsDTO examSubjectsDTO : studentResultDTO.getExamSubjectsDTOS()) {
 
                 ExamSubjectsEntity examSubjectsEntity;
 

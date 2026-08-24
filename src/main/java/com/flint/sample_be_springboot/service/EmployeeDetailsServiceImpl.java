@@ -58,7 +58,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             throw new CustomException("Employee code is already exist", HttpStatus.CONFLICT);
         }
 
-        EmployeeDetailsEntity employeeDetailsEntity =modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
+        EmployeeDetailsEntity employeeDetailsEntity = modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
 
         String lastEmployeeCode = employeeDetailsRepository.findLastEmployeeCode();
         String latestEmployeeCode = GenerateCodes.generateEmployeeCode(lastEmployeeCode);
@@ -83,7 +83,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
             for (UserDocumentDTO userDocumentDTO : employeeDetailsDTO.getUserDocumentDTOS()) {
 
-                UserDocumentEntity userDocumentEntity =modelMapper.map(userDocumentDTO, UserDocumentEntity.class);
+                UserDocumentEntity userDocumentEntity = modelMapper.map(userDocumentDTO, UserDocumentEntity.class);
 
                 if (userDocumentDTO.getDocument() != null) {
                     userDocumentEntity.setDocument(Base64.getDecoder().decode(userDocumentDTO.getDocument()));
@@ -144,15 +144,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         log.info("Enter into updateUserInformation");
 
         if (employeeDetailsDTO == null) {
-            throw new CustomException("User information cannot be null",
-                    HttpStatus.PRECONDITION_FAILED);
+            throw new CustomException("User information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        EmployeeDetailsEntity existingEntity =
-                employeeDetailsRepository.findById(employeeDetailsDTO.getEmployeeDetailsId())
-                        .orElseThrow(() ->
-                                new CustomException("User information not found",
-                                        HttpStatus.NOT_FOUND));
+        EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeDetailsDTO.getEmployeeDetailsId())
+                .orElseThrow(() ->
+                        new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
         Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserNameAndEmployeeDetailsIdNot
                 (employeeDetailsDTO.getUserName(), employeeDetailsDTO.getEmployeeDetailsId());
@@ -199,8 +196,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             existingEntity.getUserEntity().setRole(employeeDetailsDTO.getRole());
         }
 
-        existingEntity.setAuditDetails(
-                addAuditDetails(existingEntity.getAuditDetails()));
+        existingEntity.setAuditDetails(addAuditDetails(existingEntity.getAuditDetails()));
 
         // Remove deleted documents
         Set<Long> requestDocumentIds = employeeDetailsDTO.getUserDocumentDTOS().stream()
@@ -209,15 +205,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                 .collect(Collectors.toSet());
 
         existingEntity.getUserDocumentEntities().removeIf(document ->
-                document.getUserDocumentId() != null &&
-                        !requestDocumentIds.contains(document.getUserDocumentId()));
+                document.getUserDocumentId() != null && !requestDocumentIds.contains(document.getUserDocumentId()));
 
         // Existing document map
         Map<Long, UserDocumentEntity> existingDocuments =
                 existingEntity.getUserDocumentEntities().stream()
-                        .collect(Collectors.toMap(
-                                UserDocumentEntity::getUserDocumentId,
-                                Function.identity()));
+                        .collect(Collectors.toMap(UserDocumentEntity::getUserDocumentId, Function.identity()));
 
         if (employeeDetailsDTO.getUserDocumentDTOS() != null) {
 
@@ -226,8 +219,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                 UserDocumentEntity documentEntity;
 
                 // Update existing
-                if (documentDTO.getUserDocumentId() != null &&
-                        existingDocuments.containsKey(documentDTO.getUserDocumentId())) {
+                if (documentDTO.getUserDocumentId() != null && existingDocuments.containsKey(documentDTO.getUserDocumentId())) {
 
                     documentEntity = existingDocuments.get(documentDTO.getUserDocumentId());
 
@@ -239,9 +231,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
                 // Add new
                 else {
-
                     documentEntity = new UserDocumentEntity();
-
                     documentEntity.setEmployeeDetailsEntity(existingEntity);
 
                     if (documentDTO.getDocument() != null) {
@@ -249,7 +239,6 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                     }
 
                     documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
-
                     existingEntity.getUserDocumentEntities().add(documentEntity);
                 }
 
@@ -276,20 +265,16 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         // Set document DTOs
         List<UserDocumentDTO> documentDTOS = new ArrayList<>();
 
-        if (updatedEntity.getUserDocumentEntities() != null &&
-                !updatedEntity.getUserDocumentEntities().isEmpty()) {
+        if (updatedEntity.getUserDocumentEntities() != null && !updatedEntity.getUserDocumentEntities().isEmpty()) {
 
-            for (UserDocumentEntity documentEntity :
-                    updatedEntity.getUserDocumentEntities()) {
+            for (UserDocumentEntity documentEntity : updatedEntity.getUserDocumentEntities()) {
 
                 UserDocumentDTO dto = modelMapper.map(documentEntity, UserDocumentDTO.class);
-
                 documentDTOS.add(dto);
             }
         }
 
         updatedDTO.setUserDocumentDTOS(documentDTOS);
-
         log.info("Exit from updateUserInformation");
 
         return updatedDTO;
@@ -303,8 +288,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                 .orElseThrow(() ->
                         new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
-        EmployeeDetailsDTO employeeDetailsDTO =
-                modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
+        EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
 //        if (existingEntity.getUserEntity() != null) {
 //            employeeDetailsDTO.setUserId(existingEntity.getUserEntity().getUserId());
@@ -317,15 +301,12 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
             for (UserDocumentEntity documentEntity : existingEntity.getUserDocumentEntities()) {
 
-                UserDocumentDTO documentDTO =
-                        modelMapper.map(documentEntity, UserDocumentDTO.class);
-
+                UserDocumentDTO documentDTO = modelMapper.map(documentEntity, UserDocumentDTO.class);
                 userDocumentDTOS.add(documentDTO);
             }
         }
 
         employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
-
         log.info("Exit from getEmployeeDetailsById");
 
         return employeeDetailsDTO;
@@ -342,7 +323,6 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         if (employeeDetailsEntity.isPresent()) {
 
             EmployeeDetailsEntity existingEntity = employeeDetailsEntity.get();
-
             employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
 //            if (existingEntity.getUserEntity() != null) {
@@ -356,13 +336,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
                 for (UserDocumentEntity documentEntity : existingEntity.getUserDocumentEntities()) {
 
-                    UserDocumentDTO documentDTO =
-                            modelMapper.map(documentEntity, UserDocumentDTO.class);
-
+                    UserDocumentDTO documentDTO = modelMapper.map(documentEntity, UserDocumentDTO.class);
                     userDocumentDTOS.add(documentDTO);
                 }
             }
-
             employeeDetailsDTO.setUserDocumentDTOS(userDocumentDTOS);
         }
         log.info("Exit from getEmployeeDetailsByEmployeeId");
@@ -383,18 +360,13 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         if (user != null) {
 
             existingEntity.setUserEntity(null);
-
             user.setEmployeeDetails(null);
-
             employeeDetailsRepository.save(existingEntity);
-
             userRepository.delete(user);
         }
 
         employeeDetailsRepository.delete(existingEntity);
-
         log.info("Exit from deleteEmployeeDetails");
-
         return "Record deleted successfully";
     }
 

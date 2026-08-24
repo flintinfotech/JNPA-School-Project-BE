@@ -14,6 +14,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -74,8 +76,30 @@ public class StudentAchievementsServiceImpl extends BaseService implements Stude
 
         log.info("Enter into updateStudentAchievements");
 
+        StudentAchievementsEntity existingStudentAchievementsEntity = studentAchievementsRepository.findById(studentAchievementsDTO.getStudentAchievementId())
+                .orElseThrow(() -> new CustomException("Student is not exist", HttpStatus.PRECONDITION_FAILED));
+
+        // Update existing studentAchievements
+        existingStudentAchievementsEntity.setAchievementName(studentAchievementsDTO.getAchievementName());
+        existingStudentAchievementsEntity.setAchievementDescription(studentAchievementsDTO.getAchievementDescription());
+        existingStudentAchievementsEntity.setAcademicYear(studentAchievementsDTO.getAcademicYear());
+        existingStudentAchievementsEntity.setStudentAchievementId(studentAchievementsDTO.getStudentAchievementId());
+
+        StudentEntity existingStudentEntity = studentRepository.findById(studentAchievementsDTO.getStudentId())
+                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
+
+        existingStudentAchievementsEntity.setStudentEntity(existingStudentEntity);
+
+        // save
+        StudentAchievementsEntity updatedStudentAchievement = studentAchievementsRepository.save(existingStudentAchievementsEntity);
+
+        //Convert to DTO
+        StudentAchievementsDTO achievementsDTO = modelMapper.map(updatedStudentAchievement, StudentAchievementsDTO.class);
+        achievementsDTO.setStudentId(updatedStudentAchievement.getStudentEntity().getStudentId());
+
         log.info("Exit from updateStudentAchievements");
-        return null;
+        return achievementsDTO;
+
     }
 
 
@@ -91,8 +115,5 @@ public class StudentAchievementsServiceImpl extends BaseService implements Stude
         return "Record deleted successfully";
     }
 
-    @Override
-    public Map<String, Object> getAllStudentAchievementsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
-        return Map.of();
-    }
+
 }
