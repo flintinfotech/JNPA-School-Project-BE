@@ -99,7 +99,7 @@ public class AcademicCalendarServiceImpl extends BaseService implements Academic
     }
 
     @Override
-    public Map<String, Object> getAllAcademicCalendarEvents(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+    public Map<String, Object> getAllAcademicCalendarEventsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         Page<AcademicCalendarEntity> academicCalendarEntityPage;
         List<AcademicCalendarEntity> academicCalendarEntities;
         long totalElement;

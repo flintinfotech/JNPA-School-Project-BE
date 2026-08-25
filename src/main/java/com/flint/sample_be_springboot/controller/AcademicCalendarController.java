@@ -43,10 +43,10 @@ public class AcademicCalendarController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message(msg).data(null).build());
     }
 
-    @PostMapping("/getAllAcademicCalendarEvents")
-    public ResponseEntity<?> getAllAcademicCalendarEvents(@RequestBody Map<String, Object> filter, Pageable pageable,
+    @PostMapping("/getAllAcademicCalendarEventsByFilter")
+    public ResponseEntity<?> getAllAcademicCalendarEventsByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
                                                           @RequestParam(defaultValue = "true") boolean paginate) {
-        Map<String, Object> data = academicCalendarService.getAllAcademicCalendarEvents(filter, pageable, paginate);
+        Map<String, Object> data = academicCalendarService.getAllAcademicCalendarEventsByFilter(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Record fetched successfully").data(data).build());
     }
 

@@ -14,5 +14,5 @@ public interface AcademicCalendarService {
 
     String deleteAcademicCalendarEvent(Long academicCalendarId);
 
-    Map<String, Object> getAllAcademicCalendarEvents(Map<String, Object> filter, Pageable pageable, boolean paginate);
+    Map<String, Object> getAllAcademicCalendarEventsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 }
