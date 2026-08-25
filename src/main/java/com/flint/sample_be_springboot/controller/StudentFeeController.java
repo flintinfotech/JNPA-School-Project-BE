@@ -20,7 +20,7 @@ public class StudentFeeController {
     @Autowired
     private StudentFeeService studentFeeService;
 
-    @GetMapping("/getStudentFee/{studentFeeId}")
+    @GetMapping("/getStudentFeeById/{studentFeeId}")
     public ResponseEntity<?> getStudentFee(@PathVariable Long studentFeeId) {
         StudentFeeDTO data = studentFeeService.getStudentFee(studentFeeId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
@@ -34,11 +34,11 @@ public class StudentFeeController {
 
     @PutMapping("/updateStudentFee")
     public ResponseEntity<?> updateStudentFee(@RequestBody StudentFeeDTO studentFeeDTO) {
-        StudentDTO data = studentFeeService.updateStudentFee(studentFeeDTO);
+        StudentFeeDTO data = studentFeeService.updateStudentFee(studentFeeDTO);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data updated successfully").data(data).build());
     }
 
-    @DeleteMapping("/deleteStudentFeeById/{studentFeeId}")
+    @DeleteMapping("/deleteStudentFee/{studentFeeId}")
     public ResponseEntity<?> deleteStudentFeeById(@PathVariable Long studentFeeId) {
         String message = studentFeeService.deleteStudentFeeById(studentFeeId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message(message).data(null).build());
@@ -51,6 +51,5 @@ public class StudentFeeController {
         Map<String, Object> data = studentFeeService.getAllStudentsFeeByFilter(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }
-
 
 }

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 
@@ -34,8 +35,8 @@ public class StudentFeeEntity {
     @Column(name = "FEE_NAME")
     private String feeName;
 
-    @Column(name = "TOTAL_AMOUNT")
-    private BigDecimal totalAmount;
+    @Column(name = "TOTAL_FEE_AMOUNT")
+    private BigDecimal totalFeeAmount;
 
     @Column(name = "PAID_AMOUNT")
     private BigDecimal paidAmount;
@@ -45,6 +46,9 @@ public class StudentFeeEntity {
 
     @Column(name = "DUE_AMOUNT")
     private BigDecimal dueAmount;
+
+    @Column(name = "DUE_DATE")
+    private LocalDate dueDate;
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentFee", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FeePaymentEntity> feePaymentEntities;

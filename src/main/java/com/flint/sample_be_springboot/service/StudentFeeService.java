@@ -10,16 +10,13 @@ public interface StudentFeeService {
 
     StudentFeeDTO getStudentFee(Long studentFeeId);
 
-    Map<String, Object> getAllStudentsFeeByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
-
     StudentFeeDTO saveStudentFee(StudentFeeDTO studentFeeDTO);
 
+    StudentFeeDTO updateStudentFee(StudentFeeDTO studentFeeDTO);
 
     String deleteStudentFeeById(Long id);
 
-    StudentDTO updateStudentFee(StudentFeeDTO studentFeeDTO);
+    Map<String, Object> getAllStudentsFeeByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
+
 }
-
-
-//shift + f6 --- to rename from all the method
 
