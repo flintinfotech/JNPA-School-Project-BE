@@ -1,5 +1,7 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
+import com.flint.sample_be_springboot.dto.SubjectMasterDTO;
 import com.flint.sample_be_springboot.dto.TimeTableDTO;
 import com.flint.sample_be_springboot.dto.TimeTablePeriodDTO;
 import com.flint.sample_be_springboot.entity.*;
@@ -15,10 +17,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -57,9 +58,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
         ClassMasterEntity classMasterEntity = classMasterRepository.findById(timeTableDTO.getClassMasterId())
                 .orElseThrow(() -> new CustomException("Class not found", HttpStatus.NOT_FOUND));
 
-        timeTableEntity.setClassMasterEntity(classMasterEntity);
         timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
-
 
         List<TimeTablePeriodEntity> timeTablePeriodEntities = new ArrayList<>();
 
@@ -71,11 +70,11 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                 SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodDTO.getSubjectId())
                         .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
 
-                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodDTO.getTeacherId())
+                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodDTO.getEmployeeDetailsId())
                         .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
                 timeTablePeriodEntity.setSubjectMasterEntity(subjectMasterEntity);
-                timeTablePeriodEntity.setTeacher(employeeDetailsEntity);
+                timeTablePeriodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
                 timeTablePeriodEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
                 timeTablePeriodEntities.add(timeTablePeriodEntity);
 
@@ -93,6 +92,21 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
         if (timeTableEntity1.getTimeTablePeriodEntities() != null && !timeTableEntity1.getTimeTablePeriodEntities().isEmpty()) {
             for (TimeTablePeriodEntity timeTablePeriodEntity : timeTableEntity1.getTimeTablePeriodEntities()) {
                 TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
+
+                // set subject master dto
+                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
+                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+
+                SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
+                timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+
+                // set employee details dto
+                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
+                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+
+                EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
+                timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+
                 timeTablePeriodDTO.setTimeTableId(tableDTO.getTimeTableId());
                 timeTablePeriodDTOS.add(timeTablePeriodDTO);
             }
@@ -116,19 +130,25 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
         tableDTO.setAcademicYear(timeTableEntity.getAcademicYear());
         tableDTO.setDivision(timeTableEntity.getDivision());
 
-        if (timeTableEntity.getClassMasterEntity() != null) {
-            tableDTO.setClassMasterId(timeTableEntity.getClassMasterEntity().getClassMasterId());
-        }
-
         List<TimeTablePeriodDTO> timeTablePeriodDTOS = new ArrayList<>();
         if (timeTableEntity.getTimeTablePeriodEntities() != null && !timeTableEntity.getTimeTablePeriodEntities().isEmpty()) {
             for (TimeTablePeriodEntity timeTablePeriodEntity : timeTableEntity.getTimeTablePeriodEntities()) {
                 TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
 
-                if (timeTablePeriodEntity.getSubjectMasterEntity() != null) {
+                // set subject master dto
+                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
+                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
 
-                    timeTablePeriodDTO.setSubjectId(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId());
-                }
+                SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
+                timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+
+                // set employee details dto
+                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
+                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+
+                EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
+                timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+
                 timeTablePeriodDTOS.add(timeTablePeriodDTO);
             }
         }
@@ -141,86 +161,164 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
     @Override
     public TimeTableDTO updateTimeTable(TimeTableDTO timeTableDTO) {
+
         log.info("Enter into updateTimeTable");
 
         if (timeTableDTO == null) {
-            throw new CustomException("Table table data can't null", HttpStatus.NOT_FOUND);
+            throw new CustomException("Time table data can't be null", HttpStatus.PRECONDITION_FAILED);
         }
 
         if (timeTableDTO.getTimeTableId() == null) {
-            throw new CustomException("Time table Id can't be null", HttpStatus.NOT_FOUND);
+            throw new CustomException("Time table Id can't be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        TimeTableEntity timeTableEntity = timeTableRepository.findById(timeTableDTO.getTimeTableId())
+        TimeTableEntity existingTimeTable = timeTableRepository.findById(timeTableDTO.getTimeTableId())
                 .orElseThrow(() -> new CustomException("Table not found", HttpStatus.NOT_FOUND));
 
-        //Updating parent fields
-        timeTableEntity.setDivision(timeTableDTO.getDivision());
-        timeTableEntity.setAcademicYear(timeTableDTO.getAcademicYear());
-        timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
+        // Update parent fields
+        existingTimeTable.setDivision(timeTableDTO.getDivision());
+        existingTimeTable.setAcademicYear(timeTableDTO.getAcademicYear());
 
-        //Update class master
-        if (timeTableDTO.getClassMasterId() != null) {
+        existingTimeTable.setAuditDetails(addAuditDetails(existingTimeTable.getAuditDetails()));
 
-            ClassMasterEntity classMasterEntity = classMasterRepository.findById(timeTableDTO.getClassMasterId())
-                    .orElseThrow(() -> new CustomException("Class not found", HttpStatus.NOT_FOUND));
+        // Update Time Table Periods
+        if (timeTableDTO.getTimeTablePeriods() != null) {
 
-            timeTableEntity.setClassMasterEntity(classMasterEntity);
-            timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
-        }
+            // IDs coming from request
+            Set<Long> requestPeriodIds = timeTableDTO.getTimeTablePeriods().stream()
+                    .map(TimeTablePeriodDTO::getTimeTablePeriodId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
 
-        // Clear old periods
-        timeTableEntity.getTimeTablePeriodEntities().clear();
+            // Remove periods which are not present in request
+            existingTimeTable.getTimeTablePeriodEntities().removeIf(period ->
+                    period.getTimeTablePeriodId() != null && !requestPeriodIds.contains(period.getTimeTablePeriodId()));
 
-        if (timeTableEntity.getTimeTablePeriodEntities() != null && !timeTableDTO.getTimeTablePeriods().isEmpty()) {
-            for (TimeTablePeriodDTO timeTablePeriodDTO : timeTableDTO.getTimeTablePeriods()) {
+            // Existing period map
+            Map<Long, TimeTablePeriodEntity> existingPeriods =
+                    existingTimeTable.getTimeTablePeriodEntities().stream()
+                            .filter(period -> period.getTimeTablePeriodId() != null)
+                            .collect(Collectors.toMap(
+                                    TimeTablePeriodEntity::getTimeTablePeriodId,
+                                    Function.identity()
+                            ));
 
-                TimeTablePeriodEntity timeTablePeriodEntity = new TimeTablePeriodEntity();
+            // Update / Add periods
+            for (TimeTablePeriodDTO periodDTO : timeTableDTO.getTimeTablePeriods()) {
 
-                timeTablePeriodEntity.setDay(timeTablePeriodDTO.getDay());
-                timeTablePeriodEntity.setPeriodNumber(timeTablePeriodDTO.getPeriodNumber());
-                timeTablePeriodEntity.setStartTime(timeTablePeriodDTO.getStartTime());
-                timeTablePeriodEntity.setEndTime(timeTablePeriodDTO.getEndTime());
-                timeTablePeriodEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
+                TimeTablePeriodEntity periodEntity;
 
-                // Set subject
-                if (timeTablePeriodDTO.getSubjectId() != null) {
+                // Update existing period
+                if (periodDTO.getTimeTablePeriodId() != null &&
+                        existingPeriods.containsKey(
+                                periodDTO.getTimeTablePeriodId())) {
 
-                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodDTO.getSubjectId())
-                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+                    periodEntity = existingPeriods.get(periodDTO.getTimeTablePeriodId());
 
-                    timeTablePeriodEntity.setSubjectMasterEntity(subjectMasterEntity);
+                    periodEntity.setDay(periodDTO.getDay());
+                    periodEntity.setPeriodNumber(periodDTO.getPeriodNumber());
+                    periodEntity.setStartTime(periodDTO.getStartTime());
+                    periodEntity.setEndTime(periodDTO.getEndTime());
 
-                    // Teacher mapping
-                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodDTO.getTeacherId())
-                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+                    periodEntity.setAuditDetails(addAuditDetails(periodEntity.getAuditDetails()));
 
-                    timeTablePeriodEntity.setTeacher(employeeDetailsEntity);
                 }
 
-                timeTablePeriodEntity.setTimeTableEntity(timeTableEntity);
-                timeTableEntity.getTimeTablePeriodEntities().add(timeTablePeriodEntity);
+                // Add new period
+                else {
+
+                    periodEntity = new TimeTablePeriodEntity();
+
+                    periodEntity.setDay(periodDTO.getDay());
+                    periodEntity.setPeriodNumber(periodDTO.getPeriodNumber());
+                    periodEntity.setStartTime(periodDTO.getStartTime());
+                    periodEntity.setEndTime(periodDTO.getEndTime());
+
+                    periodEntity.setTimeTableEntity(existingTimeTable);
+
+                    periodEntity.setAuditDetails(addAuditDetails(periodEntity.getAuditDetails()));
+
+                    existingTimeTable.getTimeTablePeriodEntities().add(periodEntity);
+                }
+
+                // Set Subject
+                if (periodDTO.getSubjectId() != null) {
+
+                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
+                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+
+                    periodEntity.setSubjectMasterEntity(subjectMasterEntity);
+                } else {
+                    periodEntity.setSubjectMasterEntity(null);
+                }
+
+                // Set Teacher
+                if (periodDTO.getEmployeeDetailsId() != null) {
+
+                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
+                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+
+                    periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
+                } else {
+                    periodEntity.setEmployeeDetailsEntity(null);
+                }
+
+                // Make sure parent is always set
+                periodEntity.setTimeTableEntity(existingTimeTable);
+            }
+        } else {
+
+            // If request contains null periods,
+            // remove all existing periods.
+            existingTimeTable.getTimeTablePeriodEntities().clear();
+        }
+
+        // Save
+        TimeTableEntity updatedTimeTableEntity =
+                timeTableRepository.save(existingTimeTable);
+
+        // Convert to DTO
+        TimeTableDTO updatedDTO = modelMapper.map(updatedTimeTableEntity, TimeTableDTO.class);
+
+        List<TimeTablePeriodDTO> periodDTOS = new ArrayList<>();
+
+        if (updatedTimeTableEntity.getTimeTablePeriodEntities() != null &&
+                !updatedTimeTableEntity.getTimeTablePeriodEntities().isEmpty()) {
+
+            for (TimeTablePeriodEntity periodEntity : updatedTimeTableEntity.getTimeTablePeriodEntities()) {
+
+                TimeTablePeriodDTO periodDTO = modelMapper.map(periodEntity, TimeTablePeriodDTO.class);
+
+                // Set Subject DTO
+                if (periodEntity.getSubjectMasterEntity() != null) {
+
+                    SubjectMasterDTO subjectMasterDTO = modelMapper.map(periodEntity.getSubjectMasterEntity(), SubjectMasterDTO.class);
+
+                    periodDTO.setSubjectMasterDTO(subjectMasterDTO);
+
+                    periodDTO.setSubjectId(periodEntity.getSubjectMasterEntity().getSubjectMasterId());
+                }
+
+                // Set Teacher DTO
+                if (periodEntity.getEmployeeDetailsEntity() != null) {
+
+                    EmployeeDetailsDTO employeeDetailsDTO =
+                            modelMapper.map(periodEntity.getEmployeeDetailsEntity(), EmployeeDetailsDTO.class);
+
+                    periodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+
+                    periodDTO.setEmployeeDetailsId(periodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId());
+                }
+
+                periodDTOS.add(periodDTO);
             }
         }
 
-        TimeTableEntity updatedTimeTableEntity = timeTableRepository.save(timeTableEntity);
-
-        TimeTableDTO tableDTO = modelMapper.map(updatedTimeTableEntity, TimeTableDTO.class);
-        List<TimeTablePeriodDTO> timeTablePeriodDTOS = new ArrayList<>();
-
-        if (updatedTimeTableEntity.getTimeTablePeriodEntities() != null && !updatedTimeTableEntity.getTimeTablePeriodEntities().isEmpty()) {
-
-            for (TimeTablePeriodEntity timeTablePeriodEntity : updatedTimeTableEntity.getTimeTablePeriodEntities()) {
-
-                TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
-                timeTablePeriodDTOS.add(timeTablePeriodDTO);
-            }
-        }
-        tableDTO.setTimeTablePeriods(timeTablePeriodDTOS);
-
+        updatedDTO.setTimeTablePeriods(periodDTOS);
 
         log.info("Exit from updateTimeTable");
-        return tableDTO;
+
+        return updatedDTO;
     }
 
     @Override
@@ -262,14 +360,24 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
             TimeTableDTO timeTableDTO = modelMapper.map(timeTableEntity, TimeTableDTO.class);
             timeTableDTO.setTimeTableId(timeTableEntity.getTimeTableId());
 
-            if (timeTableEntity.getClassMasterEntity() != null) {
-                timeTableDTO.setClassMasterId(timeTableEntity.getClassMasterEntity().getClassMasterId());
-            }
-
             List<TimeTablePeriodDTO> timeTablePeriodDTOS = new ArrayList<>();
             for (TimeTablePeriodEntity timeTablePeriodEntity : timeTableEntity.getTimeTablePeriodEntities()) {
                 TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
-                timeTablePeriodDTO.setTimeTablePeriodId(timeTablePeriodEntity.getTimeTablePeriodId());
+
+                // set subject master dto
+                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
+                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+
+                SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
+                timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+
+                // set employee details dto
+                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
+                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+
+                EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
+                timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+
                 timeTablePeriodDTOS.add(timeTablePeriodDTO);
             }
             timeTableDTO.setTimeTablePeriods(timeTablePeriodDTOS);

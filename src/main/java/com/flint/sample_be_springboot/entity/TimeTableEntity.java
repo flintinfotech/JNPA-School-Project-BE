@@ -25,9 +25,11 @@ public class TimeTableEntity {
     @Column(name = "ACADEMIC_YEAR", nullable = false)
     private String academicYear;
 
-    @ManyToOne
-    @JoinColumn(name = "CLASS_MASTER_ID", nullable = false)
-    private ClassMasterEntity classMasterEntity;
+    @Column(name = "MEDIUM", nullable = false)
+    private String medium;
+
+    @Column(name = "STANDARD", nullable = false)
+    private String standard;
 
     @Column(name = "DIVISION", nullable = false)
     private String division;

@@ -45,7 +45,7 @@ public class TimeTablePeriodEntity {
 
     @ManyToOne
     @JoinColumn(name = "TEACHER_ID", nullable = false)
-    private EmployeeDetailsEntity teacher;
+    private EmployeeDetailsEntity employeeDetailsEntity;
 
     @Embedded
     private AuditDetails auditDetails;

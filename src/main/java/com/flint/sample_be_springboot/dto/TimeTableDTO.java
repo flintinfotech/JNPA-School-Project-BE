@@ -10,6 +10,8 @@ public class TimeTableDTO {
     private Long timeTableId;
     private String academicYear;
     private Long classMasterId;
+    private String medium;
+    private String standard;
     private String division;
     private List<TimeTablePeriodDTO> timeTablePeriods;
 }

@@ -14,5 +14,7 @@ public class TimeTablePeriodDTO {
     private LocalTime startTime;
     private LocalTime endTime;
     private Long subjectId;
-    private Long teacherId;
+    private SubjectMasterDTO subjectMasterDTO;
+    private Long employeeDetailsId;
+    private EmployeeDetailsDTO employeeDetailsDTO;
 }
