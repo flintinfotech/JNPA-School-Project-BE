@@ -33,7 +33,8 @@ public class StudentAchievementsEntity {
     @JoinColumn(name = "STUDENT_ID")
     private StudentEntity studentEntity;
 
-
+    @Embedded
+    private AuditDetails auditDetails;
 
 
 }

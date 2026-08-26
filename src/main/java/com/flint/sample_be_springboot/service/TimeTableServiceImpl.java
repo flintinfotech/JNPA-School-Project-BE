@@ -76,6 +76,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
                 timeTablePeriodEntity.setSubjectMasterEntity(subjectMasterEntity);
                 timeTablePeriodEntity.setTeacher(employeeDetailsEntity);
+                timeTablePeriodEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
                 timeTablePeriodEntities.add(timeTablePeriodEntity);
 
             }
@@ -156,6 +157,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
         //Updating parent fields
         timeTableEntity.setDivision(timeTableDTO.getDivision());
         timeTableEntity.setAcademicYear(timeTableDTO.getAcademicYear());
+        timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
 
         //Update class master
         if (timeTableDTO.getClassMasterId() != null) {
@@ -164,6 +166,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                     .orElseThrow(() -> new CustomException("Class not found", HttpStatus.NOT_FOUND));
 
             timeTableEntity.setClassMasterEntity(classMasterEntity);
+            timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
         }
 
         // Clear old periods
@@ -178,6 +181,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                 timeTablePeriodEntity.setPeriodNumber(timeTablePeriodDTO.getPeriodNumber());
                 timeTablePeriodEntity.setStartTime(timeTablePeriodDTO.getStartTime());
                 timeTablePeriodEntity.setEndTime(timeTablePeriodDTO.getEndTime());
+                timeTablePeriodEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
 
                 // Set subject
                 if (timeTablePeriodDTO.getSubjectId() != null) {

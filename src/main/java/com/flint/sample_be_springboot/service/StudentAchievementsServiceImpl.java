@@ -64,6 +64,7 @@ public class StudentAchievementsServiceImpl extends BaseService implements Stude
 
         StudentAchievementsEntity achievementsEntity = modelMapper.map(studentAchievementsDTO, StudentAchievementsEntity.class);
         achievementsEntity.setStudentEntity(existingStudentEntity);
+        achievementsEntity.setAuditDetails(addAuditDetails(achievementsEntity.getAuditDetails()));
 
         StudentAchievementsEntity savedAchievement = studentAchievementsRepository.save(achievementsEntity);
 
@@ -86,6 +87,7 @@ public class StudentAchievementsServiceImpl extends BaseService implements Stude
         existingStudentAchievementsEntity.setAchievementDescription(studentAchievementsDTO.getAchievementDescription());
         existingStudentAchievementsEntity.setAcademicYear(studentAchievementsDTO.getAcademicYear());
         existingStudentAchievementsEntity.setStudentAchievementId(studentAchievementsDTO.getStudentAchievementId());
+        existingStudentAchievementsEntity.setAuditDetails(addAuditDetails(existingStudentAchievementsEntity.getAuditDetails()));
 
         StudentEntity existingStudentEntity = studentRepository.findById(studentAchievementsDTO.getStudentId())
                 .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));

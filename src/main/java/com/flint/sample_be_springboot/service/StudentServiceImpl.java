@@ -124,7 +124,6 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 AcademicInformationEntity academicInformationEntity = modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
                 academicInformationEntity.setStudentEntity(studentEntity);
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
-
                 academicInformationEntities.add(academicInformationEntity);
             }
         }
