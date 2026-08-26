@@ -29,6 +29,7 @@ public class StudentDTO {
     private List<AcademicInformationDTO> academicInformation;
     private List<StudentResultDTO> studentResultDTOS;
     private List<StudentAchievementsDTO> studentAchievementsDTOS;
+    private List<StudentFeeDTO> studentFeeDTOS;
 
 
     private AuditDetails auditDetails;

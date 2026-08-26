@@ -18,6 +18,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -49,15 +51,56 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
         studentResultEntity.setAuditDetails(addAuditDetails(studentResultEntity.getAuditDetails()));
         studentResultEntity.setStudentEntity(studentEntity);
 
+        // by default set result status as pass
+        studentResultEntity.setResultStatus("PASS");
+
         List<ExamSubjectsEntity> examSubjectsEntities = new ArrayList<>();
         for (ExamSubjectsDTO examSubjectsDTO : studentResultDTO.getExamSubjectsDTOS()) {
-
+            if(examSubjectsDTO.getStatus().equalsIgnoreCase("FAIL")){
+                studentResultEntity.setResultStatus("FAIL");
+            }
             ExamSubjectsEntity examSubjectsEntity = modelMapper.map(examSubjectsDTO, ExamSubjectsEntity.class);
             examSubjectsEntity.setStudentResult(studentResultEntity);
             examSubjectsEntities.add(examSubjectsEntity);
 
         }
         studentResultEntity.setExamSubjectsEntities(examSubjectsEntities);
+
+        // setting percentage
+        BigDecimal percentage = studentResultEntity.getObtainedMarks()
+                .divide(studentResultEntity.getTotalMarks(), 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        studentResultEntity.setPercentage(percentage);
+
+        // setting grade
+        if (percentage.compareTo(BigDecimal.valueOf(35)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(40)) <= 0) {
+            studentResultEntity.setGrade("D");
+        } else if (percentage.compareTo(BigDecimal.valueOf(41)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(50)) <= 0) {
+            studentResultEntity.setGrade("D+");
+        } else if (percentage.compareTo(BigDecimal.valueOf(51)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(60)) <= 0) {
+            studentResultEntity.setGrade("C");
+        } else if (percentage.compareTo(BigDecimal.valueOf(61)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(70)) <= 0) {
+            studentResultEntity.setGrade("C+");
+        } else if (percentage.compareTo(BigDecimal.valueOf(71)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(80)) <= 0) {
+            studentResultEntity.setGrade("B");
+        } else if (percentage.compareTo(BigDecimal.valueOf(81)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(90)) <= 0) {
+            studentResultEntity.setGrade("B+");
+        } else if (percentage.compareTo(BigDecimal.valueOf(91)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(95)) <= 0) {
+            studentResultEntity.setGrade("A");
+        } else if (percentage.compareTo(BigDecimal.valueOf(96)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(100)) <= 0) {
+            studentResultEntity.setGrade("A+");
+        } else {
+            studentResultEntity.setGrade("FAIL");
+        }
 
         // saving the studenResultEntity
         StudentResultEntity savedResult = studentResultRepository.save(studentResultEntity);
@@ -80,106 +123,6 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
         return resultDTO;
 
     }
-
-
-    @Override
-    public StudentResultDTO getStudentResultByStudentId(Long studentId) {
-        log.info("Enter into getStudentResultById");
-
-        StudentResultEntity studentResultEntity = studentResultRepository.findByStudentEntity_StudentId(studentId)
-                .orElseThrow(() -> new CustomException("Student result is not available", HttpStatus.NOT_FOUND));
-
-        StudentResultDTO resultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
-        resultDTO.setStudentId(studentResultEntity.getStudentEntity().getStudentId());
-
-        List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-        if (studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()) {
-            for (ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()) {
-                ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
-                examSubjectsDTO.setResultId(resultDTO.getResultId());
-                examSubjectsDTOS.add(examSubjectsDTO);
-            }
-        }
-        resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
-
-        log.info("Exit from getStudentResultById");
-
-        return resultDTO;
-    }
-
-//    @Override
-//    public StudentResultDTO updateStudentResult(StudentResultDTO studentResultDTO) {
-//        log.info("Enter into updateStudentResult");
-//
-//        StudentResultEntity existingStudentResultEntity = studentResultRepository.findById(studentResultDTO.getResultId())
-//                .orElseThrow(() -> new CustomException("Student result not found", HttpStatus.NOT_FOUND));
-//
-//        modelMapper.map(existingStudentResultEntity, existingStudentResultEntity);
-//
-//        // collect incoming Ids
-//        Set<Long> incomingIds = studentResultDTO.getExamSubjectsDTOS().stream()
-//                .map(ExamSubjectsDTO::getExamSubjectsId)
-//                .collect(Collectors.toSet());
-//
-//        // remove deleted exam subjects
-//        existingStudentResultEntity.getExamSubjectsEntities().removeIf(e ->
-//                e.getExamSubjectsId() != null && !incomingIds.contains(e.getExamSubjectsId()));
-//
-//        // existing exam result map
-//        Map<Long, ExamSubjectsEntity> map = existingStudentResultEntity.getExamSubjectsEntities().stream()
-//                .collect(Collectors.toMap(ExamSubjectsEntity::getExamSubjectsId, Function.identity()));
-//
-//        if (studentResultDTO.getExamSubjectsDTOS() != null && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
-//            for (ExamSubjectsDTO examSubjectsDTO : studentResultDTO.getExamSubjectsDTOS()) {
-//
-//                ExamSubjectsEntity examSubjectsEntity;
-//
-//                // UPDATE existing record
-//                if (examSubjectsDTO.getExamSubjectsId() != null
-//                        && map.containsKey(examSubjectsDTO.getExamSubjectsId())) {
-//
-//                    examSubjectsEntity = map.get(examSubjectsDTO.getExamSubjectsId());
-//
-//                    modelMapper.map(examSubjectsDTO, examSubjectsEntity);
-//
-//                    examSubjectsEntity.setAuditDetails(addAuditDetails(examSubjectsEntity.getAuditDetails()));
-//
-//                } else {
-//
-//                    // CREATE new record
-//                    examSubjectsEntity = new ExamSubjectsEntity();
-//
-//                    modelMapper.map(examSubjectsDTO, examSubjectsEntity);
-//
-//                    examSubjectsEntity.setStudentResult(existingStudentResultEntity);
-//
-//                    examSubjectsEntity.setAuditDetails(addAuditDetails(examSubjectsEntity.getAuditDetails()));
-//
-//                    // Add to parent's collection
-//                    existingStudentResultEntity.getExamSubjectsEntities().add(examSubjectsEntity);
-//                }
-//            }
-//        }
-//
-//        StudentResultEntity updatedEntity = studentResultRepository.save(existingStudentResultEntity);
-//
-//        StudentResultDTO resultDTO = modelMapper.map(updatedEntity, StudentResultDTO.class);
-//        resultDTO.setStudentId(updatedEntity.getStudentEntity().getStudentId());
-//
-//        List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-//        if (updatedEntity.getExamSubjectsEntities() != null && !updatedEntity.getExamSubjectsEntities().isEmpty()) {
-//            for (ExamSubjectsEntity examSubjectsEntity : updatedEntity.getExamSubjectsEntities()) {
-//                ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
-//                examSubjectsDTO.setResultId(resultDTO.getResultId());
-//                examSubjectsDTOS.add(examSubjectsDTO);
-//            }
-//        }
-//        resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
-//
-//        log.info("Exit from updateStudentResult");
-//        return resultDTO;
-//    }
-//
 
     @Override
     @Transactional
@@ -235,6 +178,9 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
                                 subject.getExamSubjectsId() != null)
                         .collect(Collectors.toMap(ExamSubjectsEntity::getExamSubjectsId,Function.identity()));
 
+        // by default set result status as pass
+        existingStudentResultEntity.setResultStatus("PASS");
+
         // Update / Create ExamSubjects
         if (studentResultDTO.getExamSubjectsDTOS() != null && !studentResultDTO.getExamSubjectsDTOS().isEmpty()) {
 
@@ -242,6 +188,9 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
 
                 ExamSubjectsEntity examSubjectsEntity;
 
+                if(examSubjectsDTO.getStatus().equalsIgnoreCase("FAIL")){
+                    existingStudentResultEntity.setResultStatus("FAIL");
+                }
 
                 // UPDATE EXISTING SUBJECT
                 if (examSubjectsDTO.getExamSubjectsId() != null && existingSubjectMap.containsKey(examSubjectsDTO.getExamSubjectsId())) {
@@ -278,6 +227,42 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
             }
         }
 
+        // setting percentage
+        BigDecimal percentage = existingStudentResultEntity.getObtainedMarks()
+                .divide(existingStudentResultEntity.getTotalMarks(), 2, RoundingMode.HALF_UP)
+                .multiply(BigDecimal.valueOf(100));
+
+        existingStudentResultEntity.setPercentage(percentage);
+
+        // setting grade
+        if (percentage.compareTo(BigDecimal.valueOf(35)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(40)) <= 0) {
+            existingStudentResultEntity.setGrade("D");
+        } else if (percentage.compareTo(BigDecimal.valueOf(41)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(50)) <= 0) {
+            existingStudentResultEntity.setGrade("D+");
+        } else if (percentage.compareTo(BigDecimal.valueOf(51)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(60)) <= 0) {
+            existingStudentResultEntity.setGrade("C");
+        } else if (percentage.compareTo(BigDecimal.valueOf(61)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(70)) <= 0) {
+            existingStudentResultEntity.setGrade("C+");
+        } else if (percentage.compareTo(BigDecimal.valueOf(71)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(80)) <= 0) {
+            existingStudentResultEntity.setGrade("B");
+        } else if (percentage.compareTo(BigDecimal.valueOf(81)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(90)) <= 0) {
+            existingStudentResultEntity.setGrade("B+");
+        } else if (percentage.compareTo(BigDecimal.valueOf(91)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(95)) <= 0) {
+            existingStudentResultEntity.setGrade("A");
+        } else if (percentage.compareTo(BigDecimal.valueOf(96)) >= 0 &&
+                percentage.compareTo(BigDecimal.valueOf(100)) <= 0) {
+            existingStudentResultEntity.setGrade("A+");
+        } else {
+            existingStudentResultEntity.setGrade("FAIL");
+        }
+
         // Update parent audit
         existingStudentResultEntity.setAuditDetails(addAuditDetails(existingStudentResultEntity.getAuditDetails()));
 
@@ -306,6 +291,31 @@ public class StudentResultServiceImpl extends BaseService implements StudentResu
         resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
 
         log.info("Exit from updateStudentResult");
+
+        return resultDTO;
+    }
+
+    @Override
+    public StudentResultDTO getStudentResultByStudentId(Long studentId) {
+        log.info("Enter into getStudentResultById");
+
+        StudentResultEntity studentResultEntity = studentResultRepository.findByStudentEntity_StudentId(studentId)
+                .orElseThrow(() -> new CustomException("Student result is not available", HttpStatus.NOT_FOUND));
+
+        StudentResultDTO resultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+        resultDTO.setStudentId(studentResultEntity.getStudentEntity().getStudentId());
+
+        List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+        if (studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()) {
+            for (ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()) {
+                ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+                examSubjectsDTO.setResultId(resultDTO.getResultId());
+                examSubjectsDTOS.add(examSubjectsDTO);
+            }
+        }
+        resultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+
+        log.info("Exit from getStudentResultById");
 
         return resultDTO;
     }

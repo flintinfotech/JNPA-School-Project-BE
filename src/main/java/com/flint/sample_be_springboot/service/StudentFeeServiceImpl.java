@@ -74,25 +74,16 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         studentFeeEntity.setStudentEntity(studentEntity);
         studentFeeEntity.setAuditDetails(addAuditDetails(studentFeeEntity.getAuditDetails()));
 
-        BigDecimal totalPaidFee = BigDecimal.ZERO;
-
         List<FeePaymentEntity> feePaymentEntities = new ArrayList<>();
         if (studentFeeDTO.getFeePaymentDTOS() != null && !studentFeeDTO.getFeePaymentDTOS().isEmpty()) {
             for (FeePaymentDTO feePaymentDTO : studentFeeDTO.getFeePaymentDTOS()) {
                 FeePaymentEntity feePaymentEntity = modelMapper.map(feePaymentDTO, FeePaymentEntity.class);
-                totalPaidFee = totalPaidFee.add(feePaymentDTO.getAmount());
                 feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
                 feePaymentEntity.setStudentFee(studentFeeEntity);
                 feePaymentEntities.add(feePaymentEntity);
             }
         }
         studentFeeEntity.setFeePaymentEntities(feePaymentEntities);
-
-        // calculations
-        studentFeeEntity.setPaidAmount(totalPaidFee);
-
-        BigDecimal totalPendingAmount = studentFeeEntity.getTotalFeeAmount().subtract(totalPaidFee);
-        studentFeeEntity.setPendingAmount(totalPendingAmount);
 
         StudentFeeEntity savedStudentFeeEntity = studentFeeRepository.save(studentFeeEntity);
         StudentFeeDTO savedStudentFeeDTO = modelMapper.map(savedStudentFeeEntity, StudentFeeDTO.class);
@@ -135,7 +126,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         // Update basic fields
         existingStudentFeeEntity.setAcademicYear(studentFeeDTO.getAcademicYear());
         existingStudentFeeEntity.setFeeName(studentFeeDTO.getFeeName());
-        existingStudentFeeEntity.setTotalFeeAmount(studentFeeDTO.getTotalAmount());
+        existingStudentFeeEntity.setTotalFeeAmount(studentFeeDTO.getTotalFeeAmount());
         existingStudentFeeEntity.setPaidAmount(studentFeeDTO.getPaidAmount());
         existingStudentFeeEntity.setPendingAmount(studentFeeDTO.getPendingAmount());
         existingStudentFeeEntity.setDueAmount(studentFeeDTO.getDueAmount());

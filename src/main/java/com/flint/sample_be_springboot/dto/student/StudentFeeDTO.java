@@ -13,7 +13,7 @@ public class StudentFeeDTO {
     private Long studentId;
     private String academicYear;
     private String feeName;
-    private BigDecimal totalAmount;
+    private BigDecimal totalFeeAmount;
     private BigDecimal paidAmount;
     private BigDecimal pendingAmount;
     private BigDecimal dueAmount;
