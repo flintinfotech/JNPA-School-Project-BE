@@ -11,7 +11,7 @@ public interface TimeTableService {
 
     TimeTableDTO saveTimeTable(TimeTableDTO timeTableDTO);
 
-    TimeTableDTO getTimeTableByTableId(Long tableId);
+    TimeTableDTO getTimeTableByTimeTableId(Long timeTableId);
 
     TimeTableDTO updateTimeTable(TimeTableDTO timeTableDTO);
 

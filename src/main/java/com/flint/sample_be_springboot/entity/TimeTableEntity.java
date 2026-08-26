@@ -6,7 +6,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -34,7 +33,7 @@ public class TimeTableEntity {
     private String division;
 
     @OneToMany(mappedBy = "timeTableEntity", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<TimeTablePeriodEntity> periods = new ArrayList<>();
+    private List<TimeTablePeriodEntity> timeTablePeriodEntities;
 
     @Embedded
     private AuditDetails auditDetails;
