@@ -110,28 +110,17 @@ public class AdmissionInquiryServiceImpl extends BaseService implements Admissio
         List<AdmissionInquiryDTO> admissionInquiryDTOS = new ArrayList<>();
         long totalElement;
 
-
-        CustomQuerySpecification<AdmissionInquiry> specification =
-                CustomQuerySpecification.getInstance(filter);
-
+        CustomQuerySpecification<AdmissionInquiry> specification =CustomQuerySpecification.getInstance(filter);
 
         Sort sort = Sort.by(Sort.Direction.DESC, "admissionInquiryId");
 
         if (paginate) {
-            Pageable sortedPageable = PageRequest.of(
-                    pageable.getPageNumber(),
-                    pageable.getPageSize(),
-                    sort
-            );
 
-            Page<AdmissionInquiry> pageResult =
-                    admissionInquiryRepository.findAll(specification, sortedPageable);
-
+            Pageable sortedPageable = PageRequest.of(pageable.getPageNumber(),pageable.getPageSize(),sort);
+            Page<AdmissionInquiry> pageResult =admissionInquiryRepository.findAll(specification, sortedPageable);
             inquiries = pageResult.getContent();
             totalElement = pageResult.getTotalElements();
-
         } else {
-
             inquiries = admissionInquiryRepository.findAll(specification, sort);
             totalElement = inquiries.size();
         }

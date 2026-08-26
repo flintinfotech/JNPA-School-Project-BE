@@ -24,9 +24,9 @@ public class TimeTableController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Time table successfully added").data(tableDTO).build());
     }
 
-    @GetMapping("/getTimeTableByTableId/{tableId}")
-    public ResponseEntity<?> getTimeTableByTableId(@PathVariable Long tableId) {
-        TimeTableDTO tableDTO = timeTableService.getTimeTableByTableId(tableId);
+    @GetMapping("/getTimeTableByTimeTableId/{timeTableId}")
+    public ResponseEntity<?> getTimeTableByTimeTableId(@PathVariable Long timeTableId) {
+        TimeTableDTO tableDTO = timeTableService.getTimeTableByTimeTableId(timeTableId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(tableDTO).build());
     }
 
