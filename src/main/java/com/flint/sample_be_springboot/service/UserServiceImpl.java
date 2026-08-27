@@ -174,7 +174,7 @@ public class UserServiceImpl extends BaseService implements UserService {
             existingEntity.getEmployeeDetails().setRole(userDTO.getRole());
         }
 
-        // In future, Password reset functionality is required here
+        // In the future, Password reset functionality is required here
         //---------------------------------------------------------
         existingEntity.setPassword(encryptedPass);
         existingEntity.setDecryptedPassword(decryptedPass);

@@ -33,7 +33,6 @@ public class GenerateCodes {
     }
 
     //Generate student admission code
-
     public static String generateStudentAdmissionNo(String lastAdmissionNo) {
 
         int nextAdmissionNo = 1;
@@ -46,5 +45,23 @@ public class GenerateCodes {
 
         return String.format("RGN%04d", nextAdmissionNo);
     }
+
+    // For generating FeeReceiptNo
+    public static String generateReceiptNo(String lastReceiptNo) {
+
+        int nextReceiptNo = 1;
+
+        if (lastReceiptNo != null) {
+            // Taking the numeric part after "RCT" and incrementing it by 1
+            String numericPart = lastReceiptNo.substring(3);
+            nextReceiptNo = Integer.parseInt(numericPart) + 1;
+        }
+
+        // RCT followed by 5 digits
+        String receiptNo = String.format("RCT%05d", nextReceiptNo);
+
+        return receiptNo;
+    }
+
 
 }

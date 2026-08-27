@@ -14,6 +14,7 @@ public class FeePaymentDTO {
     private String paymentMode;
     private LocalDate paymentDate;
     private String transactionId;
+    private String receiptNo;
     private String remarks;
 
 }

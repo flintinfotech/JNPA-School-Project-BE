@@ -148,8 +148,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         }
 
         EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeDetailsDTO.getEmployeeDetailsId())
-                .orElseThrow(() ->
-                        new CustomException("User information not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("User information not found", HttpStatus.NOT_FOUND));
 
         Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserNameAndEmployeeDetailsIdNot
                 (employeeDetailsDTO.getUserName(), employeeDetailsDTO.getEmployeeDetailsId());
@@ -191,6 +190,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setUserName(employeeDetailsDTO.getUserName());
         existingEntity.setMobileNo(employeeDetailsDTO.getMobileNo());
         existingEntity.setRole(employeeDetailsDTO.getRole());
+        existingEntity.setLeavingDate(employeeDetailsDTO.getLeavingDate());
 
         if (!existingEntity.equals(employeeDetailsDTO.getRole())) {
             existingEntity.getUserEntity().setRole(employeeDetailsDTO.getRole());
@@ -233,6 +233,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                 else {
                     documentEntity = new UserDocumentEntity();
                     documentEntity.setEmployeeDetailsEntity(existingEntity);
+
 
                     if (documentDTO.getDocument() != null) {
                         documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
