@@ -6,10 +6,13 @@ import com.flint.sample_be_springboot.entity.student.FeePaymentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentFeeEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.student.FeePaymentRepository;
 import com.flint.sample_be_springboot.repository.student.StudentFeeRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import com.flint.sample_be_springboot.util.GenerateCodes;
+import com.flint.sample_be_springboot.util.PasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private FeePaymentRepository feePaymentRepository;
 
     @Override
     public StudentFeeDTO getStudentFee(Long studentFeeId) {
@@ -72,12 +78,23 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
         StudentFeeEntity studentFeeEntity = modelMapper.map(studentFeeDTO, StudentFeeEntity.class);
         studentFeeEntity.setStudentEntity(studentEntity);
+
         studentFeeEntity.setAuditDetails(addAuditDetails(studentFeeEntity.getAuditDetails()));
 
         List<FeePaymentEntity> feePaymentEntities = new ArrayList<>();
         if (studentFeeDTO.getFeePaymentDTOS() != null && !studentFeeDTO.getFeePaymentDTOS().isEmpty()) {
             for (FeePaymentDTO feePaymentDTO : studentFeeDTO.getFeePaymentDTOS()) {
                 FeePaymentEntity feePaymentEntity = modelMapper.map(feePaymentDTO, FeePaymentEntity.class);
+
+                // Get last generated receipt number
+                String lastReceiptNo =feePaymentRepository.findLastReceiptNo();
+
+                // Generate next receipt number
+                String nextReceiptNo =GenerateCodes.generateReceiptNo(lastReceiptNo);
+
+                // Set generated receipt number
+                feePaymentEntity.setReceiptNo(nextReceiptNo);
+
                 feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
                 feePaymentEntity.setStudentFee(studentFeeEntity);
                 feePaymentEntities.add(feePaymentEntity);
@@ -169,6 +186,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                     feePaymentEntity.setPaymentDate(paymentDTO.getPaymentDate());
                     feePaymentEntity.setTransactionId(paymentDTO.getTransactionId());
                     feePaymentEntity.setRemarks(paymentDTO.getRemarks());
+                    feePaymentEntity.setReceiptNo(paymentDTO.getReceiptNo());  // setting receipt Number
 
                     feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
 
@@ -179,8 +197,14 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                     // Add new payment
                     feePaymentEntity = modelMapper.map(paymentDTO, FeePaymentEntity.class);
 
-                    feePaymentEntity.setStudentFee(existingStudentFeeEntity);
+                    // Get last generated receipt number
+                    String lastReceiptNo =feePaymentRepository.findLastReceiptNo();
 
+                    // Generate next receipt number
+                    String nextReceiptNo =GenerateCodes.generateReceiptNo(lastReceiptNo);
+
+                    // Set generated receipt number
+                    feePaymentEntity.setReceiptNo(nextReceiptNo);
                     feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
 
                     existingStudentFeeEntity.getFeePaymentEntities().add(feePaymentEntity);
@@ -208,6 +232,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                 FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
 
                 feePaymentDTO.setStudentFeeId(updatedStudentFeeEntity.getStudentFeeId());
+
 
                 feePaymentDTOList.add(feePaymentDTO);
             }

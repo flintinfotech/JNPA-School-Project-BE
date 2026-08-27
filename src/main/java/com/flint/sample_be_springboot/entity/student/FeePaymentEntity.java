@@ -41,6 +41,9 @@ public class FeePaymentEntity {
     @Column(name = "TRANSACTION_ID")
     private String transactionId;
 
+    @Column(name = "RECEIPT_NO")
+    private String receiptNo;
+
     @Column(name = "REMARKS")
     private String remarks;
 

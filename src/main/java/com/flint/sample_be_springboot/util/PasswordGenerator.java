@@ -28,7 +28,7 @@ public class PasswordGenerator {
             throw new IllegalArgumentException("Username can't be null");
         }
         if (dob == null || dob.isEmpty()) {
-            throw new IllegalArgumentException("Aadhaar card at least contain 4 digits");
+            throw new IllegalArgumentException("DOB at least contain 4 digits");
         }
 
         //For username

@@ -336,7 +336,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
     @Override
     public Map<String, Object> getAllTimeTableByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
-        log.info("Enter into getALlTimeTableByFilter");
+        log.info("Enter into getAllTimeTableByFilter");
 
         Page<TimeTableEntity> timeTableEntityPage;
         List<TimeTableEntity> timeTableEntities;
@@ -383,7 +383,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
             timeTableDTO.setTimeTablePeriods(timeTablePeriodDTOS);
             timeTableDTOS.add(timeTableDTO);
         }
-        log.info("Exit from getALlTimeTableByFilter");
+        log.info("Exit from getAllTimeTableByFilter");
 
         Map<String, Object> map = new HashMap<>();
         map.put("Time TableDTOS", timeTableDTOS);
