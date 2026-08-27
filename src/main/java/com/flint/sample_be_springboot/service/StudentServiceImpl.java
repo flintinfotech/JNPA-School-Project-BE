@@ -387,6 +387,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                     .anyMatch(existing ->
                             existing.getAcademicYear() != null
                                     && existing.getAcademicYear().equalsIgnoreCase(academicYear)
+                                    && !Objects.equals(
+                                    existing.getAcademicInformationId(),
+                                    academicDTO.getAcademicInformationId()
+                            )
                     );
 
             if (alreadyExists) {
@@ -405,7 +409,6 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicEntity = existingAcademics.get(academicDTO.getAcademicInformationId());
 
             } else {
-
                 // New academic record
                 academicEntity = new AcademicInformationEntity();
                 academicEntity.setStudentEntity(existingStudentEntity);
@@ -850,6 +853,25 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
         studentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
 
+        // set student fee information
+        List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
+        if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
+            for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
+                StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
+
+                List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
+                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
+                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                        FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
+                        feePaymentDTOS.add(feePaymentDTO);
+                    }
+                }
+                studentFeeDTO.setFeePaymentDTOS(feePaymentDTOS);
+                studentFeeDTOS.add(studentFeeDTO);
+            }
+        }
+        studentDTO.setStudentFeeDTOS(studentFeeDTOS);
+
         log.info("Exit from getStudentById");
         return studentDTO;
     }
@@ -991,6 +1013,26 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                                         StudentAchievementsDTO.class
                                 ))
                         .toList();
+        studentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
+
+        // set student fee information
+        List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
+        if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
+            for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
+                StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
+
+                List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
+                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
+                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                        FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
+                        feePaymentDTOS.add(feePaymentDTO);
+                    }
+                }
+                studentFeeDTO.setFeePaymentDTOS(feePaymentDTOS);
+                studentFeeDTOS.add(studentFeeDTO);
+            }
+        }
+        studentDTO.setStudentFeeDTOS(studentFeeDTOS);
 
         return studentDTO;
     }
