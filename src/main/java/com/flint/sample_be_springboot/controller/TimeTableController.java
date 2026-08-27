@@ -44,11 +44,11 @@ public class TimeTableController {
     }
 
 
-    @PostMapping("/getALlTimeTableByFilter")
+    @PostMapping("/getAllTimeTableByFilter")
     public ResponseEntity<?> getALlTimeTableByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
                                                      @RequestParam(defaultValue = "true") boolean paginate) {
 
-        Map<String, Object> data = timeTableService.getALlTimeTableByFilter(filter, pageable, paginate);
+        Map<String, Object> data = timeTableService.getAllTimeTableByFilter(filter, pageable, paginate);
 
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }

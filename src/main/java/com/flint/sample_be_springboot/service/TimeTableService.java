@@ -17,6 +17,5 @@ public interface TimeTableService {
 
     String deleteTimeTable(Long tableId);
 
-    Map<String, Object> getALlTimeTableByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
-                                                @RequestParam(defaultValue = "true") boolean paginate);
+    Map<String, Object> getAllTimeTableByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 }

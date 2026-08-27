@@ -23,7 +23,7 @@ public class AcademicInformationEntity {
 
     @NotNull
     @Column(name = "ADMISSION_NO")
-    private String admissionNo;   // change to Long -->  String
+    private String admissionNo;
 
     @ManyToOne(targetEntity = StudentEntity.class, fetch = FetchType.LAZY)
     @JoinColumn(name = "STUDENT_ID")

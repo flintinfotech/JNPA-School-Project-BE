@@ -335,7 +335,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
     }
 
     @Override
-    public Map<String, Object> getALlTimeTableByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+    public Map<String, Object> getAllTimeTableByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         log.info("Enter into getALlTimeTableByFilter");
 
         Page<TimeTableEntity> timeTableEntityPage;

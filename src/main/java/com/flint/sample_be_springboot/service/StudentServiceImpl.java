@@ -118,9 +118,29 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         String lastAdmissionCode = academicInformationRepository.findLastAdmissionNo() != null ? academicInformationRepository.findLastAdmissionNo() : null;
         String nextStudentAdmissionCode = GenerateCodes.generateStudentAdmissionNo(lastAdmissionCode);
 
+        studentEntity.setAdmissionNo(nextStudentAdmissionCode);
+
         List<AcademicInformationEntity> academicInformationEntities = new ArrayList<>();
         if (studentDTO.getAcademicInformation() != null && !studentDTO.getAcademicInformation().isEmpty()) {
             for (AcademicInformationDTO academicInformationDTO : studentDTO.getAcademicInformation()) {
+
+                String academicYear = academicInformationDTO.getAcademicYear();
+
+                // Check whether this academic year already exists
+                boolean alreadyExists = studentEntity.getAcademicInformationEntity()
+                        .stream()
+                        .anyMatch(existing ->
+                                existing.getAcademicYear() != null
+                                        && existing.getAcademicYear().equalsIgnoreCase(academicYear)
+                        );
+
+                if (alreadyExists) {
+                    throw new CustomException(
+                            "Academic information already exists for academic year " + academicYear,
+                            HttpStatus.BAD_REQUEST
+                    );
+                }
+
                 AcademicInformationEntity academicInformationEntity = modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
                 academicInformationEntity.setStudentEntity(studentEntity);
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
@@ -264,6 +284,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         existingStudentEntity.setCaste(studentDTO.getCaste());
         existingStudentEntity.setNationality(studentDTO.getNationality());
         existingStudentEntity.setStatus(studentDTO.getStatus());
+        existingStudentEntity.setAdmissionNo(studentDTO.getAdmissionNo());
         existingStudentEntity.setPhone(studentDTO.getParentDTO().getPhone());
         existingStudentEntity.setAadhaarCard(studentDTO.getAadhaarCard());
         existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
@@ -357,6 +378,23 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                         .collect(Collectors.toMap(AcademicInformationEntity::getAcademicInformationId, Function.identity()));
 
         for (AcademicInformationDTO academicDTO : studentDTO.getAcademicInformation()) {
+
+            String academicYear = academicDTO.getAcademicYear();
+
+            // Check whether this academic year already exists
+            boolean alreadyExists = existingStudentEntity.getAcademicInformationEntity()
+                    .stream()
+                    .anyMatch(existing ->
+                            existing.getAcademicYear() != null
+                                    && existing.getAcademicYear().equalsIgnoreCase(academicYear)
+                    );
+
+            if (alreadyExists) {
+                throw new CustomException(
+                        "Academic information already exists for academic year " + academicYear,
+                        HttpStatus.BAD_REQUEST
+                );
+            }
 
             AcademicInformationEntity academicEntity;
 

@@ -73,6 +73,9 @@ public class StudentEntity {
     @Column(name = "STATUS")
     private StudentStatus status;
 
+    @Column(name = "ADMISSION_NO")
+    private String admissionNo;
+
     @Lob
     @Column(name = "PROFILE_IMG")
     private byte[] profileImg;

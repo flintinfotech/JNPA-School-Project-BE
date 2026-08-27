@@ -24,13 +24,13 @@ public class StudentDTO {
     private String caste;
     private String nationality;
     private StudentStatus status;
+    private String admissionNo;
     private ParentDTO parentDTO;
     private List<StudentDocumentDTO> studentDocuments;
     private List<AcademicInformationDTO> academicInformation;
     private List<StudentResultDTO> studentResultDTOS;
     private List<StudentAchievementsDTO> studentAchievementsDTOS;
     private List<StudentFeeDTO> studentFeeDTOS;
-
 
     private AuditDetails auditDetails;
 
