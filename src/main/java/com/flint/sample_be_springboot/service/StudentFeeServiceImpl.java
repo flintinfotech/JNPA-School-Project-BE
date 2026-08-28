@@ -83,17 +83,21 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
         List<FeePaymentEntity> feePaymentEntities = new ArrayList<>();
         if (studentFeeDTO.getFeePaymentDTOS() != null && !studentFeeDTO.getFeePaymentDTOS().isEmpty()) {
+
+            // Get last generated receipt number
+            String lastReceiptNo =feePaymentRepository.findLastReceiptNo();
+
             for (FeePaymentDTO feePaymentDTO : studentFeeDTO.getFeePaymentDTOS()) {
                 FeePaymentEntity feePaymentEntity = modelMapper.map(feePaymentDTO, FeePaymentEntity.class);
-
-                // Get last generated receipt number
-                String lastReceiptNo =feePaymentRepository.findLastReceiptNo();
 
                 // Generate next receipt number
                 String nextReceiptNo =GenerateCodes.generateReceiptNo(lastReceiptNo);
 
                 // Set generated receipt number
                 feePaymentEntity.setReceiptNo(nextReceiptNo);
+
+                // Update lastReceiptNo so next iteration generates the next number
+                lastReceiptNo = nextReceiptNo;
 
                 feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
                 feePaymentEntity.setStudentFee(studentFeeEntity);
