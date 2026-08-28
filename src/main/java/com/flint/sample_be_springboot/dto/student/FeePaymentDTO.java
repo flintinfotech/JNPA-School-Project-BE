@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto.student;
 
+import com.flint.sample_be_springboot.enums.FeePayment;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -16,5 +17,6 @@ public class FeePaymentDTO {
     private String transactionId;
     private String receiptNo;
     private String remarks;
+    private FeePayment status;
 
 }
