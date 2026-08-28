@@ -276,6 +276,7 @@ public class UserServiceImpl extends BaseService implements UserService {
         }
 
         List<UserDTO> userDTOS = userEntityList.stream()
+                .filter(user -> !"Superadmin".equalsIgnoreCase(user.getUserName())) // main superadmin
                 .map(u -> {
                     UserDTO dto = modelMapper.map(u, UserDTO.class);
 
