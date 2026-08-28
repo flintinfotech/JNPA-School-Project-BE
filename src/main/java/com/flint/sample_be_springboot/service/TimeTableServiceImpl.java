@@ -203,6 +203,8 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
         // Update parent fields
         existingTimeTable.setDivision(timeTableDTO.getDivision());
+        existingTimeTable.setStandard(timeTableDTO.getStandard());
+        existingTimeTable.setMedium(timeTableDTO.getMedium());
         existingTimeTable.setAcademicYear(timeTableDTO.getAcademicYear());
 
         existingTimeTable.setAuditDetails(addAuditDetails(existingTimeTable.getAuditDetails()));
