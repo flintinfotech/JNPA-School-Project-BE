@@ -175,6 +175,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                             Function.identity()
                     ));
 
+            // Get last receipt number ONCE
+            String lastReceiptNo = feePaymentRepository.findLastReceiptNo();
+
             // Update / Add payments
             for (FeePaymentDTO paymentDTO : studentFeeDTO.getFeePaymentDTOS()) {
 
@@ -201,14 +204,15 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                     // Add new payment
                     feePaymentEntity = modelMapper.map(paymentDTO, FeePaymentEntity.class);
 
-                    // Get last generated receipt number
-                    String lastReceiptNo =feePaymentRepository.findLastReceiptNo();
-
                     // Generate next receipt number
                     String nextReceiptNo =GenerateCodes.generateReceiptNo(lastReceiptNo);
 
                     // Set generated receipt number
                     feePaymentEntity.setReceiptNo(nextReceiptNo);
+
+                    // Update local last receipt number
+                    lastReceiptNo = nextReceiptNo;
+
                     feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
 
                     existingStudentFeeEntity.getFeePaymentEntities().add(feePaymentEntity);
