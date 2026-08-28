@@ -7,4 +7,11 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface TimeTableRepository extends JpaRepository<TimeTableEntity, Long>, JpaSpecificationExecutor<TimeTableEntity> {
+
+    TimeTableEntity findByStandardAndDivisionAndMediumAndAcademicYear
+            (String standard, String division, String medium, String academicYear);
+
+    TimeTableEntity findByStandardAndDivisionAndMediumAndAcademicYearAndTimeTableIdNot
+            (String standard, String division, String medium, String academicYear, Long timeTableId);
+
 }

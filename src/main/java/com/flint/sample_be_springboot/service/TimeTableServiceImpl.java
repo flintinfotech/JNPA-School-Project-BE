@@ -16,6 +16,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.util.*;
 import java.util.function.Function;
@@ -54,9 +55,14 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
             throw new CustomException("Time table data can't be null", HttpStatus.PRECONDITION_FAILED);
         }
 
+        TimeTableEntity existingTimeTableEntity = timeTableRepository.findByStandardAndDivisionAndMediumAndAcademicYear
+                (timeTableDTO.getStandard(), timeTableDTO.getDivision(), timeTableDTO.getMedium(), timeTableDTO.getAcademicYear());
+
+        if(existingTimeTableEntity != null && !ObjectUtils.isEmpty(existingTimeTableEntity)){
+            throw new CustomException("Timetable for this class is already exist", HttpStatus.NOT_FOUND);
+        }
+
         TimeTableEntity timeTableEntity = modelMapper.map(timeTableDTO, TimeTableEntity.class);
-        ClassMasterEntity classMasterEntity = classMasterRepository.findById(timeTableDTO.getClassMasterId())
-                .orElseThrow(() -> new CustomException("Class not found", HttpStatus.NOT_FOUND));
 
         timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
 
@@ -67,14 +73,19 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                 TimeTablePeriodEntity timeTablePeriodEntity = modelMapper.map(timeTablePeriodDTO, TimeTablePeriodEntity.class);
                 timeTablePeriodEntity.setTimeTableEntity(timeTableEntity);
 
-                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodDTO.getSubjectId())
-                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodDTO.getSubjectId() != null){
+                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodDTO.getSubjectId())
+                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+                    timeTablePeriodEntity.setSubjectMasterEntity(subjectMasterEntity);
+                }
 
-                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodDTO.getEmployeeDetailsId())
-                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodDTO.getEmployeeDetailsId() != null) {
+                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodDTO.getEmployeeDetailsId())
+                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
-                timeTablePeriodEntity.setSubjectMasterEntity(subjectMasterEntity);
-                timeTablePeriodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
+                    timeTablePeriodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
+                }
+
                 timeTablePeriodEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
                 timeTablePeriodEntities.add(timeTablePeriodEntity);
 
@@ -94,18 +105,22 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                 TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
 
                 // set subject master dto
-                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
-                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodEntity.getSubjectMasterEntity() != null){
+                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
+                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
 
-                SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
-                timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+                    SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
+                    timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+                }
 
                 // set employee details dto
-                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
-                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodEntity.getEmployeeDetailsEntity() != null) {
+                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
+                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
-                EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
-                timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+                    EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
+                    timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+                }
 
                 timeTablePeriodDTO.setTimeTableId(tableDTO.getTimeTableId());
                 timeTablePeriodDTOS.add(timeTablePeriodDTO);
@@ -136,18 +151,22 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                 TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
 
                 // set subject master dto
-                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
-                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodEntity.getSubjectMasterEntity() != null){
+                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
+                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
 
-                SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
-                timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+                    SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
+                    timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+                }
 
                 // set employee details dto
-                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
-                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodEntity.getEmployeeDetailsEntity() != null) {
+                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
+                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
-                EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
-                timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+                    EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
+                    timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+                }
 
                 timeTablePeriodDTOS.add(timeTablePeriodDTO);
             }
@@ -174,6 +193,13 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
         TimeTableEntity existingTimeTable = timeTableRepository.findById(timeTableDTO.getTimeTableId())
                 .orElseThrow(() -> new CustomException("Table not found", HttpStatus.NOT_FOUND));
+
+        TimeTableEntity existingTimeTableEntity = timeTableRepository.findByStandardAndDivisionAndMediumAndAcademicYearAndTimeTableIdNot
+                (timeTableDTO.getStandard(), timeTableDTO.getDivision(), timeTableDTO.getMedium(), timeTableDTO.getAcademicYear(), timeTableDTO.getTimeTableId());
+
+        if(existingTimeTableEntity != null && !ObjectUtils.isEmpty(existingTimeTableEntity)){
+            throw new CustomException("Timetable for this class is already exist", HttpStatus.NOT_FOUND);
+        }
 
         // Update parent fields
         existingTimeTable.setDivision(timeTableDTO.getDivision());
@@ -365,18 +391,22 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                 TimeTablePeriodDTO timeTablePeriodDTO = modelMapper.map(timeTablePeriodEntity, TimeTablePeriodDTO.class);
 
                 // set subject master dto
-                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
-                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodEntity.getSubjectMasterEntity() != null){
+                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(timeTablePeriodEntity.getSubjectMasterEntity().getSubjectMasterId())
+                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
 
-                SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
-                timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+                    SubjectMasterDTO subjectMasterDTO = modelMapper.map(subjectMasterEntity, SubjectMasterDTO.class);
+                    timeTablePeriodDTO.setSubjectMasterDTO(subjectMasterDTO);
+                }
 
                 // set employee details dto
-                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
-                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+                if(timeTablePeriodEntity.getEmployeeDetailsEntity() != null) {
+                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(timeTablePeriodEntity.getEmployeeDetailsEntity().getEmployeeDetailsId())
+                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
-                EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
-                timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+                    EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(employeeDetailsEntity, EmployeeDetailsDTO.class);
+                    timeTablePeriodDTO.setEmployeeDetailsDTO(employeeDetailsDTO);
+                }
 
                 timeTablePeriodDTOS.add(timeTablePeriodDTO);
             }

@@ -30,8 +30,8 @@ public class TimeTablePeriodEntity {
     @Column(name = "DAY", nullable = false)
     private DayOfWeek day;
 
-    @Column(name = "PERIOD_NUMBER", nullable = false)
-    private Integer periodNumber;
+    @Column(name = "PERIOD_NUMBER")
+    private String periodNumber;
 
     @Column(name = "START_TIME", nullable = false)
     private LocalTime startTime;
@@ -40,11 +40,11 @@ public class TimeTablePeriodEntity {
     private LocalTime endTime;
 
     @ManyToOne
-    @JoinColumn(name = "SUBJECT_MASTER_ID", nullable = false)
+    @JoinColumn(name = "SUBJECT_MASTER_ID")
     private SubjectMasterEntity subjectMasterEntity;
 
     @ManyToOne
-    @JoinColumn(name = "TEACHER_ID", nullable = false)
+    @JoinColumn(name = "TEACHER_ID")
     private EmployeeDetailsEntity employeeDetailsEntity;
 
     @Embedded

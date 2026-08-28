@@ -10,7 +10,7 @@ public class TimeTablePeriodDTO {
     private Long timeTablePeriodId;
     private Long timeTableId;
     private DayOfWeek day;
-    private Integer periodNumber;
+    private String periodNumber;
     private LocalTime startTime;
     private LocalTime endTime;
     private Long subjectId;
