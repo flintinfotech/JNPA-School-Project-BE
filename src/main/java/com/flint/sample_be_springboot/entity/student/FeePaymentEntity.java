@@ -2,6 +2,8 @@ package com.flint.sample_be_springboot.entity.student;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
 
+import com.flint.sample_be_springboot.enums.FeePayment;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -46,6 +48,10 @@ public class FeePaymentEntity {
 
     @Column(name = "REMARKS")
     private String remarks;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
+    private FeePayment status;
 
     @Embedded
     private AuditDetails auditDetails;

@@ -191,6 +191,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setMobileNo(employeeDetailsDTO.getMobileNo());
         existingEntity.setRole(employeeDetailsDTO.getRole());
         existingEntity.setLeavingDate(employeeDetailsDTO.getLeavingDate());
+        existingEntity.setStatus(employeeDetailsDTO.getStatus());
 
         if (!existingEntity.equals(employeeDetailsDTO.getRole())) {
             existingEntity.getUserEntity().setRole(employeeDetailsDTO.getRole());

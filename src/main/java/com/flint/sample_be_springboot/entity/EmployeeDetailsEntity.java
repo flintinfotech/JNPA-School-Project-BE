@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.entity;
 
 import com.flint.sample_be_springboot.enums.Role;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotNull;
@@ -88,6 +89,10 @@ public class EmployeeDetailsEntity {
 
     @Column(name = "BLOOD_GROUP")
     private String bloodGroup;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
+    private StudentStatus status;
 
     @OneToMany(mappedBy = "employeeDetailsEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserDocumentEntity> userDocumentEntities;

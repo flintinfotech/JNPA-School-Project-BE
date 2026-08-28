@@ -39,7 +39,11 @@ public interface EmployeeDetailsRepository extends JpaRepository<EmployeeDetails
 
     Optional<EmployeeDetailsEntity> findByEmployeeCodeAndEmployeeDetailsIdNot(String employeeCode, Long userId);
 
-    @Query(value = "SELECT TOP 1  employee_Code FROM EMPLOYEE_DETAILS_ENTITY ORDER BY employee_id DESC", nativeQuery = true)
+//    @Query(value = "SELECT TOP 1  employee_Code FROM EMPLOYEE_DETAILS_ENTITY ORDER BY employee_id DESC", nativeQuery = true)
+//    String findLastEmployeeCode();
+
+    @Query(value = "SELECT TOP 1  employee_Code FROM EMPLOYEE_DETAILS_ENTITY ORDER BY employee_details_id DESC", nativeQuery = true)
     String findLastEmployeeCode();
+
 
 }

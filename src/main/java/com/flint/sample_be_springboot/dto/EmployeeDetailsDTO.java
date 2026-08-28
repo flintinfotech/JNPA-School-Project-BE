@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.dto;
 
 import com.flint.sample_be_springboot.enums.Role;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -13,7 +14,6 @@ public class EmployeeDetailsDTO {
     private Long userId;
     private String employeeCode;
     private String userName;
-
     private String firstName;
     private String middleName;
     private String lastName;
@@ -22,18 +22,15 @@ public class EmployeeDetailsDTO {
     private String gender;
     private LocalDate dateOfBirth;
     private Role role;
-
     private String address;
-
     private String qualification;
     private String specialization;
     private Integer experience;
     private String designation;
     private LocalDate joiningDate;
     private LocalDate leavingDate;
-
-
     private String bloodGroup;
+    private StudentStatus status;
     private List<UserDocumentDTO> userDocumentDTOS;
 
 }

@@ -152,6 +152,8 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         existingStudentFeeEntity.setPendingAmount(studentFeeDTO.getPendingAmount());
         existingStudentFeeEntity.setDueAmount(studentFeeDTO.getDueAmount());
 
+
+
         existingStudentFeeEntity.setAuditDetails(addAuditDetails(existingStudentFeeEntity.getAuditDetails()));
 
         // Delete removed fee payments
@@ -190,7 +192,8 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                     feePaymentEntity.setPaymentDate(paymentDTO.getPaymentDate());
                     feePaymentEntity.setTransactionId(paymentDTO.getTransactionId());
                     feePaymentEntity.setRemarks(paymentDTO.getRemarks());
-                    feePaymentEntity.setReceiptNo(paymentDTO.getReceiptNo());  // setting receipt Number
+                    feePaymentEntity.setReceiptNo(paymentDTO.getReceiptNo());
+                    feePaymentEntity.setStatus(paymentDTO.getStatus());
 
                     feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
 
@@ -234,10 +237,8 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
             for (FeePaymentEntity feePaymentEntity : updatedStudentFeeEntity.getFeePaymentEntities()) {
 
                 FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
-
                 feePaymentDTO.setStudentFeeId(updatedStudentFeeEntity.getStudentFeeId());
-
-
+                feePaymentDTO.setStatus(feePaymentDTO.getStatus());
                 feePaymentDTOList.add(feePaymentDTO);
             }
         }
