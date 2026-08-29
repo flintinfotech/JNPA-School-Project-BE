@@ -1,12 +1,11 @@
 package com.flint.sample_be_springboot.service;
 
-import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
-import com.flint.sample_be_springboot.dto.SignUpDTO;
-import com.flint.sample_be_springboot.dto.UserDTO;
-import com.flint.sample_be_springboot.dto.UserDocumentDTO;
+import com.flint.sample_be_springboot.dto.*;
 import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
 import com.flint.sample_be_springboot.entity.UserDocumentEntity;
 import com.flint.sample_be_springboot.entity.UserEntity;
+import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
+import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
@@ -253,10 +252,26 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         // update
         EmployeeDetailsEntity updatedEntity = employeeDetailsRepository.save(existingEntity);
 
-        UserEntity existingUser = userRepository.findById(existingEntity.getUserEntity().getUserId()).get();
+        UserEntity user = userRepository.findByStudentEntity_StudentId(updatedEntity.getUserEntity().getUserId())
+                .orElseThrow(() -> new CustomException("Student user not found", HttpStatus.NOT_FOUND));
 
-        // update its particular user entity
-        UserDTO userDTO = modelMapper.map(existingUser, UserDTO.class);
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUserId(updatedEntity.getUserEntity().getUserId());
+        userDTO.setUserName(employeeDetailsDTO.getUserName());
+        userDTO.setMobileNo(employeeDetailsDTO.getMobileNo());
+        userDTO.setFirstName(employeeDetailsDTO.getFirstName());
+        userDTO.setLastName(employeeDetailsDTO.getLastName());
+        userDTO.setRole(employeeDetailsDTO.getRole());
+        userDTO.setEmail(employeeDetailsDTO.getEmail());
+
+        List<ScreenMasterDTO> screens = user.getScreenAccesses()
+                .stream()
+                .map(UserScreenAccessEntity::getScreen)
+                .map(screen -> modelMapper.map(screen, ScreenMasterDTO.class))
+                .toList();
+
+        userDTO.setScreens(screens);
+
         UserDTO updatedUserDTO = userService.updateUser(userDTO);
 
         // Return DTO
