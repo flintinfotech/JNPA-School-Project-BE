@@ -586,6 +586,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         StudentDTO studentDTO = modelMapper.map(studentEntity, StudentDTO.class);
 
+        LocalDate startDate = getStartDate();
+        LocalDate endDate = getEndDate();
+        String currentAcademicYear = startDate.getYear() + "-" + endDate.getYear();
+
         if (studentEntity.getProfileImg() != null) {
             String img = Base64.getEncoder().encodeToString(studentEntity.getProfileImg());
 
@@ -622,21 +626,57 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         studentDTO.setAcademicInformation(academicInformationDTOs);
 
         // set student results
+//        List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
+//        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
+//            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
+//                StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
+//
+//                List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
+//                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
+//                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+//                        ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
+//                        examSubjectsDTOS.add(examSubjectsDTO);
+//                    }
+//                }
+//                studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+//                studentResultDTOS.add(studentResultDTO);
+//            }
+//        }
         List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
-        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
-            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
-                StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
 
-                List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
-                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
-                        ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
-                        examSubjectsDTOS.add(examSubjectsDTO);
-                    }
-                }
-                studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
-                studentResultDTOS.add(studentResultDTO);
-            }
+        if (studentEntity.getStudentResultEntities() != null
+                && !studentEntity.getStudentResultEntities().isEmpty()) {
+
+            studentResultDTOS = studentEntity.getStudentResultEntities()
+                    .stream()
+
+                    // Filter results based on current academic year
+                    .filter(result ->
+                            currentAcademicYear.equals(result.getAcademicYear()))
+
+                    // Map StudentResultEntity -> StudentResultDTO
+                    .map(result -> {
+
+                        StudentResultDTO studentResultDTO =
+                                modelMapper.map(result, StudentResultDTO.class);
+
+                        // Set exam subjects
+                        List<ExamSubjectsDTO> examSubjectsDTOS =
+                                result.getExamSubjectsEntities() == null
+                                        ? new ArrayList<>()
+                                        : result.getExamSubjectsEntities()
+                                        .stream()
+                                        .map(examSubjectsEntity ->
+                                                modelMapper.map(
+                                                        examSubjectsEntity,
+                                                        ExamSubjectsDTO.class))
+                                        .toList();
+
+                        studentResultDTO.setExamSubjectsDTOS(examSubjectsDTOS);
+
+                        return studentResultDTO;
+                    })
+                    .toList();
         }
         studentDTO.setStudentResultDTOS(studentResultDTOS);
 
@@ -650,22 +690,60 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
         studentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
 
+//        List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
+//        if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
+//            for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
+//                StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
+//
+//                List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
+//                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
+//                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+//                        FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
+//                        feePaymentDTOS.add(feePaymentDTO);
+//                    }
+//                }
+//                studentFeeDTO.setFeePaymentDTOS(feePaymentDTOS);
+//                studentFeeDTOS.add(studentFeeDTO);
+//            }
+//        }
+//        studentDTO.setStudentFeeDTOS(studentFeeDTOS);
         List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
-        if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
-            for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
-                StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
 
-                List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
-                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
-                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
-                        FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
-                        feePaymentDTOS.add(feePaymentDTO);
-                    }
-                }
-                studentFeeDTO.setFeePaymentDTOS(feePaymentDTOS);
-                studentFeeDTOS.add(studentFeeDTO);
-            }
+        if (studentEntity.getStudentFeeEntities() != null
+                && !studentEntity.getStudentFeeEntities().isEmpty()) {
+
+            studentFeeDTOS = studentEntity.getStudentFeeEntities()
+                    .stream()
+
+                    // Filter fees based on current academic year
+                    .filter(fee ->
+                            currentAcademicYear.equals(fee.getAcademicYear()))
+
+                    // Map StudentFeeEntity -> StudentFeeDTO
+                    .map(fee -> {
+
+                        StudentFeeDTO studentFeeDTO =
+                                modelMapper.map(fee, StudentFeeDTO.class);
+
+                        // Set fee payments
+                        List<FeePaymentDTO> feePaymentDTOS =
+                                fee.getFeePaymentEntities() == null
+                                        ? new ArrayList<>()
+                                        : fee.getFeePaymentEntities()
+                                        .stream()
+                                        .map(feePaymentEntity ->
+                                                modelMapper.map(
+                                                        feePaymentEntity,
+                                                        FeePaymentDTO.class))
+                                        .toList();
+
+                        studentFeeDTO.setFeePaymentDTOS(feePaymentDTOS);
+
+                        return studentFeeDTO;
+                    })
+                    .toList();
         }
+
         studentDTO.setStudentFeeDTOS(studentFeeDTOS);
 
         log.info("Exit from getStudentById");
