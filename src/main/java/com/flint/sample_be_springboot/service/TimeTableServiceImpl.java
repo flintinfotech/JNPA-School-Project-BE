@@ -471,6 +471,8 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
         System.err.println(academicYear);
 
+        filter.put("academicYear", academicYear);
+
         CustomQuerySpecification<TimeTableEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {
