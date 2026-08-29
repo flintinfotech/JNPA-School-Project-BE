@@ -1,13 +1,10 @@
 package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.*;
-import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
-import com.flint.sample_be_springboot.entity.UserDocumentEntity;
-import com.flint.sample_be_springboot.entity.UserEntity;
-import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
-import com.flint.sample_be_springboot.enums.Role;
+import com.flint.sample_be_springboot.entity.*;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
+import com.flint.sample_be_springboot.repository.TimeTablePeriodRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
@@ -38,6 +35,9 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private TimeTablePeriodRepository timeTablePeriodRepositoryRepository;
 
     @Override
     public Map<String, Object> saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO) {
@@ -252,8 +252,8 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         // update
         EmployeeDetailsEntity updatedEntity = employeeDetailsRepository.save(existingEntity);
 
-        UserEntity user = userRepository.findByStudentEntity_StudentId(updatedEntity.getUserEntity().getUserId())
-                .orElseThrow(() -> new CustomException("Student user not found", HttpStatus.NOT_FOUND));
+        UserEntity user = userRepository.findById(updatedEntity.getUserEntity().getUserId())
+                .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
         UserDTO userDTO = new UserDTO();
         userDTO.setUserId(updatedEntity.getUserEntity().getUserId());
@@ -263,6 +263,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         userDTO.setLastName(employeeDetailsDTO.getLastName());
         userDTO.setRole(employeeDetailsDTO.getRole());
         userDTO.setEmail(employeeDetailsDTO.getEmail());
+        userDTO.setSection(user.getSection());
+        userDTO.setMedium(user.getMedium());
+        userDTO.setStandard(user.getStandard());
+        userDTO.setDivision(user.getDivision());
 
         List<ScreenMasterDTO> screens = user.getScreenAccesses()
                 .stream()
@@ -373,6 +377,13 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeDetailsId)
                 .orElseThrow(() ->
                         new CustomException("User information not found", HttpStatus.NOT_FOUND));
+
+        List<TimeTablePeriodEntity> timeTablePeriodEntities = timeTablePeriodRepositoryRepository
+                .findByEmployeeDetailsEntity_EmployeeDetailsId(existingEntity.getEmployeeDetailsId());
+
+        if(timeTablePeriodEntities != null && !timeTablePeriodEntities.isEmpty()){
+            throw new CustomException("This user is assigned in time table, cannot delete this user", HttpStatus.FOUND);
+        }
 
         UserEntity user = existingEntity.getUserEntity();
 

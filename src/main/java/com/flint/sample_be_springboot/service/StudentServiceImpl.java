@@ -115,38 +115,54 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         studentEntity.setStudentDocumentEntities(studentDocumentEntities);
 
         // set student academic information
-        String lastAdmissionCode = academicInformationRepository.findLastAdmissionNo() != null ? academicInformationRepository.findLastAdmissionNo() : null;
+        String lastAdmissionCode = studentRepository.findLastAdmissionNo() != null ? studentRepository.findLastAdmissionNo() : null;
         String nextStudentAdmissionCode = GenerateCodes.generateStudentAdmissionNo(lastAdmissionCode);
 
         studentEntity.setAdmissionNo(nextStudentAdmissionCode);
 
+        Set<String> academicYears = new HashSet<>();
+
         List<AcademicInformationEntity> academicInformationEntities = new ArrayList<>();
-        if (studentDTO.getAcademicInformation() != null && !studentDTO.getAcademicInformation().isEmpty()) {
-            for (AcademicInformationDTO academicInformationDTO : studentDTO.getAcademicInformation()) {
+
+        if (studentDTO.getAcademicInformation() != null
+                && !studentDTO.getAcademicInformation().isEmpty()) {
+
+            for (AcademicInformationDTO academicInformationDTO :
+                    studentDTO.getAcademicInformation()) {
 
                 String academicYear = academicInformationDTO.getAcademicYear();
 
-                // Check whether this academic year already exists
-                boolean alreadyExists = studentEntity.getAcademicInformationEntity()
-                        .stream()
-                        .anyMatch(existing ->
-                                existing.getAcademicYear() != null
-                                        && existing.getAcademicYear().equalsIgnoreCase(academicYear)
-                        );
-
-                if (alreadyExists) {
+                if (academicYear == null || academicYear.trim().isEmpty()) {
                     throw new CustomException(
-                            "Academic information already exists for academic year " + academicYear,
+                            "Academic year can't be null or empty",
                             HttpStatus.BAD_REQUEST
                     );
                 }
 
-                AcademicInformationEntity academicInformationEntity = modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
+                // Check duplicate academic year in request
+                String normalizedAcademicYear = academicYear.trim().toLowerCase();
+
+                if (!academicYears.add(normalizedAcademicYear)) {
+                    throw new CustomException(
+                            "Academic information already exists for academic year "
+                                    + academicYear,
+                            HttpStatus.BAD_REQUEST
+                    );
+                }
+
+                AcademicInformationEntity academicInformationEntity =
+                        modelMapper.map(
+                                academicInformationDTO,
+                                AcademicInformationEntity.class
+                        );
+
                 academicInformationEntity.setStudentEntity(studentEntity);
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
+
                 academicInformationEntities.add(academicInformationEntity);
             }
         }
+
         studentEntity.setAcademicInformationEntity(academicInformationEntities);
 
         // save student entity
@@ -284,7 +300,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         existingStudentEntity.setCaste(studentDTO.getCaste());
         existingStudentEntity.setNationality(studentDTO.getNationality());
         existingStudentEntity.setStatus(studentDTO.getStatus());
-        existingStudentEntity.setAdmissionNo(studentDTO.getAdmissionNo());
+        existingStudentEntity.setAdmissionNo(existingStudentEntity.getAdmissionNo());
         existingStudentEntity.setPhone(studentDTO.getParentDTO().getPhone());
         existingStudentEntity.setAadhaarCard(studentDTO.getAadhaarCard());
         existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
@@ -377,16 +393,40 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 existingStudentEntity.getAcademicInformationEntity().stream()
                         .collect(Collectors.toMap(AcademicInformationEntity::getAcademicInformationId, Function.identity()));
 
+        // Track academic years coming in the request
+        Set<String> academicYears = new HashSet<>();
+
         for (AcademicInformationDTO academicDTO : studentDTO.getAcademicInformation()) {
 
             String academicYear = academicDTO.getAcademicYear();
 
-            // Check whether this academic year already exists
-            boolean alreadyExists = existingStudentEntity.getAcademicInformationEntity()
+            if (academicYear == null || academicYear.trim().isEmpty()) {
+                throw new CustomException(
+                        "Academic year can't be null or empty",
+                        HttpStatus.BAD_REQUEST
+                );
+            }
+
+            String normalizedAcademicYear = academicYear.trim().toLowerCase();
+
+            // Check duplicate academic year in request itself
+            if (!academicYears.add(normalizedAcademicYear)) {
+                throw new CustomException(
+                        "Academic information already exists for academic year "
+                                + academicYear,
+                        HttpStatus.BAD_REQUEST
+                );
+            }
+
+            // Check duplicate academic year against existing DB records
+            boolean alreadyExists = existingStudentEntity
+                    .getAcademicInformationEntity()
                     .stream()
                     .anyMatch(existing ->
                             existing.getAcademicYear() != null
-                                    && existing.getAcademicYear().equalsIgnoreCase(academicYear)
+                                    && existing.getAcademicYear()
+                                    .trim()
+                                    .equalsIgnoreCase(academicYear.trim())
                                     && !Objects.equals(
                                     existing.getAcademicInformationId(),
                                     academicDTO.getAcademicInformationId()
@@ -395,7 +435,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
             if (alreadyExists) {
                 throw new CustomException(
-                        "Academic information already exists for academic year " + academicYear,
+                        "Academic information already exists for academic year "
+                                + academicYear,
                         HttpStatus.BAD_REQUEST
                 );
             }
@@ -415,7 +456,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 existingStudentEntity.getAcademicInformationEntity().add(academicEntity);
             }
 
-            academicEntity.setAdmissionNo(academicDTO.getAdmissionNo());
+            academicEntity.setAdmissionNo(existingStudentEntity.getAdmissionNo());
             academicEntity.setAdmissionDate(academicDTO.getAdmissionDate());
             academicEntity.setStandard(academicDTO.getStandard());
             academicEntity.setDivision(academicDTO.getDivision());

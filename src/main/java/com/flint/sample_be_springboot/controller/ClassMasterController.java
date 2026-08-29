@@ -61,7 +61,7 @@ public class ClassMasterController {
                         .build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteClassMaster/{classMasterId}")
     public ResponseEntity<?> deleteClassMaster(@PathVariable Long classMasterId) {
 

@@ -36,7 +36,7 @@ public class TimeTableController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Time table updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteTimeTable/{tableId}")
     public ResponseEntity<?> deleteTimeTable(@PathVariable Long tableId) {
         String msg = timeTableService.deleteTimeTable(tableId);

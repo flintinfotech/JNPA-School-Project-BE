@@ -40,7 +40,7 @@ public class StudentAchievementsController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Student achievement updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteStudentAchievements/{studentAchievementId}")
     public ResponseEntity<?> deleteStudentAchievements(@PathVariable Long studentAchievementId) {
 

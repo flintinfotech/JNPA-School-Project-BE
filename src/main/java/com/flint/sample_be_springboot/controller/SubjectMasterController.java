@@ -60,7 +60,7 @@ public class SubjectMasterController {
                         .build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteSubjectMaster/{subjectMasterId}")
     public ResponseEntity<?> deleteSubjectMaster(@PathVariable Long subjectMasterId) {
 

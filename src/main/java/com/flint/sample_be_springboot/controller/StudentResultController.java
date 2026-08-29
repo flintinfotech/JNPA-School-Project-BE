@@ -40,7 +40,7 @@ public class StudentResultController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Student result updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteStudentResult/{resultId}")
     public ResponseEntity<?> deleteStudentResult(@PathVariable Long resultId) {
         String msg = studentResultService.deleteStudentResult(resultId);

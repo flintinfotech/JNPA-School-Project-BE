@@ -53,7 +53,7 @@ public class EmployeeDetailsController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Employee information updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteEmployeeDetails/{employeeDetailsId}")
     public ResponseEntity<?> deleteEmployeeDetails(@PathVariable Long employeeDetailsId) {
 
