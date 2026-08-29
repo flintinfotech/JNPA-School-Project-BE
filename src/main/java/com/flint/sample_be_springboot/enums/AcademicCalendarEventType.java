@@ -6,7 +6,7 @@ public enum AcademicCalendarEventType {
     EXAMINATION,
     HOLIDAY,
     VACATION,
-    SCHOOL_EVENT,
+    EVENT,
     MEETING,
     RESULT,
     OTHER
