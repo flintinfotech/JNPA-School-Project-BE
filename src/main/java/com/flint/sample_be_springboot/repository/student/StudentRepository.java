@@ -20,6 +20,8 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long>, J
     @Query(value = "SELECT TOP 1  student_code FROM STUDENT_ENTITY ORDER BY student_id DESC", nativeQuery = true)
     String findLastStudentCode();
 
+    @Query(value = "SELECT TOP 1  admission_no FROM STUDENT_ENTITY ORDER BY student_id DESC", nativeQuery = true)
+    String findLastAdmissionNo();
 
     Optional<StudentEntity> findByUserEntity_UserId(Long userId);
 

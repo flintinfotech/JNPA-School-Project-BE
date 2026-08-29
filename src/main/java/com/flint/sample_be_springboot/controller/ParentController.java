@@ -44,7 +44,7 @@ public class ParentController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Parent updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteParent/{parentId}")
     public ResponseEntity<?> deleteParent(@PathVariable Long parentId) {
 
