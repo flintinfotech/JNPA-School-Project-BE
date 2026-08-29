@@ -462,8 +462,16 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
         Page<TimeTableEntity> timeTableEntityPage;
         List<TimeTableEntity> timeTableEntities;
-
         long totalElement;
+
+        String start = String.valueOf(getStartDate().getYear());
+        String end = String.valueOf(getEndDate().getYear());
+
+        String academicYear = start.concat("-").concat(end);
+
+        System.err.println(academicYear);
+
+        filter.put("academicYear", academicYear);
 
         CustomQuerySpecification<TimeTableEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
