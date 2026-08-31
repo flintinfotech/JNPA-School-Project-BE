@@ -131,28 +131,33 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
             // Set Subject
 
-            if (periodDTO.getSubjectId() == null) {
+//            if (periodDTO.getSubjectId() == null) {
+//
+//                throw new CustomException("Subject can't be null", HttpStatus.BAD_REQUEST);
+//            }
 
-                throw new CustomException("Subject can't be null", HttpStatus.BAD_REQUEST);
+            if (periodDTO.getSubjectId() != null) {
+
+                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
+                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+
+                periodEntity.setSubjectMasterEntity(subjectMasterEntity);
             }
-
-            SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
-                    .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
-
-            periodEntity.setSubjectMasterEntity(subjectMasterEntity);
 
             // Set Teacher
 
-            if (periodDTO.getEmployeeDetailsId() == null) {
+//            if (periodDTO.getEmployeeDetailsId() == null) {
+//
+//                throw new CustomException("Teacher can't be null", HttpStatus.BAD_REQUEST);
+//            }
 
-                throw new CustomException("Teacher can't be null", HttpStatus.BAD_REQUEST);
+            if (periodDTO.getEmployeeDetailsId() != null) {
+
+                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
+                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+
+                periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
             }
-
-            EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
-                    .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
-
-            periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
-
             // Set Audit Details
 
             periodEntity.setAuditDetails(addAuditDetails(periodEntity.getAuditDetails()));
@@ -370,21 +375,24 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 //                    throw new CustomException("Subject can't be null", HttpStatus.BAD_REQUEST);
 //                }
 //
-//                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
-//                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
-//
-//                periodEntity.setSubjectMasterEntity(subjectMasterEntity);
+                if (periodDTO.getSubjectId() != null) {
+                    SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
+                            .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+
+                    periodEntity.setSubjectMasterEntity(subjectMasterEntity);
+                }
 //
 //                // Set Teacher
 //                if (periodDTO.getEmployeeDetailsId() == null) {
 //                    throw new CustomException("Teacher can't be null", HttpStatus.BAD_REQUEST);
 //                }
 //
-//                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
-//                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
-//
-//                periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
+                if (periodDTO.getEmployeeDetailsId() != null) {
+                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
+                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 
+                    periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
+                }
                 periodEntity.setTimeTableEntity(existingTimeTable);
             }
 
