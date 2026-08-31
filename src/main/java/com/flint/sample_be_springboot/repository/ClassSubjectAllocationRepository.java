@@ -1,6 +1,8 @@
 package com.flint.sample_be_springboot.repository;
 
 import com.flint.sample_be_springboot.entity.ClassSubjectAllocationEntity;
+import com.flint.sample_be_springboot.entity.TeacherClassSubjectAllocationEntity;
+import com.flint.sample_be_springboot.entity.TimeTablePeriodEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -40,5 +42,11 @@ public interface ClassSubjectAllocationRepository extends JpaRepository<ClassSub
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
+
+    List<ClassSubjectAllocationEntity> findBySubjectMasterEntity_SubjectMasterId(Long subjectMasterId);
+
+    List<ClassSubjectAllocationEntity> findByClassMasterEntity_ClassMasterId(Long classMasterId);
+
+
 
 }

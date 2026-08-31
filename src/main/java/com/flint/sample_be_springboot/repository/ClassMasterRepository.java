@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.repository;
 
 import com.flint.sample_be_springboot.entity.ClassMasterEntity;
+import com.flint.sample_be_springboot.entity.ClassSubjectAllocationEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -27,5 +28,8 @@ public interface ClassMasterRepository extends JpaRepository<ClassMasterEntity, 
                 ORDER BY c.standard, c.division, c.medium
             """)
     List<ClassMasterEntity> searchClasses(@Param("keyword") String keyword);
+
+
+
 
 }

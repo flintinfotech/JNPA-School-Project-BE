@@ -2,19 +2,21 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.ClassMasterDTO;
 import com.flint.sample_be_springboot.dto.ClassMasterSearchDTO;
-import com.flint.sample_be_springboot.dto.SubjectMasterDTO;
 import com.flint.sample_be_springboot.entity.ClassMasterEntity;
+import com.flint.sample_be_springboot.entity.ClassSubjectAllocationEntity;
+import com.flint.sample_be_springboot.entity.TeacherClassSubjectAllocationEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.ClassMasterRepository;
+import com.flint.sample_be_springboot.repository.ClassSubjectAllocationRepository;
+import com.flint.sample_be_springboot.repository.TeacherClassSubjectAllocationRepository;
+import com.flint.sample_be_springboot.repository.TimeTableRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
@@ -31,6 +33,15 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
 
     @Autowired
     ClassMasterRepository classMasterRepository;
+
+    @Autowired
+    private ClassSubjectAllocationRepository classSubjectAllocationRepository;
+
+    @Autowired
+    private TeacherClassSubjectAllocationRepository teacherClassSubjectAllocationRepository;
+
+    @Autowired
+    private TimeTableRepository timeTableRepository;
 
     @Override
     public ClassMasterDTO getClassMasterById(Long classMasterId) {
@@ -99,6 +110,21 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
 
         ClassMasterEntity existingClass = classMasterRepository.findById(classMasterId)
                 .orElseThrow(() -> new CustomException("Class information not found", HttpStatus.NOT_FOUND));
+
+        List<ClassSubjectAllocationEntity> classSubjectAllocationEntities = classSubjectAllocationRepository
+                .findByClassMasterEntity_ClassMasterId(existingClass.getClassMasterId());
+        if (classSubjectAllocationEntities != null && !classSubjectAllocationEntities.isEmpty()) {
+            throw new CustomException("This Class master is assigned in subject assignment and teacher subjects, can't delete this class",
+                    HttpStatus.FOUND);
+        }
+
+        List<TeacherClassSubjectAllocationEntity> teacherClassSubjectAllocationEntities = teacherClassSubjectAllocationRepository
+                .findByClassMasterEntity_ClassMasterId(existingClass.getClassMasterId());
+        if (teacherClassSubjectAllocationEntities != null && !teacherClassSubjectAllocationEntities.isEmpty()) {
+            throw new CustomException("This Class is assigned in subject assignment and teacher subjects, can't delete this class",
+                    HttpStatus.FOUND);
+        }
+
 
         classMasterRepository.delete(existingClass);
 

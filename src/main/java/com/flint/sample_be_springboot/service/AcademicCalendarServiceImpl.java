@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,7 +53,13 @@ public class AcademicCalendarServiceImpl extends BaseService implements Academic
             throw new CustomException("Other event found on these dates", HttpStatus.FOUND);
         }
 
+        LocalDate startDate = getStartDate();
+        LocalDate endDate = getEndDate();
+
+        String academicYear = startDate.getYear() + "-" + endDate.getYear();
+
         AcademicCalendarEntity academicCalendar = modelMapper.map(academicCalendarDTO, AcademicCalendarEntity.class);
+        academicCalendar.setAcademicYear(academicYear);
 
         AcademicCalendarEntity savedEntity = academicCalendarRepository.save(academicCalendar);
 
@@ -103,6 +110,13 @@ public class AcademicCalendarServiceImpl extends BaseService implements Academic
         Page<AcademicCalendarEntity> academicCalendarEntityPage;
         List<AcademicCalendarEntity> academicCalendarEntities;
         long totalElement;
+
+        LocalDate startDate = getStartDate();
+        LocalDate endDate = getEndDate();
+
+        String academicYear = startDate.getYear() + "-" + endDate.getYear();
+
+        filter.put("academicYear",academicYear );
 
         CustomQuerySpecification<AcademicCalendarEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
