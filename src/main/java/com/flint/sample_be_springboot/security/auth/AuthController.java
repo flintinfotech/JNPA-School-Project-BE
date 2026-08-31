@@ -28,7 +28,6 @@ public class AuthController {
 
     }
 
-
     @GetMapping("/getLastFiveAcademicYears")
     public List<AcademicWorkYearDTO> getLastFiveAcademicYears() {
 

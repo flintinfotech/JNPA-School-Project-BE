@@ -5,9 +5,11 @@ import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
+import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.security.jwt.JwtService;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -37,6 +39,13 @@ public class AuthService {
 
     Map<String, Object> login(LoginRequest request) {
 
+        UserEntity userEntity1 = userRepository.findByUserName(request.getUsername())
+                .orElseThrow(() -> new CustomException("Invalid username",HttpStatus.UNAUTHORIZED));
+
+        if (!userEntity1.getUserName().equals(request.getUsername())) {
+            throw new CustomException("Invalid username or password",HttpStatus.UNAUTHORIZED);
+        }
+
         final Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(request.getUsername(), request.getPassword())
         );
@@ -46,6 +55,7 @@ public class AuthService {
         }
 
         UserEntity userEntity = userRepository.findByUserName(request.getUsername()).get();
+
         UserDTO userDTO = modelMapper.map(userEntity, UserDTO.class);
         List<ScreenMasterDTO> screens = userEntity.getScreenAccesses()
                 .stream()
