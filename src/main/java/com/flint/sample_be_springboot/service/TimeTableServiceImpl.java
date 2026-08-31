@@ -365,25 +365,26 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
                     existingTimeTable.getTimeTablePeriodEntities().add(periodEntity);
                 }
 
-                //  Set Subject
-                if (periodDTO.getSubjectId() == null) {
-                    throw new CustomException("Subject can't be null", HttpStatus.BAD_REQUEST);
-                }
+//                //  Set Subject
+//                if (periodDTO.getSubjectId() == null) {
+//                    throw new CustomException("Subject can't be null", HttpStatus.BAD_REQUEST);
+//                }
+//
+//                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
+//                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
+//
+//                periodEntity.setSubjectMasterEntity(subjectMasterEntity);
+//
+//                // Set Teacher
+//                if (periodDTO.getEmployeeDetailsId() == null) {
+//                    throw new CustomException("Teacher can't be null", HttpStatus.BAD_REQUEST);
+//                }
+//
+//                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
+//                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+//
+//                periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
 
-                SubjectMasterEntity subjectMasterEntity = subjectMasterRepository.findById(periodDTO.getSubjectId())
-                        .orElseThrow(() -> new CustomException("Subject not found", HttpStatus.NOT_FOUND));
-
-                periodEntity.setSubjectMasterEntity(subjectMasterEntity);
-
-                // Set Teacher
-                if (periodDTO.getEmployeeDetailsId() == null) {
-                    throw new CustomException("Teacher can't be null", HttpStatus.BAD_REQUEST);
-                }
-
-                EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
-                        .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
-
-                periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
                 periodEntity.setTimeTableEntity(existingTimeTable);
             }
 
