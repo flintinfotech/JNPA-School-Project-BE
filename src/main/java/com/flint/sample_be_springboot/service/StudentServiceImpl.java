@@ -143,22 +143,30 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 String normalizedAcademicYear = academicYear.trim().toLowerCase();
 
                 if (!academicYears.add(normalizedAcademicYear)) {
-                    throw new CustomException(
-                            "Academic information already exists for academic year "
-                                    + academicYear,
-                            HttpStatus.BAD_REQUEST
-                    );
+                    throw new CustomException("Academic information already exists for academic year "+ academicYear,HttpStatus.BAD_REQUEST);
                 }
 
                 AcademicInformationEntity academicInformationEntity =
-                        modelMapper.map(
-                                academicInformationDTO,
-                                AcademicInformationEntity.class
-                        );
+                        modelMapper.map(academicInformationDTO,AcademicInformationEntity.class);
 
                 academicInformationEntity.setStudentEntity(studentEntity);
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
 
+                //Setting Roll Number
+                Integer maxRollNumber =academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+                                        academicInformationEntity.getStandard(),
+                                        academicInformationEntity.getDivision(),
+                                        academicInformationEntity.getMedium(),
+                                        academicInformationEntity.getAcademicYear());
+
+                Integer nextRollNumber;
+
+                if (maxRollNumber == null) {
+                    nextRollNumber = 1;
+                } else {
+                    nextRollNumber = maxRollNumber + 1;
+                }
+                academicInformationEntity.setRollNo(String.valueOf(nextRollNumber));
                 academicInformationEntities.add(academicInformationEntity);
             }
         }

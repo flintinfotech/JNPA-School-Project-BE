@@ -50,4 +50,5 @@ public class AcademicInformationEntity {
     @Embedded
     private AuditDetails auditDetails;
 
+
 }
