@@ -6,6 +6,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 @Entity
 @Table(name = "PURCHASE_ENTITY")
 @NoArgsConstructor
@@ -27,6 +30,9 @@ public class PurchaseEntity {
 
     @Column(name = "PRODUCT_NAME", nullable = false)
     private String productName;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "purchaseEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SchoolExpensesEntity> schoolExpensesEntities;
 
 
 }
