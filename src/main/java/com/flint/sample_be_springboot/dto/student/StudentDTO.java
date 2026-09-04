@@ -1,9 +1,12 @@
 package com.flint.sample_be_springboot.dto.student;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.enums.StudentStatus;
+import jakarta.persistence.Column;
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Data
@@ -35,5 +38,9 @@ public class StudentDTO {
     private AuditDetails auditDetails;
 
     private String profileImg;
+
+    private FeePayment paymentStatus;
+    private BigDecimal totalFeeAmount;
+    private BigDecimal pendingFeeAmount;
 
 }

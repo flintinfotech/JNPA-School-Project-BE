@@ -2,11 +2,13 @@ package com.flint.sample_be_springboot.entity.student;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.entity.UserEntity;
+import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.enums.StudentStatus;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @Table(name = "STUDENT_ENTITY")
@@ -75,6 +77,16 @@ public class StudentEntity {
 
     @Column(name = "ADMISSION_NO")
     private String admissionNo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PAYMENT_STATUS")
+    private FeePayment paymentStatus;
+
+    @Column(name = "TOTAL_FEE_AMOUNT")
+    private BigDecimal totalFeeAmount;
+
+    @Column(name = "PENDING_FEE_AMOUNT")
+    private BigDecimal pendingFeeAmount;
 
     @Lob
     @Column(name = "PROFILE_IMG")

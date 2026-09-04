@@ -5,6 +5,7 @@ import com.flint.sample_be_springboot.dto.student.StudentFeeDTO;
 import com.flint.sample_be_springboot.entity.student.FeePaymentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.entity.student.StudentFeeEntity;
+import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.student.FeePaymentRepository;
 import com.flint.sample_be_springboot.repository.student.StudentFeeRepository;
@@ -20,6 +21,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.*;
@@ -65,6 +67,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         return studentResultDTO;
     }
 
+    @Transactional
     @Override
     public StudentFeeDTO saveStudentFee(StudentFeeDTO studentFeeDTO) {
         log.info("Enter into saveStudentFee");
@@ -80,6 +83,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         studentFeeEntity.setStudentEntity(studentEntity);
 
         studentFeeEntity.setAuditDetails(addAuditDetails(studentFeeEntity.getAuditDetails()));
+
+        BigDecimal totalFeeAmount = BigDecimal.ZERO;
+        BigDecimal pendingFeeAmount = BigDecimal.ZERO;
 
         List<FeePaymentEntity> feePaymentEntities = new ArrayList<>();
         if (studentFeeDTO.getFeePaymentDTOS() != null && !studentFeeDTO.getFeePaymentDTOS().isEmpty()) {
@@ -102,9 +108,22 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                 feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
                 feePaymentEntity.setStudentFee(studentFeeEntity);
                 feePaymentEntities.add(feePaymentEntity);
+
+                totalFeeAmount = totalFeeAmount.add(studentFeeDTO.getTotalFeeAmount());
+                pendingFeeAmount = pendingFeeAmount.add(studentFeeDTO.getPendingAmount());
+
             }
         }
         studentFeeEntity.setFeePaymentEntities(feePaymentEntities);
+
+        if(pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0){
+            studentEntity.setPaymentStatus(FeePayment.PENDING);
+        }else{
+            studentEntity.setPaymentStatus(FeePayment.PAID);
+        }
+
+        studentEntity.setTotalFeeAmount(totalFeeAmount);
+        studentEntity.setPendingFeeAmount(pendingFeeAmount);
 
         StudentFeeEntity savedStudentFeeEntity = studentFeeRepository.save(studentFeeEntity);
         StudentFeeDTO savedStudentFeeDTO = modelMapper.map(savedStudentFeeEntity, StudentFeeDTO.class);
@@ -135,14 +154,11 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         StudentFeeEntity existingStudentFeeEntity = studentFeeRepository.findById(studentFeeDTO.getStudentFeeId())
                 .orElseThrow(() -> new CustomException("Student fee record not found", HttpStatus.NOT_FOUND));
 
-        // Set Student Entity
-        if (studentFeeDTO.getStudentId() != null) {
+        StudentEntity studentEntity = studentRepository.findById(studentFeeDTO.getStudentId())
+                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
-            StudentEntity studentEntity = studentRepository.findById(studentFeeDTO.getStudentId())
-                    .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
+        existingStudentFeeEntity.setStudentEntity(studentEntity);
 
-            existingStudentFeeEntity.setStudentEntity(studentEntity);
-        }
 
         // Update basic fields
         existingStudentFeeEntity.setAcademicYear(studentFeeDTO.getAcademicYear());
@@ -155,6 +171,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
 
         existingStudentFeeEntity.setAuditDetails(addAuditDetails(existingStudentFeeEntity.getAuditDetails()));
+
+        BigDecimal totalFeeAmount = BigDecimal.ZERO;
+        BigDecimal pendingFeeAmount = BigDecimal.ZERO;
 
         // Delete removed fee payments
         if (studentFeeDTO.getFeePaymentDTOS() != null) {
@@ -220,8 +239,21 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
                     existingStudentFeeEntity.getFeePaymentEntities().add(feePaymentEntity);
                 }
+
+                totalFeeAmount = totalFeeAmount.add(studentFeeDTO.getTotalFeeAmount());
+                pendingFeeAmount = pendingFeeAmount.add(studentFeeDTO.getPendingAmount());
+
             }
         }
+
+        if(pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0){
+            studentEntity.setPaymentStatus(FeePayment.PENDING);
+        }else{
+            studentEntity.setPaymentStatus(FeePayment.PAID);
+        }
+
+        studentEntity.setTotalFeeAmount(totalFeeAmount);
+        studentEntity.setPendingFeeAmount(pendingFeeAmount);
 
         // Save student fee
         StudentFeeEntity updatedStudentFeeEntity = studentFeeRepository.save(existingStudentFeeEntity);

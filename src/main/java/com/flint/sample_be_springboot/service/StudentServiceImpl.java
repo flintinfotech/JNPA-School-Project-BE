@@ -24,6 +24,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -312,6 +313,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         existingStudentEntity.setPhone(studentDTO.getParentDTO().getPhone());
         existingStudentEntity.setAadhaarCard(studentDTO.getAadhaarCard());
         existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
+
+        existingStudentEntity.setPaymentStatus(studentDTO.getPaymentStatus());
+        existingStudentEntity.setTotalFeeAmount(studentDTO.getTotalFeeAmount());
+        existingStudentEntity.setPendingFeeAmount(studentDTO.getPendingFeeAmount());
 
         if (studentDTO.getProfileImg() != null) {
             existingStudentEntity.setProfileImg(Base64.getDecoder().decode(studentDTO.getProfileImg()));
@@ -1143,6 +1148,9 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         studentDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
 
         // set student fee information
+        BigDecimal totalFeeAmount = BigDecimal.ZERO;
+        BigDecimal pendingFeeAmount = BigDecimal.ZERO;
+
         List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
         if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
             for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
@@ -1157,9 +1165,15 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 }
                 studentFeeDTO.setFeePaymentDTOS(feePaymentDTOS);
                 studentFeeDTOS.add(studentFeeDTO);
+
+                totalFeeAmount = totalFeeAmount.add(studentFeeDTO.getTotalFeeAmount());
+                pendingFeeAmount = pendingFeeAmount.add(studentFeeDTO.getPendingAmount());
             }
         }
         studentDTO.setStudentFeeDTOS(studentFeeDTOS);
+
+        studentDTO.setTotalFeeAmount(totalFeeAmount);
+        studentDTO.setPendingFeeAmount(pendingFeeAmount);
 
         return studentDTO;
     }
