@@ -2,6 +2,7 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.*;
 import com.flint.sample_be_springboot.entity.*;
+import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
 import com.flint.sample_be_springboot.repository.TimeTablePeriodRepository;
@@ -55,6 +56,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         Optional<EmployeeDetailsEntity> existingUserEntity1 = employeeDetailsRepository.findByEmployeeCode(employeeDetailsDTO.getEmployeeCode());
         if (existingUserEntity1.isPresent()) {
             throw new CustomException("Employee code is already exist", HttpStatus.CONFLICT);
+        }
+
+        if (Role.STUDENT.equals(employeeDetailsDTO.getRole())) {
+            throw new CustomException("Cannot add employee with Student role", HttpStatus.PRECONDITION_FAILED);
         }
 
         EmployeeDetailsEntity employeeDetailsEntity = modelMapper.map(employeeDetailsDTO, EmployeeDetailsEntity.class);
@@ -148,6 +153,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
         EmployeeDetailsEntity existingEntity = employeeDetailsRepository.findById(employeeDetailsDTO.getEmployeeDetailsId())
                 .orElseThrow(() -> new CustomException("User information not found", HttpStatus.NOT_FOUND));
+
+        if (Role.STUDENT.equals(employeeDetailsDTO.getRole())) {
+            throw new CustomException("Cannot convert employee into student", HttpStatus.PRECONDITION_FAILED);
+        }
 
         Optional<EmployeeDetailsEntity> existingUserEntity = employeeDetailsRepository.findByUserNameAndEmployeeDetailsIdNot
                 (employeeDetailsDTO.getUserName(), employeeDetailsDTO.getEmployeeDetailsId());

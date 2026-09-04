@@ -158,6 +158,10 @@ public class UserServiceImpl extends BaseService implements UserService {
         UserEntity existingEntity = userRepository.findById(userDTO.getUserId())
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
+        if (Role.STUDENT.equals(userDTO.getRole())) {
+            throw new CustomException("Cannot convert employee into student", HttpStatus.PRECONDITION_FAILED);
+        }
+
         String encryptedPass = existingEntity.getPassword();
         String decryptedPass = existingEntity.getDecryptedPassword();
 
