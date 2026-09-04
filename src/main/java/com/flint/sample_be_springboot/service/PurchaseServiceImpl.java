@@ -41,7 +41,7 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
         Optional<PurchaseEntity> existingPurchaseEntity = purchaseRepository.findByProductCodeAndProductNameAndCategory
                 (purchaseDTO.getProductCode(), purchaseDTO.getProductName(), purchaseDTO.getCategory());
         if (existingPurchaseEntity.isPresent()) {
-            throw new CustomException("product code is already exist", HttpStatus.CONFLICT);
+            throw new CustomException("product is already exist", HttpStatus.CONFLICT);
         }
 
         PurchaseEntity purchaseEntity = modelMapper.map(purchaseDTO, PurchaseEntity.class);
