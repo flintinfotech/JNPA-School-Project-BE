@@ -4,5 +4,28 @@ import com.flint.sample_be_springboot.entity.HomeworkEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 
+import java.time.LocalDate;
+
 public interface HomeworkRepository extends JpaRepository<HomeworkEntity, Long>, JpaSpecificationExecutor<HomeworkEntity> {
+
+
+    boolean existsBySubjectAndStandardAndDivisionAndMediumAndAcademicYearAndHomeworkDate(
+            String subject,
+            String standard,
+            String division,
+            String medium,
+            String academicYear,
+            LocalDate homeworkDate
+    );
+
+    boolean existsBySubjectAndStandardAndDivisionAndMediumAndAcademicYearAndHomeworkDateAndHomeworkIdNot(
+            String subject,
+            String standard,
+            String division,
+            String medium,
+            String academicYear,
+            LocalDate homeworkDate,
+            Long homeworkId
+    );
+
 }
