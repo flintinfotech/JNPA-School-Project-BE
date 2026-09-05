@@ -6,10 +6,12 @@ import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
+import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.enums.StudentStatus;
 import com.flint.sample_be_springboot.repository.AdmissionInquiryRepository;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
+import com.flint.sample_be_springboot.repository.SchoolExpensesRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.ParentRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
@@ -19,6 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -44,8 +47,12 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
     @Autowired
     private ParentRepository parentRepository ;
 
+    @Autowired
+    private SchoolExpensesRepository schoolExpensesRepository;
+
 
     public Map<String, Map<String, Long>> getAllStudentsCount() {
+        log.info("Enter into getAllStudentsCount");
 
         Map<Integer, Map<String, Long>> numericMap = new TreeMap<>();
         Map<String, Map<String, Long>> result = new LinkedHashMap<>();
@@ -56,15 +63,12 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         long totalGirls = 0;
 
         for (StudentEntity student : students) {
-
             if (student.getStatus() != StudentStatus.ACTIVE) {
                 continue;
             }
 
             String gender = student.getGender();
-
             if (gender == null) continue;
-
             gender = gender.trim().toLowerCase();
 
             if (gender.equals("male")) totalBoys++;
@@ -80,23 +84,18 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
                     if (standard == null || standard.trim().isEmpty()) continue;
 
                     standard = normalizeStandard(standard);
-
                     Integer number = extractNumber(standard);
 
                     if (number != null) {
-                        Map<String, Long> countMap =
-                                numericMap.getOrDefault(number, createEmptyMap());
 
+                        Map<String, Long> countMap =numericMap.getOrDefault(number, createEmptyMap());
                         updateGenderCount(countMap, gender);
-
                         numericMap.put(number, countMap);
 
                     } else {
-                        Map<String, Long> countMap =
-                                result.getOrDefault(standard, createEmptyMap());
 
+                        Map<String, Long> countMap =result.getOrDefault(standard, createEmptyMap());
                         updateGenderCount(countMap, gender);
-
                         result.put(standard, countMap);
                     }
                 }
@@ -129,8 +128,9 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         Map<String, Long> totalMap = new HashMap<>();
         totalMap.put("boys", totalBoys);
         totalMap.put("girls", totalGirls);
-
         finalResult.put("Total", totalMap);
+
+        log.info("Exit from getAllStudentsCount");
 
         return finalResult;
     }
@@ -187,6 +187,7 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 
 
     public Map<String, Long> getAllUsersCount() {
+        log.info("Enter into getAllUsersCount");
         Map<String, Long> map = new HashMap<>();
         System.err.println(getStartDate());
         System.err.println(getEndDate());
@@ -214,10 +215,14 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         long parentCount = parentRepository.count();
 
         map.put("PARENT", parentCount);
+        log.info("Exit from getAllUsersCount");
+
         return map;
     }
 
     public Map<String, Long> getAllAdmissionInquiryCount() {
+        log.info("Enter into getAllAdmissionInquiryCount");
+
         Map<String, Long> map = new HashMap<>();
         List<AdmissionInquiry> inquiries = admissionInquiryRepository.findAll();
         Long total = 0L;
@@ -229,6 +234,57 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
             map.put(status, map.getOrDefault(status, 0L) + 1);
         }
         map.put("Total", total);
+        log.info("Exit from getAllAdmissionInquiryCount");
+
+        return map;
+    }
+
+
+    @Override
+    public Map<String, Long> getAllExpensesCount() {
+        log.info("Enter into getAllExpensesCount");
+        Long totalCount = schoolExpensesRepository.count();
+
+        log.info("Exit from getAllExpensesCount");
+        return Map.of("Total Count", totalCount);
+    }
+
+    @Override
+    public Map<String, BigDecimal> getAllPaidExpensesTotal() {
+        log.info("Enter into getAllPaidExpensesTotal");
+
+        BigDecimal totalPaidExpenses = schoolExpensesRepository.getAllPaidExpensesTotal(FeePayment.PAID);
+        log.info("Exit from getAllPaidExpensesTotal");
+        return Map.of("Total Paid Expenses", totalPaidExpenses);
+    }
+
+    @Override
+    public Map<String, BigDecimal> getAllExpensesTotal() {
+        log.info("Enter into getAllExpensesTotal");
+
+        BigDecimal totalExpenses = schoolExpensesRepository.getAllExpensesTotal();
+
+        log.info("Exit from getAllExpensesTotal");
+        return Map.of("Total Expenses", totalExpenses);
+    }
+
+    @Override
+    public Map<String, Long> getAllTotalPaidExpensesCountAndTotalExpensesCount() {
+
+        log.info("Enter into getAllTotalPaidExpensesCountAndTotalExpensesCount");
+
+        Long totalExpensesCount =schoolExpensesRepository.getAllExpensesCount();
+
+        Long totalPaidExpensesCount =schoolExpensesRepository.getTotalPaidExpensesCount(
+                        List.of(FeePayment.PAID,FeePayment.PARTIAL));
+
+        Map<String, Long> map = new LinkedHashMap<>();
+
+        map.put("totalExpensesCount", totalExpensesCount);
+        map.put("totalPaidExpensesCount", totalPaidExpensesCount);
+
+        log.info("Exit from getAllTotalPaidExpensesCountAndTotalExpensesCount");
+
         return map;
     }
 

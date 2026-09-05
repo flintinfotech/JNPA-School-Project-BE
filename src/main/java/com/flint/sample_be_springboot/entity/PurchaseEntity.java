@@ -31,7 +31,7 @@ public class PurchaseEntity {
     @Column(name = "PRODUCT_NAME", nullable = false)
     private String productName;
 
-    @OneToMany(fetch = FetchType.LAZY, mappedBy = "purchaseEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(fetch = FetchType.LAZY,mappedBy = "purchaseEntity")
     private List<SchoolExpensesEntity> schoolExpensesEntities;
 
 

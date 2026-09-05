@@ -6,8 +6,11 @@ import com.flint.sample_be_springboot.service.DashboardService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Map;
 
 @Slf4j
@@ -36,7 +39,29 @@ public class DashboardController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 
+    @GetMapping("/getAllExpensesCount")
+    public ResponseEntity<?> getAllExpensesCount() {
+        Map<String, Long> map = dashboardService.getAllExpensesCount();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
+    }
 
+    @GetMapping("/getAllPaidExpensesTotal")
+    public ResponseEntity<?> getAllPaidExpensesTotal() {
+        Map<String, BigDecimal> map = dashboardService.getAllPaidExpensesTotal();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
+    }
+
+    @GetMapping("/getAllExpensesTotal")
+    public ResponseEntity<?> getAllExpensesTotal() {
+        Map<String, BigDecimal> map = dashboardService.getAllExpensesTotal();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
+    }
+
+    @GetMapping("/getAllTotalPaidExpensesCountAndTotalExpensesCount")
+    public ResponseEntity<?> getAllTotalPaidExpensesCountAndTotalExpensesCount() {
+        Map<String, Long> map = dashboardService.getAllTotalPaidExpensesCountAndTotalExpensesCount();
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
+    }
 
 
 }

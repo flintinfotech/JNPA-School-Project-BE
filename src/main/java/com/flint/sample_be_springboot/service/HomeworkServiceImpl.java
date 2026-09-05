@@ -85,17 +85,10 @@ public class HomeworkServiceImpl extends BaseService implements HomeworkService 
         log.info("Enter into updateHomework");
 
         if (homeworkDTO == null) {
-            throw new CustomException(
-                    "Homework DTO should not be null",
-                    HttpStatus.PRECONDITION_FAILED
-            );
+            throw new CustomException("Homework DTO should not be null",HttpStatus.PRECONDITION_FAILED);
         }
-
         if (homeworkDTO.getHomeworkId() == null) {
-            throw new CustomException(
-                    "Homework ID should not be null",
-                    HttpStatus.PRECONDITION_FAILED
-            );
+            throw new CustomException("Homework ID should not be null",HttpStatus.PRECONDITION_FAILED);
         }
 
         HomeworkEntity existingHomework = homeworkRepository.findById(homeworkDTO.getHomeworkId())
@@ -129,22 +122,15 @@ public class HomeworkServiceImpl extends BaseService implements HomeworkService 
         existingHomework.setRemark(homeworkDTO.getRemark());
 
         // Update file only if a new file is provided
-        if (homeworkDTO.getUploadedFile() != null &&
-                !homeworkDTO.getUploadedFile().isEmpty()) {
+        if (homeworkDTO.getUploadedFile() != null && !homeworkDTO.getUploadedFile().isEmpty()) {
 
-            existingHomework.setUploadedFile(
-                    Base64.getDecoder().decode(
-                            homeworkDTO.getUploadedFile()
-                    )
-            );
+            existingHomework.setUploadedFile(Base64.getDecoder().decode(homeworkDTO.getUploadedFile()));
         } else {
             existingHomework.setUploadedFile(null);
         }
 
         existingHomework.setAuditDetails(addAuditDetails(existingHomework.getAuditDetails()));
-
         HomeworkEntity updatedEntity = homeworkRepository.save(existingHomework);
-
         HomeworkDTO updatedDTO = modelMapper.map(updatedEntity, HomeworkDTO.class);
 
         log.info("Exit from updateHomework");

@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "SCHOOL_EXPENSES")
@@ -30,11 +31,14 @@ public class SchoolExpensesEntity {
     @Column(name = "TOTAL")
     private BigDecimal total;
 
+    @Column(name = "PURCHASE_DATE")
+    private LocalDate purchaseDate;
+
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
     private FeePayment status;
 
-    @ManyToOne(fetch = FetchType.LAZY,cascade = CascadeType.ALL)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "PURCHASE_ID")
     private PurchaseEntity purchaseEntity;
 

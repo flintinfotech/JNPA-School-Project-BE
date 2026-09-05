@@ -106,6 +106,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         existingSchoolExpensesEntity.setPrice(schoolExpensesDTO.getPrice());
         existingSchoolExpensesEntity.setTotal(schoolExpensesDTO.getTotal());
         existingSchoolExpensesEntity.setStatus(schoolExpensesDTO.getStatus());
+        existingSchoolExpensesEntity.setPurchaseDate(schoolExpensesDTO.getPurchaseDate());
 
         //save
         SchoolExpensesEntity updatedSchoolExpensesEntity = schoolExpensesRepository.save(existingSchoolExpensesEntity);
