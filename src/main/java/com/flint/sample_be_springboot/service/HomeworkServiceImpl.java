@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
@@ -183,7 +184,13 @@ public class HomeworkServiceImpl extends BaseService implements HomeworkService 
             totalElement = homeworkEntities.size();
         }
 
+        LocalDate startDate = getStartDate();
+        LocalDate endDate = getEndDate();
+
+        String currentAcademicYear = startDate.getYear() + "-" + endDate.getYear();
+
         List<HomeworkDTO> homeworkDTOS = homeworkEntities.stream()
+                .filter(homeworkEntity -> currentAcademicYear.equals(homeworkEntity.getAcademicYear()))
                 .map(h -> modelMapper.map(h, HomeworkDTO.class))
                 .collect(Collectors.toUnmodifiableList());
 
