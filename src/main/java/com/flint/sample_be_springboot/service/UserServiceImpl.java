@@ -98,7 +98,8 @@ public class UserServiceImpl extends BaseService implements UserService {
             savedUser.setPassword(password);
 
             // for employee users set profile as a default screen
-            ScreenMaster screenMaster = screenRepository.findById(14L).get();
+            ScreenMaster screenMaster = screenRepository.findByScreenName("Profile")
+                    .orElseThrow(() -> new CustomException("Screen not found", HttpStatus.NOT_FOUND));
             UserScreenAccessEntity access = new UserScreenAccessEntity();
             access.setUser(savedUserEntity);
             access.setScreen(screenMaster);
@@ -131,11 +132,17 @@ public class UserServiceImpl extends BaseService implements UserService {
 
             UserEntity savedUserEntity = userRepository.save(userEntity);
 
-            // for student users set student profile as a default screen
-            ScreenMaster screenMaster = screenRepository.findById(15L).get();
+            // for student users set student profile and student homework screens as a default screen
+            ScreenMaster screenMaster = screenRepository.findByScreenName("Student Profile")
+                    .orElseThrow(() -> new CustomException("Screen not found", HttpStatus.NOT_FOUND));
             UserScreenAccessEntity access = new UserScreenAccessEntity();
             access.setUser(savedUserEntity);
             access.setScreen(screenMaster);
+
+            ScreenMaster screenMaster1 = screenRepository.findByScreenName("Student Homework")
+                    .orElseThrow(() -> new CustomException("Screen not found", HttpStatus.NOT_FOUND));
+            access.setUser(savedUserEntity);
+            access.setScreen(screenMaster1);
 
             userScreenAccessRepository.save(access);
 
@@ -158,8 +165,10 @@ public class UserServiceImpl extends BaseService implements UserService {
         UserEntity existingEntity = userRepository.findById(userDTO.getUserId())
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        if (Role.STUDENT.equals(userDTO.getRole())) {
-            throw new CustomException("Cannot convert employee into student", HttpStatus.PRECONDITION_FAILED);
+        if(Role.STUDENT.equals(existingEntity.getRole())){
+            if (!Role.STUDENT.equals(userDTO.getRole())) {
+                throw new CustomException("Cannot convert employee into student", HttpStatus.PRECONDITION_FAILED);
+            }
         }
 
         String encryptedPass = existingEntity.getPassword();
