@@ -165,10 +165,17 @@ public class UserServiceImpl extends BaseService implements UserService {
         UserEntity existingEntity = userRepository.findById(userDTO.getUserId())
                 .orElseThrow(() -> new CustomException("User not found", HttpStatus.NOT_FOUND));
 
-        if(Role.STUDENT.equals(existingEntity.getRole())){
-            if (!Role.STUDENT.equals(userDTO.getRole())) {
-                throw new CustomException("Cannot convert employee into student", HttpStatus.PRECONDITION_FAILED);
-            }
+        // Admin, Principal, Teacher and Accountant cannot be converted to Student or Parent
+        if ((Role.ADMIN.equals(existingEntity.getRole())
+                || Role.PRINCIPAL.equals(existingEntity.getRole())
+                || Role.TEACHER.equals(existingEntity.getRole())
+                || Role.ACCOUNTANT.equals(existingEntity.getRole()))
+                && (Role.STUDENT.equals(userDTO.getRole()) || Role.PARENT.equals(userDTO.getRole()))) {
+
+            throw new CustomException(
+                    "Admin, Principal, Teacher or Accountant cannot be converted to Student or Parent",
+                    HttpStatus.PRECONDITION_FAILED
+            );
         }
 
         String encryptedPass = existingEntity.getPassword();
