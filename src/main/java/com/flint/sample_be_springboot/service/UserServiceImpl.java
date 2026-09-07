@@ -132,19 +132,26 @@ public class UserServiceImpl extends BaseService implements UserService {
 
             UserEntity savedUserEntity = userRepository.save(userEntity);
 
+            List<UserScreenAccessEntity> userScreenAccessEntities = new ArrayList<>();
+
             // for student users set student profile and student homework screens as a default screen
             ScreenMaster screenMaster = screenRepository.findByScreenName("Student Profile")
                     .orElseThrow(() -> new CustomException("Screen not found", HttpStatus.NOT_FOUND));
             UserScreenAccessEntity access = new UserScreenAccessEntity();
             access.setUser(savedUserEntity);
             access.setScreen(screenMaster);
+            userScreenAccessEntities.add(access);
 
             ScreenMaster screenMaster1 = screenRepository.findByScreenName("Student Homework")
                     .orElseThrow(() -> new CustomException("Screen not found", HttpStatus.NOT_FOUND));
-            access.setUser(savedUserEntity);
-            access.setScreen(screenMaster1);
+            UserScreenAccessEntity access1 = new UserScreenAccessEntity();
+            access1.setUser(savedUserEntity);
+            access1.setScreen(screenMaster1);
+            userScreenAccessEntities.add(access1);
 
-            userScreenAccessRepository.save(access);
+            for(UserScreenAccessEntity userScreenAccessEntity : userScreenAccessEntities){
+                userScreenAccessRepository.save(userScreenAccessEntity);
+            }
 
             savedUser = modelMapper.map(savedUserEntity, UserDTO.class);
             savedUser.setPassword(password);
