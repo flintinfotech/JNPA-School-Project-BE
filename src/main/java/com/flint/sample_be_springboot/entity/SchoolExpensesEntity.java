@@ -34,6 +34,9 @@ public class SchoolExpensesEntity {
     @Column(name = "PURCHASE_DATE")
     private LocalDate purchaseDate;
 
+    @Column(name = "ACADEMIC_YEAR") //
+    private String academicYear;   //
+
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
     private FeePayment status;

@@ -47,6 +47,8 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
                 .orElseThrow(() -> new CustomException("Product not found", HttpStatus.PRECONDITION_FAILED));
 
         schoolExpensesEntity.setPurchaseEntity(purchaseEntity);
+        schoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
+
         //save
         SchoolExpensesEntity savedSchoolExpensesEntity = schoolExpensesRepository.save(schoolExpensesEntity);
         PurchaseDTO purchaseDTO = modelMapper.map(savedSchoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
@@ -107,6 +109,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         existingSchoolExpensesEntity.setTotal(schoolExpensesDTO.getTotal());
         existingSchoolExpensesEntity.setStatus(schoolExpensesDTO.getStatus());
         existingSchoolExpensesEntity.setPurchaseDate(schoolExpensesDTO.getPurchaseDate());
+        existingSchoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
 
         //save
         SchoolExpensesEntity updatedSchoolExpensesEntity = schoolExpensesRepository.save(existingSchoolExpensesEntity);

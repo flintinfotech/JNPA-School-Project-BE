@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -39,27 +40,27 @@ public class DashboardController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 
-    @GetMapping("/getAllExpensesCount")
-    public ResponseEntity<?> getAllExpensesCount() {
-        Map<String, Long> map = dashboardService.getAllExpensesCount();
+    @GetMapping("/getAllExpensesCount/{academicYear}")
+    public ResponseEntity<?> getAllExpensesCount(@PathVariable String academicYear) {
+        Map<String, Long> map = dashboardService.getAllExpensesCount(academicYear);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 
-    @GetMapping("/getAllPaidExpensesTotal")
-    public ResponseEntity<?> getAllPaidExpensesTotal() {
-        Map<String, BigDecimal> map = dashboardService.getAllPaidExpensesTotal();
+    @GetMapping("/getAllPaidExpensesTotal/{academicYear}")
+    public ResponseEntity<?> getAllPaidExpensesTotal(@PathVariable String academicYear) {
+        Map<String, BigDecimal> map = dashboardService.getAllPaidExpensesTotal(academicYear);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 
-    @GetMapping("/getAllExpensesTotal")
-    public ResponseEntity<?> getAllExpensesTotal() {
-        Map<String, BigDecimal> map = dashboardService.getAllExpensesTotal();
+    @GetMapping("/getAllExpensesTotal/{academicYear}")
+    public ResponseEntity<?> getAllExpensesTotal(@PathVariable String academicYear) {
+        Map<String, BigDecimal> map = dashboardService.getAllExpensesTotal(academicYear);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 
-    @GetMapping("/getAllTotalPaidExpensesCountAndTotalExpensesCount")
-    public ResponseEntity<?> getAllTotalPaidExpensesCountAndTotalExpensesCount() {
-        Map<String, Long> map = dashboardService.getAllTotalPaidExpensesCountAndTotalExpensesCount();
+    @GetMapping("/getAllTotalPaidExpensesCountAndTotalExpensesCount/{academicYear}")
+    public ResponseEntity<?> getAllTotalPaidExpensesCountAndTotalExpensesCount(@PathVariable String academicYear) {
+        Map<String, Long> map = dashboardService.getAllTotalPaidExpensesCountAndTotalExpensesCount(academicYear);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 

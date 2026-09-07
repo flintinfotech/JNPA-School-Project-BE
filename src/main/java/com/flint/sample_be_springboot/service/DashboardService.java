@@ -11,14 +11,13 @@ public interface DashboardService {
 
     Map<String, Long> getAllAdmissionInquiryCount();
 
-    Map<String, Long> getAllExpensesCount();
+    Map<String, Long> getAllExpensesCount(String academicYear);
 
-    Map<String, BigDecimal> getAllPaidExpensesTotal();
+    Map<String, BigDecimal> getAllPaidExpensesTotal(String academicYear);
 
-    Map<String, BigDecimal> getAllExpensesTotal();
+    Map<String, BigDecimal> getAllExpensesTotal(String academicYear);
 
-    Map<String, Long> getAllTotalPaidExpensesCountAndTotalExpensesCount();
-
+    Map<String, Long> getAllTotalPaidExpensesCountAndTotalExpensesCount(String academicYear);
 
 
 }

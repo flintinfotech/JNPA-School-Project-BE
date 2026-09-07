@@ -14,31 +14,42 @@ import java.util.List;
 
 @Repository
 public interface SchoolExpensesRepository extends JpaRepository<SchoolExpensesEntity, Long>, JpaSpecificationExecutor<SchoolExpensesEntity> {
-    long count();
 
+    // TOTAL EXPENSE COUNT - ACADEMIC YEAR WISE
     @Query("""
-    SELECT COALESCE(SUM(e.total), 0)
-    FROM SchoolExpensesEntity e
-    WHERE e.status = :status
-""")
-    BigDecimal getAllPaidExpensesTotal(@Param("status") FeePayment status);
+        SELECT COUNT(e)
+        FROM SchoolExpensesEntity e
+        WHERE e.academicYear = :academicYear
+    """)
+    Long getAllExpensesCountByAcademicYear(@Param("academicYear") String academicYear);
 
-    @Query("""
-    SELECT COALESCE(SUM(e.total), 0)
-    FROM SchoolExpensesEntity e
-""")
-    BigDecimal getAllExpensesTotal();
 
+    // PAID EXPENSE COUNT - ACADEMIC YEAR WISE    PAID + PARTIAL
     @Query("""
-    SELECT COUNT(e)
-    FROM SchoolExpensesEntity e
-""")
-    Long getAllExpensesCount();
+        SELECT COUNT(e)
+        FROM SchoolExpensesEntity e
+        WHERE e.academicYear = :academicYear
+          AND e.status IN :statuses
+    """)
+    Long getTotalPaidExpensesCountByAcademicYear(@Param("academicYear") String academicYear,
+                                                 @Param("statuses") List<FeePayment> statuses);
 
+
+    // PAID EXPENSE TOTAL - ACADEMIC YEAR WISE  PAID + PARTIAL
     @Query("""
-    SELECT COUNT(e)
-    FROM SchoolExpensesEntity e
-    WHERE e.status IN :statuses
-""")
-    Long getTotalPaidExpensesCount(@Param("statuses") List<FeePayment> statuses);
+        SELECT COALESCE(SUM(e.total), 0)
+        FROM SchoolExpensesEntity e
+        WHERE e.academicYear = :academicYear
+          AND e.status IN :statuses
+    """)
+    BigDecimal getAllPaidExpensesTotalByAcademicYear(@Param("academicYear") String academicYear,
+                                                     @Param("statuses") List<FeePayment> statuses);
+
+    // ALL EXPENSE TOTAL - ACADEMIC YEAR WISE
+    @Query("""
+        SELECT COALESCE(SUM(e.total), 0)
+        FROM SchoolExpensesEntity e
+        WHERE e.academicYear = :academicYear
+    """)
+    BigDecimal getAllExpensesTotalByAcademicYear(@Param("academicYear") String academicYear);
 }

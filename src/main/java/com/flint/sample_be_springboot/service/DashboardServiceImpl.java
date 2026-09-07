@@ -3,7 +3,6 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.entity.AdmissionInquiry;
 import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
-import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.enums.FeePayment;
@@ -22,7 +21,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
 import java.util.*;
 
 @Slf4j
@@ -42,10 +40,10 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
     private NewsRepository newsRepository;
 
     @Autowired
-    private EmployeeDetailsRepository employeeDetailsRepository ;
+    private EmployeeDetailsRepository employeeDetailsRepository;
 
     @Autowired
-    private ParentRepository parentRepository ;
+    private ParentRepository parentRepository;
 
     @Autowired
     private SchoolExpensesRepository schoolExpensesRepository;
@@ -88,13 +86,13 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
 
                     if (number != null) {
 
-                        Map<String, Long> countMap =numericMap.getOrDefault(number, createEmptyMap());
+                        Map<String, Long> countMap = numericMap.getOrDefault(number, createEmptyMap());
                         updateGenderCount(countMap, gender);
                         numericMap.put(number, countMap);
 
                     } else {
 
-                        Map<String, Long> countMap =result.getOrDefault(standard, createEmptyMap());
+                        Map<String, Long> countMap = result.getOrDefault(standard, createEmptyMap());
                         updateGenderCount(countMap, gender);
                         result.put(standard, countMap);
                     }
@@ -191,22 +189,17 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         Map<String, Long> map = new HashMap<>();
         System.err.println(getStartDate());
         System.err.println(getEndDate());
-        List<EmployeeDetailsEntity> entities = employeeDetailsRepository.findCurrentWorkingUsersByAcademicYear(getStartDate(),getEndDate());
+        List<EmployeeDetailsEntity> entities = employeeDetailsRepository.findCurrentWorkingUsersByAcademicYear(getStartDate(), getEndDate());
 
         Long count = 0L;
 
-        for (EmployeeDetailsEntity entity : entities)
-        {
+        for (EmployeeDetailsEntity entity : entities) {
             if (!Role.ADMIN.toString().equals(entity.getRole().toString())
                     && !Role.PRINCIPAL.toString().equals(entity.getRole().toString()) &&
-                    !Role. STUDENT.toString().equals(entity.getRole().toString()))
-            {
-                if (map.containsKey(entity.getRole().toString()))
-                {
+                    !Role.STUDENT.toString().equals(entity.getRole().toString())) {
+                if (map.containsKey(entity.getRole().toString())) {
                     map.put(entity.getRole().toString(), map.get(entity.getRole().toString()) + 1);
-                }
-                else
-                {
+                } else {
                     map.put(entity.getRole().toString(), 1L);
                 }
             }
@@ -239,44 +232,51 @@ public class DashboardServiceImpl extends BaseService implements DashboardServic
         return map;
     }
 
-
     @Override
-    public Map<String, Long> getAllExpensesCount() {
-        log.info("Enter into getAllExpensesCount");
-        Long totalCount = schoolExpensesRepository.count();
+    public Map<String, Long> getAllExpensesCount(String academicYear) {
 
+        log.info("Enter into getAllExpensesCount");
+
+        Long totalCount = schoolExpensesRepository.getAllExpensesCountByAcademicYear(academicYear);
         log.info("Exit from getAllExpensesCount");
+
         return Map.of("Total Count", totalCount);
     }
 
     @Override
-    public Map<String, BigDecimal> getAllPaidExpensesTotal() {
+    public Map<String, BigDecimal> getAllPaidExpensesTotal(String academicYear) {
+
         log.info("Enter into getAllPaidExpensesTotal");
 
-        BigDecimal totalPaidExpenses = schoolExpensesRepository.getAllPaidExpensesTotal(FeePayment.PAID);
+        BigDecimal totalPaidExpenses = schoolExpensesRepository.getAllPaidExpensesTotalByAcademicYear(academicYear, List.of(
+                FeePayment.PAID, FeePayment.PARTIAL));
+
         log.info("Exit from getAllPaidExpensesTotal");
         return Map.of("Total Paid Expenses", totalPaidExpenses);
     }
 
     @Override
-    public Map<String, BigDecimal> getAllExpensesTotal() {
+    public Map<String, BigDecimal> getAllExpensesTotal(String academicYear) {
+
         log.info("Enter into getAllExpensesTotal");
 
-        BigDecimal totalExpenses = schoolExpensesRepository.getAllExpensesTotal();
-
+        BigDecimal totalExpenses = schoolExpensesRepository.getAllExpensesTotalByAcademicYear(academicYear);
         log.info("Exit from getAllExpensesTotal");
+
         return Map.of("Total Expenses", totalExpenses);
     }
 
     @Override
-    public Map<String, Long> getAllTotalPaidExpensesCountAndTotalExpensesCount() {
+    public Map<String, Long>
+    getAllTotalPaidExpensesCountAndTotalExpensesCount(String academicYear) {
 
         log.info("Enter into getAllTotalPaidExpensesCountAndTotalExpensesCount");
 
-        Long totalExpensesCount =schoolExpensesRepository.getAllExpensesCount();
+        Long totalExpensesCount = schoolExpensesRepository.getAllExpensesCountByAcademicYear(academicYear);
 
-        Long totalPaidExpensesCount =schoolExpensesRepository.getTotalPaidExpensesCount(
-                        List.of(FeePayment.PAID,FeePayment.PARTIAL));
+        Long totalPaidExpensesCount = schoolExpensesRepository.getTotalPaidExpensesCountByAcademicYear(academicYear, List.of(
+                FeePayment.PAID,
+                FeePayment.PARTIAL));
 
         Map<String, Long> map = new LinkedHashMap<>();
 

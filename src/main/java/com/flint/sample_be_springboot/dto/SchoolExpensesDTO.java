@@ -14,6 +14,7 @@ public class SchoolExpensesDTO {
     private Integer quantity;
     private BigDecimal total;
     private Long purchaseId;
+    private String academicYear;
     private LocalDate purchaseDate;
     private FeePayment status;
     private PurchaseDTO purchaseDTO;
