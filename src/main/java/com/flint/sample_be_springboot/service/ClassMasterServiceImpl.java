@@ -114,14 +114,14 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
         List<ClassSubjectAllocationEntity> classSubjectAllocationEntities = classSubjectAllocationRepository
                 .findByClassMasterEntity_ClassMasterId(existingClass.getClassMasterId());
         if (classSubjectAllocationEntities != null && !classSubjectAllocationEntities.isEmpty()) {
-            throw new CustomException("This Class master is assigned in subject assignment and teacher subjects, can't delete this class",
+            throw new CustomException("Some subjects are assigned to this class, can't delete this class",
                     HttpStatus.FOUND);
         }
 
         List<TeacherClassSubjectAllocationEntity> teacherClassSubjectAllocationEntities = teacherClassSubjectAllocationRepository
                 .findByClassMasterEntity_ClassMasterId(existingClass.getClassMasterId());
         if (teacherClassSubjectAllocationEntities != null && !teacherClassSubjectAllocationEntities.isEmpty()) {
-            throw new CustomException("This Class is assigned in subject assignment and teacher subjects, can't delete this class",
+            throw new CustomException("Some teachers are assigned to this class, can't delete this class",
                     HttpStatus.FOUND);
         }
 

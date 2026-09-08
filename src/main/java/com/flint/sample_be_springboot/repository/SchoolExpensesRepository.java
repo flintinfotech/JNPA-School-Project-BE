@@ -52,4 +52,11 @@ public interface SchoolExpensesRepository extends JpaRepository<SchoolExpensesEn
         WHERE e.academicYear = :academicYear
     """)
     BigDecimal getAllExpensesTotalByAcademicYear(@Param("academicYear") String academicYear);
+    SELECT COUNT(e)
+    FROM SchoolExpensesEntity e
+    WHERE e.status IN :statuses
+""")
+    Long getTotalPaidExpensesCount(@Param("statuses") List<FeePayment> statuses);
+
+    List<SchoolExpensesEntity> findByPurchaseEntity_PurchaseId(Long purchaseId);
 }
