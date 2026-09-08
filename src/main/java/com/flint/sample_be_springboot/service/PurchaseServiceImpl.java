@@ -2,8 +2,10 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.PurchaseDTO;
 import com.flint.sample_be_springboot.entity.PurchaseEntity;
+import com.flint.sample_be_springboot.entity.SchoolExpensesEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.PurchaseRepository;
+import com.flint.sample_be_springboot.repository.SchoolExpensesRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
@@ -28,6 +30,9 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
     ModelMapper modelMapper = new ModelMapper();
     @Autowired
     private PurchaseRepository purchaseRepository;
+
+    @Autowired
+    private SchoolExpensesRepository schoolExpensesRepository;
 
     @Override
     public PurchaseDTO savePurchase(PurchaseDTO purchaseDTO) {
@@ -115,6 +120,11 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
         }
         PurchaseEntity purchaseEntity = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new CustomException("Purchase not found", HttpStatus.NOT_FOUND));
+
+        List<SchoolExpensesEntity> schoolExpensesEntities = schoolExpensesRepository.findByPurchaseEntity_PurchaseId(purchaseId);
+        if(schoolExpensesEntities != null && !schoolExpensesEntities.isEmpty()){
+            throw new CustomException("This Purchase master is used in school expenses, can't delete it", HttpStatus.BAD_REQUEST);
+        }
 
         purchaseRepository.delete(purchaseEntity);
         log.info("Exit from deletePurchase");

@@ -41,4 +41,6 @@ public interface SchoolExpensesRepository extends JpaRepository<SchoolExpensesEn
     WHERE e.status IN :statuses
 """)
     Long getTotalPaidExpensesCount(@Param("statuses") List<FeePayment> statuses);
+
+    List<SchoolExpensesEntity> findByPurchaseEntity_PurchaseId(Long purchaseId);
 }
