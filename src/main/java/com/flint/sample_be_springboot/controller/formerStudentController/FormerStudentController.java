@@ -26,7 +26,7 @@ public class FormerStudentController {
     @GetMapping("/getFormerStudent/{formerStudentId}")
     public ResponseEntity<?> getFormerStudent(@PathVariable Long formerStudentId) {
         FormerStudentDTO dto = formerStudentService.getFormerStudent(formerStudentId);
-        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data found successfully").data(dto).build());
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(dto).build());
     }
 
     @PutMapping("/updateFormerStudent")
@@ -45,7 +45,7 @@ public class FormerStudentController {
     public ResponseEntity<?> getAllFormerStudentByFilter(@RequestBody Map<String, Object> filter, Pageable pageable,
                                                          @RequestParam(defaultValue = "true") boolean paginate) {
         Map<String, Object> map = formerStudentService.getAllFormerStudentByFilter(filter, pageable, paginate);
-        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data found successfully").data(map).build());
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(map).build());
     }
 
 

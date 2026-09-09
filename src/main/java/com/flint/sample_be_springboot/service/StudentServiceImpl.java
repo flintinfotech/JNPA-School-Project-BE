@@ -3,15 +3,22 @@ package com.flint.sample_be_springboot.service;
 import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
 import com.flint.sample_be_springboot.dto.student.*;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerExamSubjectsEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentResultEntity;
 import com.flint.sample_be_springboot.entity.student.*;
 import com.flint.sample_be_springboot.enums.Role;
+import com.flint.sample_be_springboot.enums.StudentStatus;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.AcademicInformationRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
+import com.flint.sample_be_springboot.service.FormerStudentService.FormerStudentService;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import com.flint.sample_be_springboot.util.GenerateCodes;
@@ -48,6 +55,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
     @Autowired
     private AcademicInformationRepository academicInformationRepository;
 
+    @Autowired
+    private FormerStudentService formerStudentService;
 
     @Override
     public Map<String, Object> saveStudent(StudentDTO studentDTO) {
@@ -587,7 +596,63 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         updatedStudentDTO.setStudentFeeDTOS(studentFeeDTOS);
 
         log.info("Exist from updateStudent");
-        return updatedStudentDTO;
+
+        // Remove student from student table and transfer it in former student table with its results
+        if (StudentStatus.PASSED_OUT.equals(savedEntity.getStatus()) ||
+                StudentStatus.TRANSFERRED.equals(savedEntity.getStatus()) ||
+                StudentStatus.DROPPED.equals(savedEntity.getStatus())
+        ) {
+            FormerStudentEntity formerStudentEntity = modelMapper.map(savedEntity, FormerStudentEntity.class);
+            List<FormerStudentResultEntity> formerStudentResultEntities = new ArrayList<>();
+            if(savedEntity.getStudentResultEntities() != null && !savedEntity.getStudentResultEntities().isEmpty()){
+                for(StudentResultEntity studentResultEntity : savedEntity.getStudentResultEntities()){
+                    FormerStudentResultEntity formerStudentResultEntity = modelMapper.map(studentResultEntity, FormerStudentResultEntity.class);
+
+                    List<FormerExamSubjectsEntity> formerExamSubjectsEntities = new ArrayList<>();
+                    for (ExamSubjectsEntity subject : studentResultEntity.getExamSubjectsEntities()) {
+
+                        FormerExamSubjectsEntity formerSubject = modelMapper.map(subject, FormerExamSubjectsEntity.class);
+
+                        formerExamSubjectsEntities.add(formerSubject);
+                    }
+
+                    formerStudentResultEntity.setFormerExamSubjectsEntities(formerExamSubjectsEntities);
+
+                    formerStudentResultEntities.add(formerStudentResultEntity);
+                }
+            }
+            formerStudentEntity.setFormerStudentResultEntities(formerStudentResultEntities);
+
+            // 1. perform save operation - save student record in former student table
+            FormerStudentDTO formerStudentDTO = modelMapper.map(formerStudentEntity, FormerStudentDTO.class);
+
+            // Set former student results
+            List<FormerStudentResultDTO> resultDTOS = new ArrayList<>();
+
+            if (formerStudentEntity.getFormerStudentResultEntities() != null
+                    && !formerStudentEntity.getFormerStudentResultEntities().isEmpty()) {
+
+                for (FormerStudentResultEntity resultEntity : formerStudentEntity.getFormerStudentResultEntities()) {
+
+                    FormerStudentResultDTO resultDTO = modelMapper.map(resultEntity, FormerStudentResultDTO.class);
+
+                    // Set former student ID
+                    resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
+                }
+            }
+            formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
+
+            formerStudentService.saveFormerStudent(formerStudentDTO);
+
+            // 2. delete existing student record from student table
+            deleteStudent(savedEntity.getStudentId());
+
+            // 3. delete user record of deleted student from user table
+
+            return null;
+        } else{
+            return updatedStudentDTO;
+        }
     }
 
     @Override

@@ -41,7 +41,11 @@ public class StudentController {
     @PutMapping("/updateStudent")
     public ResponseEntity<?> updateStudent(@RequestBody StudentDTO studentDTO) {
         StudentDTO data = studentService.updateStudent(studentDTO);
-        return ResponseEntity.ok(APIResponse.builder().success(true).message("Student updated successfully").data(data).build());
+        if(data != null){
+            return ResponseEntity.ok(APIResponse.builder().success(true).message("Student updated successfully").data(data).build());
+        }else {
+            return ResponseEntity.ok(APIResponse.builder().success(true).message("Student transferred into former student successfully").data(null).build());
+        }
     }
 
 //    @PreAuthorize("hasRole('ADMIN')")

@@ -16,12 +16,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -158,55 +159,160 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         // 7. Update documents
         if (formerStudentDTO.getFormerStudentDocuments() != null) {
 
-            List<FormerStudentDocumentEntity> documentEntities = new ArrayList<>();
+            List<FormerStudentDocumentEntity> existingDocuments =
+                    existingEntity.getFormerStudentDocumentEntities();
 
-            for (FormerStudentDocumentDTO documentDTO : formerStudentDTO.getFormerStudentDocuments()) {
+            if (existingDocuments == null) {
+                existingDocuments = new ArrayList<>();
+                existingEntity.setFormerStudentDocumentEntities(existingDocuments);
+            }
+
+            // IDs of documents which are coming from frontend
+            Set<Long> incomingDocumentIds = formerStudentDTO
+                    .getFormerStudentDocuments()
+                    .stream()
+                    .map(FormerStudentDocumentDTO::getFormerStudentDocumentId)
+                    .filter(Objects::nonNull)
+                    .collect(Collectors.toSet());
+
+            // Remove documents which are not present in request
+            existingDocuments.removeIf(document ->
+                    document.getFormerStudentDocumentId() != null
+                            && !incomingDocumentIds.contains(
+                            document.getFormerStudentDocumentId()
+                    )
+            );
+
+            // Add / update documents
+            for (FormerStudentDocumentDTO documentDTO :
+                    formerStudentDTO.getFormerStudentDocuments()) {
 
                 FormerStudentDocumentEntity documentEntity;
 
                 // Existing document
                 if (documentDTO.getFormerStudentDocumentId() != null) {
 
-                    documentEntity = existingEntity.getFormerStudentDocumentEntities()
-                            .stream()
+                    documentEntity = existingDocuments.stream()
                             .filter(document ->
                                     document.getFormerStudentDocumentId()
-                                            .equals(documentDTO.getFormerStudentDocumentId()))
+                                            .equals(documentDTO.getFormerStudentDocumentId())
+                            )
                             .findFirst()
-                            .orElse(null);
-
-                    if (documentEntity == null) {
-                        throw new CustomException("Document not found", HttpStatus.NOT_FOUND);
-                    }
+                            .orElseThrow(() ->
+                                    new CustomException(
+                                            "Document not found: "
+                                                    + documentDTO.getFormerStudentDocumentId(),
+                                            HttpStatus.NOT_FOUND
+                                    )
+                            );
 
                 } else {
+
                     // New document
                     documentEntity = new FormerStudentDocumentEntity();
+
                     documentEntity.setFormerStudentEntity(existingEntity);
-                    documentEntity.setAuditDetails(addAuditDetails(null));
+
+                    documentEntity.setAuditDetails(
+                            addAuditDetails(null)
+                    );
+
+                    existingDocuments.add(documentEntity);
                 }
 
-                // Update document fields
-                documentEntity.setDocumentName(documentDTO.getDocumentName());
+                // Update document name
+                documentEntity.setDocumentName(
+                        documentDTO.getDocumentName()
+                );
 
+                // Update upload date
                 if (documentDTO.getUploadDate() != null) {
-                    documentEntity.setUploadDate(documentDTO.getUploadDate());
+
+                    documentEntity.setUploadDate(
+                            documentDTO.getUploadDate()
+                    );
+
                 } else if (documentEntity.getUploadDate() == null) {
-                    documentEntity.setUploadDate(LocalDate.now());
+
+                    documentEntity.setUploadDate(
+                            LocalDate.now()
+                    );
                 }
 
-                // Update file only when a new file is provided
+                // Update document file only when new file is provided
                 if (documentDTO.getDocument() != null
                         && !documentDTO.getDocument().isEmpty()) {
 
-                    documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+                    documentEntity.setDocument(
+                            Base64.getDecoder().decode(
+                                    documentDTO.getDocument()
+                            )
+                    );
                 }
 
-                documentEntities.add(documentEntity);
+                // Update audit
+                if (documentEntity.getFormerStudentDocumentId() != null) {
+                    documentEntity.setAuditDetails(
+                            addAuditDetails(
+                                    documentEntity.getAuditDetails()
+                            )
+                    );
+                }
             }
-
-            existingEntity.setFormerStudentDocumentEntities(documentEntities);
         }
+
+//        // 7. Update documents
+//        if (formerStudentDTO.getFormerStudentDocuments() != null) {
+//
+//            List<FormerStudentDocumentEntity> documentEntities = new ArrayList<>();
+//
+//            for (FormerStudentDocumentDTO documentDTO : formerStudentDTO.getFormerStudentDocuments()) {
+//
+//                FormerStudentDocumentEntity documentEntity;
+//
+//                // Existing document
+//                if (documentDTO.getFormerStudentDocumentId() != null) {
+//
+//                    documentEntity = existingEntity.getFormerStudentDocumentEntities()
+//                            .stream()
+//                            .filter(document ->
+//                                    document.getFormerStudentDocumentId()
+//                                            .equals(documentDTO.getFormerStudentDocumentId()))
+//                            .findFirst()
+//                            .orElse(null);
+//
+//                    if (documentEntity == null) {
+//                        throw new CustomException("Document not found", HttpStatus.NOT_FOUND);
+//                    }
+//
+//                } else {
+//                    // New document
+//                    documentEntity = new FormerStudentDocumentEntity();
+//                    documentEntity.setFormerStudentEntity(existingEntity);
+//                    documentEntity.setAuditDetails(addAuditDetails(null));
+//                }
+//
+//                // Update document fields
+//                documentEntity.setDocumentName(documentDTO.getDocumentName());
+//
+//                if (documentDTO.getUploadDate() != null) {
+//                    documentEntity.setUploadDate(documentDTO.getUploadDate());
+//                } else if (documentEntity.getUploadDate() == null) {
+//                    documentEntity.setUploadDate(LocalDate.now());
+//                }
+//
+//                // Update file only when a new file is provided
+//                if (documentDTO.getDocument() != null
+//                        && !documentDTO.getDocument().isEmpty()) {
+//
+//                    documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+//                }
+//
+//                documentEntities.add(documentEntity);
+//            }
+//
+//            existingEntity.setFormerStudentDocumentEntities(documentEntities);
+//        }
 
         // 8. Save updated entity
         FormerStudentEntity savedEntity = formerStudentRepository.save(existingEntity);
@@ -244,12 +350,12 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         // 1. Validate ID
         if (formerStudentId == null) {
-            throw new CustomException("Former student ID cannot be null",HttpStatus.BAD_REQUEST);
+            throw new CustomException("Former student ID cannot be null", HttpStatus.BAD_REQUEST);
         }
 
         // 2. Find former student
-        FormerStudentEntity formerStudentEntity =formerStudentRepository.findById(formerStudentId)
-                        .orElseThrow(() -> new CustomException("Former student not found",HttpStatus.NOT_FOUND));
+        FormerStudentEntity formerStudentEntity = formerStudentRepository.findById(formerStudentId)
+                .orElseThrow(() -> new CustomException("Former student not found", HttpStatus.NOT_FOUND));
 
         // 3. Delete former student
         formerStudentRepository.delete(formerStudentEntity);
@@ -273,31 +379,31 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         // 1. Fetch data
         if (paginate) {
 
-            formerStudentEntityPage =formerStudentRepository.findAll(customQuerySpecification,pageable);
-            formerStudentEntities =formerStudentEntityPage.getContent();
-            totalElement =formerStudentEntityPage.getTotalElements();
+            formerStudentEntityPage = formerStudentRepository.findAll(customQuerySpecification, pageable);
+            formerStudentEntities = formerStudentEntityPage.getContent();
+            totalElement = formerStudentEntityPage.getTotalElements();
 
         } else {
-            formerStudentEntities =formerStudentRepository.findAll(customQuerySpecification);
-            totalElement =formerStudentEntities.size();
+            formerStudentEntities = formerStudentRepository.findAll(customQuerySpecification);
+            totalElement = formerStudentEntities.size();
         }
 
         // 2. Convert Entity to DTO
-        List<FormerStudentDTO> formerStudentDTOS =new ArrayList<>();
+        List<FormerStudentDTO> formerStudentDTOS = new ArrayList<>();
 
         for (FormerStudentEntity formerStudentEntity : formerStudentEntities) {
 
-            FormerStudentDTO formerStudentDTO =modelMapper.map(formerStudentEntity,FormerStudentDTO.class);
+            FormerStudentDTO formerStudentDTO = modelMapper.map(formerStudentEntity, FormerStudentDTO.class);
 
             // 4. Map documents
-            List<FormerStudentDocumentDTO> documentDTOS =new ArrayList<>();
+            List<FormerStudentDocumentDTO> documentDTOS = new ArrayList<>();
 
             if (formerStudentEntity.getFormerStudentDocumentEntities() != null
                     && !formerStudentEntity.getFormerStudentDocumentEntities().isEmpty()) {
 
                 for (FormerStudentDocumentEntity documentEntity : formerStudentEntity.getFormerStudentDocumentEntities()) {
 
-                    FormerStudentDocumentDTO documentDTO =modelMapper.map(documentEntity,FormerStudentDocumentDTO.class);
+                    FormerStudentDocumentDTO documentDTO = modelMapper.map(documentEntity, FormerStudentDocumentDTO.class);
 
                     if (documentEntity.getDocument() != null) {
 
@@ -311,14 +417,14 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
             formerStudentDTO.setFormerStudentDocuments(documentDTOS);
 
             // 5. Map results
-            List<FormerStudentResultDTO> resultDTOS =new ArrayList<>();
+            List<FormerStudentResultDTO> resultDTOS = new ArrayList<>();
 
             if (formerStudentEntity.getFormerStudentResultEntities() != null
                     && !formerStudentEntity.getFormerStudentResultEntities().isEmpty()) {
 
                 for (FormerStudentResultEntity resultEntity : formerStudentEntity.getFormerStudentResultEntities()) {
 
-                    FormerStudentResultDTO resultDTO =modelMapper.map(resultEntity,FormerStudentResultDTO.class);
+                    FormerStudentResultDTO resultDTO = modelMapper.map(resultEntity, FormerStudentResultDTO.class);
 
                     resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
 
@@ -363,18 +469,18 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         response.put("Former Student Data", formerStudentDTOS);
         response.put("Total Element", totalElement);
 
-//        if (paginate) {
-//            response.put("Page Number", pageable.getPageNumber());
-//            response.put("Page Size", pageable.getPageSize());
-//            response.put("Total Pages",
-//                    (int) Math.ceil(
-//                            (double) totalElement /
-//                                    pageable.getPageSize()
-//                    ));
-//        }
+        if (paginate) {
+            response.put("Page Number", pageable.getPageNumber());
+            response.put("Page Size", pageable.getPageSize());
+            response.put("Total Pages",
+                    (int) Math.ceil(
+                            (double) totalElement /
+                                    pageable.getPageSize()
+                    ));
+        }
 
         log.info("Exit from getAllFormerStudentByFilter");
 
-        return null;
+        return response;
     }
 }
