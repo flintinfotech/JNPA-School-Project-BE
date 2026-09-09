@@ -1,0 +1,380 @@
+package com.flint.sample_be_springboot.service.FormerStudentService;
+
+import com.flint.sample_be_springboot.dto.formerStudent.FormerExamSubjectsDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDocumentDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerExamSubjectsEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentDocumentEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentResultEntity;
+import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.FormerStudentRepository.FormerStudentRepository;
+import com.flint.sample_be_springboot.util.BaseService;
+import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import lombok.extern.slf4j.Slf4j;
+import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.stereotype.Service;
+
+import org.springframework.data.domain.Pageable;
+import java.time.LocalDate;
+import java.util.*;
+
+@Service
+@Slf4j
+public class FormerStudentServiceImpl extends BaseService implements FormerStudentService {
+
+
+    ModelMapper modelMapper = new ModelMapper();
+    @Autowired
+    private FormerStudentRepository formerStudentRepository;
+
+    @Override
+    public FormerStudentDTO saveFormerStudent(FormerStudentDTO formerStudentDTO) {
+
+        log.info("Enter into saveFormerStudent");
+
+        // 1. Validate DTO
+        if (formerStudentDTO == null) {
+            throw new CustomException("Former student information cannot be null", HttpStatus.PRECONDITION_FAILED);
+        }
+
+        // 2. Map DTO to Entity
+        FormerStudentEntity formerStudentEntity = modelMapper.map(formerStudentDTO, FormerStudentEntity.class);
+
+        // 3. Set audit details
+        formerStudentEntity.setAuditDetails(addAuditDetails(formerStudentEntity.getAuditDetails()));
+
+        // 4. Save former student
+        FormerStudentEntity savedEntity = formerStudentRepository.save(formerStudentEntity);
+
+        // 5. Map saved entity to DTO
+        FormerStudentDTO savedDTO = modelMapper.map(savedEntity, FormerStudentDTO.class);
+        log.info("Exit from saveFormerStudent");
+
+        return savedDTO;
+    }
+
+    @Override
+    public FormerStudentDTO getFormerStudent(Long formerStudentId) {
+        log.info("Enter into getFormerStudent");
+
+        // 1. Validate ID
+        if (formerStudentId == null) {
+            throw new CustomException("Former student ID cannot be null", HttpStatus.BAD_REQUEST);
+        }
+
+        // 2. Find former student
+        FormerStudentEntity formerStudentEntity = formerStudentRepository.findById(formerStudentId)
+                .orElseThrow(() -> new CustomException("Former student not found", HttpStatus.NOT_FOUND));
+
+        // 3. Map basic student information
+        FormerStudentDTO formerStudentDTO = modelMapper.map(formerStudentEntity, FormerStudentDTO.class);
+
+        // 5. Set student documents
+        List<FormerStudentDocumentDTO> documentDTOS = new ArrayList<>();
+
+        if (formerStudentEntity.getFormerStudentDocumentEntities() != null
+                && !formerStudentEntity.getFormerStudentDocumentEntities().isEmpty()) {
+
+            for (FormerStudentDocumentEntity documentEntity : formerStudentEntity.getFormerStudentDocumentEntities()) {
+
+                FormerStudentDocumentDTO documentDTO = modelMapper.map(documentEntity, FormerStudentDocumentDTO.class);
+
+                // Convert document byte[] to Base64
+                if (documentEntity.getDocument() != null) {
+                    documentDTO.setDocument((documentEntity.getDocument()));
+                }
+                documentDTOS.add(documentDTO);
+            }
+        }
+
+        formerStudentDTO.setFormerStudentDocuments(documentDTOS);
+
+        // 6. Set former student results
+        List<FormerStudentResultDTO> resultDTOS = new ArrayList<>();
+
+        if (formerStudentEntity.getFormerStudentResultEntities() != null
+                && !formerStudentEntity.getFormerStudentResultEntities().isEmpty()) {
+
+            for (FormerStudentResultEntity resultEntity : formerStudentEntity.getFormerStudentResultEntities()) {
+
+                FormerStudentResultDTO resultDTO = modelMapper.map(resultEntity, FormerStudentResultDTO.class);
+
+                // Set former student ID
+                resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
+            }
+        }
+        formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
+        log.info("Exit from getFormerStudent");
+
+        return formerStudentDTO;
+    }
+
+    @Override
+    public FormerStudentDTO updateFormerStudent(FormerStudentDTO formerStudentDTO) {
+
+        log.info("Enter into updateFormerStudent");
+
+        // 1. Validate DTO
+        if (formerStudentDTO == null) {
+            throw new CustomException("Former student information cannot be null", HttpStatus.PRECONDITION_FAILED);
+        }
+
+        // 2. Validate ID
+        if (formerStudentDTO.getFormerStudentId() == null) {
+            throw new CustomException("Former student ID cannot be null", HttpStatus.BAD_REQUEST);
+        }
+
+        // 3. Find existing former student
+        FormerStudentEntity existingEntity = formerStudentRepository.findById(formerStudentDTO.getFormerStudentId())
+                .orElseThrow(() -> new CustomException("Former student not found", HttpStatus.NOT_FOUND));
+
+        // 4. Update basic fields
+        existingEntity.setFirstName(formerStudentDTO.getFirstName());
+        existingEntity.setLastName(formerStudentDTO.getLastName());
+        existingEntity.setGender(formerStudentDTO.getGender());
+        existingEntity.setDOB(formerStudentDTO.getDOB());
+        existingEntity.setAadhaarCard(formerStudentDTO.getAadhaarCard());
+        existingEntity.setPhone(formerStudentDTO.getPhone());
+        existingEntity.setAddress(formerStudentDTO.getAddress());
+        existingEntity.setBloodGroup(formerStudentDTO.getBloodGroup());
+        existingEntity.setCategory(formerStudentDTO.getCategory());
+        existingEntity.setReligion(formerStudentDTO.getReligion());
+        existingEntity.setCaste(formerStudentDTO.getCaste());
+        existingEntity.setNationality(formerStudentDTO.getNationality());
+        existingEntity.setStatus(formerStudentDTO.getStatus());
+        existingEntity.setAdmissionNo(formerStudentDTO.getAdmissionNo());
+        existingEntity.setPaymentStatus(formerStudentDTO.getPaymentStatus());
+        existingEntity.setTotalFeeAmount(formerStudentDTO.getTotalFeeAmount());
+        existingEntity.setPendingFeeAmount(formerStudentDTO.getPendingFeeAmount());
+
+        // 6. Update audit details
+        existingEntity.setAuditDetails(addAuditDetails(existingEntity.getAuditDetails()));
+
+        // 7. Update documents
+        if (formerStudentDTO.getFormerStudentDocuments() != null) {
+
+            List<FormerStudentDocumentEntity> documentEntities = new ArrayList<>();
+
+            for (FormerStudentDocumentDTO documentDTO : formerStudentDTO.getFormerStudentDocuments()) {
+
+                FormerStudentDocumentEntity documentEntity;
+
+                // Existing document
+                if (documentDTO.getFormerStudentDocumentId() != null) {
+
+                    documentEntity = existingEntity.getFormerStudentDocumentEntities()
+                            .stream()
+                            .filter(document ->
+                                    document.getFormerStudentDocumentId()
+                                            .equals(documentDTO.getFormerStudentDocumentId()))
+                            .findFirst()
+                            .orElse(null);
+
+                    if (documentEntity == null) {
+                        throw new CustomException("Document not found", HttpStatus.NOT_FOUND);
+                    }
+
+                } else {
+                    // New document
+                    documentEntity = new FormerStudentDocumentEntity();
+                    documentEntity.setFormerStudentEntity(existingEntity);
+                    documentEntity.setAuditDetails(addAuditDetails(null));
+                }
+
+                // Update document fields
+                documentEntity.setDocumentName(documentDTO.getDocumentName());
+
+                if (documentDTO.getUploadDate() != null) {
+                    documentEntity.setUploadDate(documentDTO.getUploadDate());
+                } else if (documentEntity.getUploadDate() == null) {
+                    documentEntity.setUploadDate(LocalDate.now());
+                }
+
+                // Update file only when a new file is provided
+                if (documentDTO.getDocument() != null
+                        && !documentDTO.getDocument().isEmpty()) {
+
+                    documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+                }
+
+                documentEntities.add(documentEntity);
+            }
+
+            existingEntity.setFormerStudentDocumentEntities(documentEntities);
+        }
+
+        // 8. Save updated entity
+        FormerStudentEntity savedEntity = formerStudentRepository.save(existingEntity);
+
+        // 9. Convert entity to DTO
+        FormerStudentDTO savedDTO = modelMapper.map(savedEntity, FormerStudentDTO.class);
+
+        // 11. Map documents
+        List<FormerStudentDocumentDTO> documentDTOS = new ArrayList<>();
+
+        if (savedEntity.getFormerStudentDocumentEntities() != null
+                && !savedEntity.getFormerStudentDocumentEntities().isEmpty()) {
+
+            for (FormerStudentDocumentEntity documentEntity : savedEntity.getFormerStudentDocumentEntities()) {
+
+                FormerStudentDocumentDTO documentDTO = modelMapper.map(documentEntity, FormerStudentDocumentDTO.class);
+
+                if (documentEntity.getDocument() != null) {
+                    documentDTO.setDocument((documentEntity.getDocument()));
+                }
+
+                documentDTOS.add(documentDTO);
+            }
+        }
+
+        savedDTO.setFormerStudentDocuments(documentDTOS);
+        log.info("Exit from updateFormerStudent");
+
+        return savedDTO;
+    }
+
+    @Override
+    public String deleteFormerStudent(Long formerStudentId) {
+        log.info("Enter into deleteFormerStudent");
+
+        // 1. Validate ID
+        if (formerStudentId == null) {
+            throw new CustomException("Former student ID cannot be null",HttpStatus.BAD_REQUEST);
+        }
+
+        // 2. Find former student
+        FormerStudentEntity formerStudentEntity =formerStudentRepository.findById(formerStudentId)
+                        .orElseThrow(() -> new CustomException("Former student not found",HttpStatus.NOT_FOUND));
+
+        // 3. Delete former student
+        formerStudentRepository.delete(formerStudentEntity);
+
+        log.info("Exit from deleteFormerStudent");
+
+        return "Former student deleted successfully";
+    }
+
+    @Override
+    public Map<String, Object> getAllFormerStudentByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+        log.info("Enter into getAllFormerStudentByFilter");
+
+        Page<FormerStudentEntity> formerStudentEntityPage;
+        List<FormerStudentEntity> formerStudentEntities;
+        long totalElement;
+
+        CustomQuerySpecification<FormerStudentEntity> customQuerySpecification =
+                CustomQuerySpecification.getInstance(filter);
+
+        // 1. Fetch data
+        if (paginate) {
+
+            formerStudentEntityPage =formerStudentRepository.findAll(customQuerySpecification,pageable);
+            formerStudentEntities =formerStudentEntityPage.getContent();
+            totalElement =formerStudentEntityPage.getTotalElements();
+
+        } else {
+            formerStudentEntities =formerStudentRepository.findAll(customQuerySpecification);
+            totalElement =formerStudentEntities.size();
+        }
+
+        // 2. Convert Entity to DTO
+        List<FormerStudentDTO> formerStudentDTOS =new ArrayList<>();
+
+        for (FormerStudentEntity formerStudentEntity : formerStudentEntities) {
+
+            FormerStudentDTO formerStudentDTO =modelMapper.map(formerStudentEntity,FormerStudentDTO.class);
+
+            // 4. Map documents
+            List<FormerStudentDocumentDTO> documentDTOS =new ArrayList<>();
+
+            if (formerStudentEntity.getFormerStudentDocumentEntities() != null
+                    && !formerStudentEntity.getFormerStudentDocumentEntities().isEmpty()) {
+
+                for (FormerStudentDocumentEntity documentEntity : formerStudentEntity.getFormerStudentDocumentEntities()) {
+
+                    FormerStudentDocumentDTO documentDTO =modelMapper.map(documentEntity,FormerStudentDocumentDTO.class);
+
+                    if (documentEntity.getDocument() != null) {
+
+                        documentDTO.setDocument((documentEntity.getDocument()));
+                    }
+
+                    documentDTOS.add(documentDTO);
+                }
+            }
+
+            formerStudentDTO.setFormerStudentDocuments(documentDTOS);
+
+            // 5. Map results
+            List<FormerStudentResultDTO> resultDTOS =new ArrayList<>();
+
+            if (formerStudentEntity.getFormerStudentResultEntities() != null
+                    && !formerStudentEntity.getFormerStudentResultEntities().isEmpty()) {
+
+                for (FormerStudentResultEntity resultEntity : formerStudentEntity.getFormerStudentResultEntities()) {
+
+                    FormerStudentResultDTO resultDTO =modelMapper.map(resultEntity,FormerStudentResultDTO.class);
+
+                    resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
+
+                    // Map exam subjects
+                    List<FormerExamSubjectsDTO> subjectDTOS =
+                            new ArrayList<>();
+
+                    if (resultEntity.getFormerExamSubjectsEntities() != null
+                            && !resultEntity.getFormerExamSubjectsEntities().isEmpty()) {
+
+                        for (FormerExamSubjectsEntity subjectEntity :
+                                resultEntity.getFormerExamSubjectsEntities()) {
+
+                            FormerExamSubjectsDTO subjectDTO =
+                                    modelMapper.map(
+                                            subjectEntity,
+                                            FormerExamSubjectsDTO.class
+                                    );
+
+                            subjectDTOS.add(subjectDTO);
+                        }
+                    }
+
+                    resultDTO.setFormerExamSubjectsDTOS(
+                            subjectDTOS
+                    );
+
+                    resultDTOS.add(resultDTO);
+                }
+            }
+
+            formerStudentDTO.setFormerStudentResultDTOS(
+                    resultDTOS
+            );
+
+            formerStudentDTOS.add(formerStudentDTO);
+        }
+
+        // 6. Prepare response
+        Map<String, Object> response = new HashMap<>();
+
+        response.put("Former Student Data", formerStudentDTOS);
+        response.put("Total Element", totalElement);
+
+//        if (paginate) {
+//            response.put("Page Number", pageable.getPageNumber());
+//            response.put("Page Size", pageable.getPageSize());
+//            response.put("Total Pages",
+//                    (int) Math.ceil(
+//                            (double) totalElement /
+//                                    pageable.getPageSize()
+//                    ));
+//        }
+
+        log.info("Exit from getAllFormerStudentByFilter");
+
+        return null;
+    }
+}
