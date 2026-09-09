@@ -40,7 +40,7 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         // 1. Validate DTO
         if (formerStudentDTO == null) {
-            throw new CustomException("Former student information can   not be null", HttpStatus.PRECONDITION_FAILED);
+            throw new CustomException("Former student information cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
         // 2. Map DTO to Entity
