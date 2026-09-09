@@ -19,7 +19,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
-import java.awt.print.Pageable;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDate;
 import java.util.*;
 
@@ -363,18 +363,18 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         response.put("Former Student Data", formerStudentDTOS);
         response.put("Total Element", totalElement);
 
-        if (paginate) {
-            response.put("Page Number", pageable.getPageNumber());
-            response.put("Page Size", pageable.getPageSize());
-            response.put("Total Pages",
-                    (int) Math.ceil(
-                            (double) totalElement /
-                                    pageable.getPageSize()
-                    ));
-        }
+//        if (paginate) {
+//            response.put("Page Number", pageable.getPageNumber());
+//            response.put("Page Size", pageable.getPageSize());
+//            response.put("Total Pages",
+//                    (int) Math.ceil(
+//                            (double) totalElement /
+//                                    pageable.getPageSize()
+//                    ));
+//        }
 
         log.info("Exit from getAllFormerStudentByFilter");
 
-        return response;
+        return null;
     }
 }
