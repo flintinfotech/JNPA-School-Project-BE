@@ -52,6 +52,7 @@ public interface SchoolExpensesRepository extends JpaRepository<SchoolExpensesEn
         WHERE e.academicYear = :academicYear
     """)
     BigDecimal getAllExpensesTotalByAcademicYear(@Param("academicYear") String academicYear);
+    @Query("""
     SELECT COUNT(e)
     FROM SchoolExpensesEntity e
     WHERE e.status IN :statuses
