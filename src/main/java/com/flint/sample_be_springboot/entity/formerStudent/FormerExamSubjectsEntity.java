@@ -1,4 +1,4 @@
-package com.flint.sample_be_springboot.entity.student;
+package com.flint.sample_be_springboot.entity.formerStudent;
 
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
@@ -11,21 +11,21 @@ import lombok.Setter;
 import java.math.BigDecimal;
 
 @Entity
-@Table(name = "EXAM_SUBJECTS")
+@Table(name = "FORMER_EXAM_SUBJECTS")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ExamSubjectsEntity {
+public class FormerExamSubjectsEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "EXAM_SUBJECTS_ID")
-    private Long examSubjectsId;
+    @Column(name = "FORMER_EXAM_SUBJECTS_ID")
+    private Long formerExamSubjectsId;
 
     @ManyToOne
-    @JoinColumn(name = "RESULT_ID", nullable = false)
-    private StudentResultEntity studentResult;
+    @JoinColumn(name = "FORMER_STUDENT_RESULT_ID", nullable = false)
+    private FormerStudentResultEntity formerStudentResultEntity;
 
     @Column(name = "SUBJECT_NAME")
     private String subjectName;
@@ -42,3 +42,4 @@ public class ExamSubjectsEntity {
     @Embedded
     private AuditDetails auditDetails;
 }
+

@@ -1,0 +1,103 @@
+package com.flint.sample_be_springboot.entity.formerStudent;
+
+
+import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.entity.UserEntity;
+import com.flint.sample_be_springboot.entity.student.*;
+import com.flint.sample_be_springboot.enums.FeePayment;
+import com.flint.sample_be_springboot.enums.StudentStatus;
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+
+@Table(name = "FORMER_STUDENT_ENTITY")
+@Entity
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+public class FormerStudentEntity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @EqualsAndHashCode.Include
+    @Column(name = "FORMER_STUDENT_ID")
+    private Long formerStudentId;
+
+    @NotNull
+    @Column(name = "FIRST_NAME")
+    private String firstName;
+
+    @NotNull
+    @Column(name = "LAST_NAME")
+    private String lastName;
+
+    @Column(name = "STUDENT_CODE")
+    private String studentCode;
+
+    @NotNull
+    @Column(name = "GENDER")
+    private String gender;
+
+    @NotNull
+    @Column(name = "DOB")
+    private String DOB;
+
+    @Column(name = "AADHAAR_CARD")
+    private String aadhaarCard;
+
+    @Column(name = "PHONE")
+    private String phone;
+
+    @Column(name = "ADDRESS")
+    private String address;
+
+    @Column(name = "BLOOD_GROUP")
+    private String bloodGroup;
+
+    @Column(name = "CATEGORY")
+    private String category;
+
+    @Column(name = "RELIGION")
+    private String religion;
+
+    @Column(name = "CASTE")
+    private String caste;
+
+    @Column(name = "NATIONALITY")
+    private String nationality;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
+    private StudentStatus status;
+
+    @Column(name = "ADMISSION_NO")
+    private String admissionNo;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "PAYMENT_STATUS")
+    private FeePayment paymentStatus;
+
+    @Column(name = "TOTAL_FEE_AMOUNT")
+    private BigDecimal totalFeeAmount;
+
+    @Column(name = "PENDING_FEE_AMOUNT")
+    private BigDecimal pendingFeeAmount;
+
+    @Lob
+    @Column(name = "PROFILE_IMG")
+    private byte[] profileImg;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "formerStudentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FormerStudentResultEntity> formerStudentResultEntities;
+
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "formerStudentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<FormerStudentDocumentEntity> formerStudentDocumentEntities;
+
+    @Embedded
+    private AuditDetails auditDetails;
+
+}
