@@ -104,13 +104,13 @@ public class SubjectMasterServiceImpl extends BaseService implements SubjectMast
         List<ClassSubjectAllocationEntity> classSubjectAllocationEntities = classSubjectAllocationRepository
                 .findBySubjectMasterEntity_SubjectMasterId(existingSubject.getSubjectMasterId());
         if (classSubjectAllocationEntities != null && !classSubjectAllocationEntities.isEmpty()) {
-            throw new CustomException("This Subject is assigned to class, can't delete this ", HttpStatus.FOUND);
+            throw new CustomException("This Subject is assigned to class, cannot be delete this", HttpStatus.FOUND);
         }
 
         List<TeacherClassSubjectAllocationEntity> teacherClassSubjectAllocationEntities = teacherClassSubjectAllocationRepository
                 .findBySubjectMasterEntity_SubjectMasterId(existingSubject.getSubjectMasterId());
         if (teacherClassSubjectAllocationEntities != null && !teacherClassSubjectAllocationEntities.isEmpty()) {
-            throw new CustomException("This Subject is assigned to the teachers, can't delete this user", HttpStatus.FOUND);
+            throw new CustomException("This Subject is assigned to the teachers, cannot be delete this user", HttpStatus.FOUND);
         }
 
         subjectMasterRepository.delete(existingSubject);
