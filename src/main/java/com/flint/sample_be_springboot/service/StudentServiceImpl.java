@@ -3,6 +3,7 @@ package com.flint.sample_be_springboot.service;
 import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.FormerExamSubjectsDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
 import com.flint.sample_be_springboot.dto.student.*;
@@ -474,6 +475,23 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             } else {
                 // New academic record
                 academicEntity = new AcademicInformationEntity();
+
+                //Setting Roll Number
+                Integer maxRollNumber =academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+                        academicDTO.getStandard(),
+                        academicDTO.getDivision(),
+                        academicDTO.getMedium(),
+                        academicDTO.getAcademicYear());
+
+                Integer nextRollNumber;
+
+                if (maxRollNumber == null) {
+                    nextRollNumber = 1;
+                } else {
+                    nextRollNumber = maxRollNumber + 1;
+                }
+                academicEntity.setRollNo(String.valueOf(nextRollNumber));
+
                 academicEntity.setStudentEntity(existingStudentEntity);
                 existingStudentEntity.getAcademicInformationEntity().add(academicEntity);
             }
@@ -602,45 +620,37 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 StudentStatus.TRANSFERRED.equals(savedEntity.getStatus()) ||
                 StudentStatus.DROPPED.equals(savedEntity.getStatus())
         ) {
-            FormerStudentEntity formerStudentEntity = modelMapper.map(savedEntity, FormerStudentEntity.class);
-            List<FormerStudentResultEntity> formerStudentResultEntities = new ArrayList<>();
-            if(savedEntity.getStudentResultEntities() != null && !savedEntity.getStudentResultEntities().isEmpty()){
-                for(StudentResultEntity studentResultEntity : savedEntity.getStudentResultEntities()){
-                    FormerStudentResultEntity formerStudentResultEntity = modelMapper.map(studentResultEntity, FormerStudentResultEntity.class);
-
-                    List<FormerExamSubjectsEntity> formerExamSubjectsEntities = new ArrayList<>();
-                    for (ExamSubjectsEntity subject : studentResultEntity.getExamSubjectsEntities()) {
-
-                        FormerExamSubjectsEntity formerSubject = modelMapper.map(subject, FormerExamSubjectsEntity.class);
-
-                        formerExamSubjectsEntities.add(formerSubject);
-                    }
-
-                    formerStudentResultEntity.setFormerExamSubjectsEntities(formerExamSubjectsEntities);
-
-                    formerStudentResultEntities.add(formerStudentResultEntity);
-                }
-            }
-            formerStudentEntity.setFormerStudentResultEntities(formerStudentResultEntities);
 
             // 1. perform save operation - save student record in former student table
-            FormerStudentDTO formerStudentDTO = modelMapper.map(formerStudentEntity, FormerStudentDTO.class);
+            FormerStudentDTO formerStudentDTO = modelMapper.map(savedEntity, FormerStudentDTO.class);
 
             // Set former student results
             List<FormerStudentResultDTO> resultDTOS = new ArrayList<>();
 
-            if (formerStudentEntity.getFormerStudentResultEntities() != null
-                    && !formerStudentEntity.getFormerStudentResultEntities().isEmpty()) {
+            if (savedEntity.getStudentResultEntities() != null
+                    && !savedEntity.getStudentResultEntities().isEmpty()) {
 
-                for (FormerStudentResultEntity resultEntity : formerStudentEntity.getFormerStudentResultEntities()) {
+                for (StudentResultEntity resultEntity : savedEntity.getStudentResultEntities()) {
 
                     FormerStudentResultDTO resultDTO = modelMapper.map(resultEntity, FormerStudentResultDTO.class);
+                    resultDTO.setFormerStudentId(resultDTO.getFormerStudentId());
 
+                    List<FormerExamSubjectsDTO> formerExamSubjectsDTOS = new ArrayList<>();
+                    for (ExamSubjectsEntity subject : resultEntity.getExamSubjectsEntities()) {
+
+                        FormerExamSubjectsDTO formerSubject = modelMapper.map(subject, FormerExamSubjectsDTO.class);
+//                        formerSubject.setFormerResultId(resultEntity.getFormerResultId());
+                        formerExamSubjectsDTOS.add(formerSubject);
+                    }
+
+                    resultDTO.setFormerExamSubjectsDTOS(formerExamSubjectsDTOS);
+                    resultDTOS.add(resultDTO);
                     // Set former student ID
-                    resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
+//                    resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
                 }
             }
             formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
+            formerStudentDTO.setAdmissionNo(studentDTO.getAdmissionNo());
 
             formerStudentService.saveFormerStudent(formerStudentDTO);
 

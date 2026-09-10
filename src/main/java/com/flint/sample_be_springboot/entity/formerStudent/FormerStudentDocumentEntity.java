@@ -1,6 +1,8 @@
 package com.flint.sample_be_springboot.entity.formerStudent;
 
 import com.flint.sample_be_springboot.entity.AuditDetails;
+import com.flint.sample_be_springboot.enums.FormerStudentDocumentStatus;
+import com.flint.sample_be_springboot.enums.FormerStudentDocumentType;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -29,8 +31,44 @@ public class FormerStudentDocumentEntity {
     @Column(name = "DOCUMENT_NAME")
     private String documentName;
 
+    @Enumerated(EnumType.STRING)
+    @Column(name = "DOCUMENT_TYPE", nullable = false)
+    private FormerStudentDocumentType documentType;
+
+    // Mainly required for MARKSHEET.
+    @Column(name = "ACADEMIC_YEAR")
+    private String academicYear;
+
+    // Mainly required for MARKSHEET
+    @Column(name = "STANDARD")
+    private String standard;
+
+    // Date on which the document was issued/generated
+    @Column(name = "DOCUMENT_DATE")
+    private LocalDate documentDate;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "STATUS")
+    private FormerStudentDocumentStatus documentStatus;
+
+    @Column(name = "CONTENT_TYPE")
+    private String contentType;
+
     @Column(name = "UPLOAD_DATE")
     private LocalDate uploadDate;
+
+    @Column(name = "COLLECTED_DATE")
+    private LocalDate collectedDate;
+
+    @Column(name = "COLLECTED_BY")
+    private String collectedBy;
+
+    // Example: STUDENT, FATHER, MOTHER, GUARDIAN
+    @Column(name = "COLLECTED_RELATION")
+    private String collectedRelation;
+
+    @Column(name = "REMARK")
+    private String remark;
 
     @Lob
     @Column(name = "DOCUMENT")
