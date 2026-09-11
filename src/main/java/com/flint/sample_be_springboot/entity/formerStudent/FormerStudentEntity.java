@@ -97,6 +97,9 @@ public class FormerStudentEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "formerStudentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<FormerStudentDocumentEntity> formerStudentDocumentEntities;
 
+    @OneToOne(mappedBy = "formerStudentEntity", fetch = FetchType.LAZY, cascade = CascadeType.ALL, orphanRemoval = true)
+    private FormerStudentLCEntity formerStudentLCEntity;
+
     @Embedded
     private AuditDetails auditDetails;
 

@@ -1,13 +1,11 @@
 package com.flint.sample_be_springboot.service.FormerStudentService;
 
+import com.flint.sample_be_springboot.dto.FormerStudentLCDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerExamSubjectsDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDocumentDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerExamSubjectsEntity;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentDocumentEntity;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentEntity;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentResultEntity;
+import com.flint.sample_be_springboot.entity.formerStudent.*;
 import com.flint.sample_be_springboot.entity.student.ExamSubjectsEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.FormerStudentRepository.FormerStudentRepository;
@@ -20,6 +18,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -64,17 +63,13 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
                 if (formerStudentResultDTO.getFormerExamSubjectsDTOS() != null) {
 
-                    for (FormerExamSubjectsDTO subject :
-                            formerStudentResultDTO.getFormerExamSubjectsDTOS()) {
+                    for (FormerExamSubjectsDTO subject : formerStudentResultDTO.getFormerExamSubjectsDTOS()) {
 
-                        FormerExamSubjectsEntity formerSubject =
-                                modelMapper.map(subject, FormerExamSubjectsEntity.class);
+                        FormerExamSubjectsEntity formerSubject = modelMapper.map(subject, FormerExamSubjectsEntity.class);
 
                         // IMPORTANT: this is a NEW former exam subject
                         formerSubject.setFormerExamSubjectsId(null);
-
                         formerSubject.setFormerStudentResultEntity(formerStudentResultEntity);
-
                         formerExamSubjectsEntities.add(formerSubject);
                     }
                 }
@@ -281,6 +276,13 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
 
+        // set lc details
+        FormerStudentLCDTO formerStudentLCDTO = new FormerStudentLCDTO();
+        if(formerStudentEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(formerStudentEntity.getFormerStudentLCEntity())){
+            formerStudentLCDTO = modelMapper.map(formerStudentEntity.getFormerStudentLCEntity(), FormerStudentLCDTO.class);
+        }
+        formerStudentDTO.setFormerStudentLCDTO(formerStudentLCDTO);
+
         log.info("Exit from getFormerStudent");
 
         return formerStudentDTO;
@@ -412,6 +414,63 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
             }
         }
 
+        // set former student lc details
+        FormerStudentLCDTO lcDTO = formerStudentDTO.getFormerStudentLCDTO();
+        FormerStudentDocumentEntity formerStudentDocumentEntity;
+
+        if (lcDTO != null) {
+
+            // entry should automatically gets add into former student document table
+//            formerStudentDocumentEntity = modelMapper.map();
+
+            FormerStudentLCEntity formerStudentLCEntity;
+
+            if (existingEntity.getFormerStudentLCEntity() != null) {
+                // LC already exists - update it
+                formerStudentLCEntity = existingEntity.getFormerStudentLCEntity();
+            } else {
+                // LC does not exist - create new one
+                formerStudentLCEntity = new FormerStudentLCEntity();
+            }
+
+            // Map all LC fields
+            formerStudentLCEntity.setLcNumber(lcDTO.getLcNumber());
+            formerStudentLCEntity.setLcDate(lcDTO.getLcDate());
+
+            formerStudentLCEntity.setAdmissionNumber(lcDTO.getAdmissionNumber());
+            formerStudentLCEntity.setAdmissionDate(lcDTO.getAdmissionDate());
+
+            formerStudentLCEntity.setStudentName(lcDTO.getStudentName());
+            formerStudentLCEntity.setFatherName(lcDTO.getFatherName());
+            formerStudentLCEntity.setMotherName(lcDTO.getMotherName());
+            formerStudentLCEntity.setSurname(lcDTO.getSurname());
+            formerStudentLCEntity.setGender(lcDTO.getGender());
+            formerStudentLCEntity.setDateOfBirth(lcDTO.getDateOfBirth());
+            formerStudentLCEntity.setPlaceOfBirth(lcDTO.getPlaceOfBirth());
+            formerStudentLCEntity.setNationality(lcDTO.getNationality());
+            formerStudentLCEntity.setMotherTongue(lcDTO.getMotherTongue());
+            formerStudentLCEntity.setReligion(lcDTO.getReligion());
+            formerStudentLCEntity.setCaste(lcDTO.getCaste());
+
+            formerStudentLCEntity.setStandardAtLeaving(lcDTO.getStandardAtLeaving());
+            formerStudentLCEntity.setDivision(lcDTO.getDivision());
+            formerStudentLCEntity.setMedium(lcDTO.getMedium());
+            formerStudentLCEntity.setAcademicYear(lcDTO.getAcademicYear());
+
+            formerStudentLCEntity.setDateOfLeaving(lcDTO.getDateOfLeaving());
+            formerStudentLCEntity.setReasonForLeaving(lcDTO.getReasonForLeaving());
+            formerStudentLCEntity.setResult(lcDTO.getResult());
+            formerStudentLCEntity.setConduct(lcDTO.getConduct());
+            formerStudentLCEntity.setRemark(lcDTO.getRemark());
+
+            // Set relationship
+            formerStudentLCEntity.setFormerStudentEntity(existingEntity);
+            existingEntity.setFormerStudentLCEntity(formerStudentLCEntity);
+
+            // Audit
+            formerStudentLCEntity.setAuditDetails(addAuditDetails(formerStudentLCEntity.getAuditDetails()));
+        }
+
         // Save updated entity
         FormerStudentEntity savedEntity = formerStudentRepository.save(existingEntity);
 
@@ -436,6 +495,85 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         }
 
         savedDTO.setFormerStudentDocuments(documentDTOS);
+
+        // set results
+        List<FormerStudentResultDTO> resultDTOS = new ArrayList<>();
+        if (savedEntity.getFormerStudentResultEntities() != null) {
+
+            for (FormerStudentResultEntity resultEntity :
+                    savedEntity.getFormerStudentResultEntities()) {
+
+                // Manually map result to avoid ModelMapper ambiguity
+                FormerStudentResultDTO resultDTO = new FormerStudentResultDTO();
+
+                resultDTO.setFormerResultId(resultEntity.getFormerResultId());
+                resultDTO.setFormerStudentId(
+                        savedEntity.getFormerStudentId()
+                );
+                resultDTO.setStandard(resultEntity.getStandard());
+                resultDTO.setDivision(resultEntity.getDivision());
+                resultDTO.setExamType(resultEntity.getExamType());
+                resultDTO.setAcademicYear(resultEntity.getAcademicYear());
+                resultDTO.setStartDate(resultEntity.getStartDate());
+                resultDTO.setEndDate(resultEntity.getEndDate());
+                resultDTO.setTotalMarks(resultEntity.getTotalMarks());
+                resultDTO.setObtainedMarks(resultEntity.getObtainedMarks());
+                resultDTO.setPercentage(resultEntity.getPercentage());
+                resultDTO.setGrade(resultEntity.getGrade());
+                resultDTO.setResultStatus(resultEntity.getResultStatus());
+                resultDTO.setAuditDetails(resultEntity.getAuditDetails());
+
+                // Subjects
+                List<FormerExamSubjectsDTO> subjectDTOS = new ArrayList<>();
+
+                if (resultEntity.getFormerExamSubjectsEntities() != null) {
+
+                    for (FormerExamSubjectsEntity subjectEntity :
+                            resultEntity.getFormerExamSubjectsEntities()) {
+
+                        FormerExamSubjectsDTO subjectDTO =
+                                new FormerExamSubjectsDTO();
+
+                        subjectDTO.setExamSubjectsId(
+                                subjectEntity.getFormerExamSubjectsId()
+                        );
+                        subjectDTO.setFormerResultId(
+                                resultEntity.getFormerResultId()
+                        );
+                        subjectDTO.setSubjectName(
+                                subjectEntity.getSubjectName()
+                        );
+                        subjectDTO.setMaximumMarks(
+                                subjectEntity.getMaximumMarks()
+                        );
+                        subjectDTO.setObtainedMarks(
+                                subjectEntity.getObtainedMarks()
+                        );
+                        subjectDTO.setStatus(
+                                subjectEntity.getStatus()
+                        );
+                        subjectDTO.setAuditDetails(
+                                subjectEntity.getAuditDetails()
+                        );
+
+                        subjectDTOS.add(subjectDTO);
+                    }
+                }
+
+                resultDTO.setFormerExamSubjectsDTOS(subjectDTOS);
+
+                resultDTOS.add(resultDTO);
+            }
+        }
+        savedDTO.setFormerStudentResultDTOS(resultDTOS);
+
+        // set lc details
+        FormerStudentLCDTO formerStudentLCDTO = new FormerStudentLCDTO();
+        if(savedEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(savedEntity.getFormerStudentLCEntity())){
+            formerStudentLCDTO = modelMapper.map(savedEntity.getFormerStudentLCEntity(), FormerStudentLCDTO.class);
+        }
+        savedDTO.setFormerStudentLCDTO(formerStudentLCDTO);
+
         log.info("Exit from updateFormerStudent");
 
         return savedDTO;
@@ -585,6 +723,13 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
             }
 
             formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
+
+            // set lc details
+            FormerStudentLCDTO formerStudentLCDTO = new FormerStudentLCDTO();
+            if(formerStudentEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(formerStudentEntity.getFormerStudentLCEntity())){
+                formerStudentLCDTO = modelMapper.map(formerStudentEntity.getFormerStudentLCEntity(), FormerStudentLCDTO.class);
+            }
+            formerStudentDTO.setFormerStudentLCDTO(formerStudentLCDTO);
 
             formerStudentDTOS.add(formerStudentDTO);
         }

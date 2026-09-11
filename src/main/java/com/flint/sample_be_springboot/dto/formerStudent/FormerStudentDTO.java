@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto.formerStudent;
 
+import com.flint.sample_be_springboot.dto.FormerStudentLCDTO;
 import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.enums.StudentStatus;
@@ -34,5 +35,6 @@ public class FormerStudentDTO {
     private FeePayment paymentStatus;
     private BigDecimal totalFeeAmount;
     private BigDecimal pendingFeeAmount;
+    private FormerStudentLCDTO formerStudentLCDTO;
 
 }

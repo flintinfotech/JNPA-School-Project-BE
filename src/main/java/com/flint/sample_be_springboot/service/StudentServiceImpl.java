@@ -306,6 +306,17 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 .orElseThrow(() ->
                         new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
+        if (StudentStatus.PASSED_OUT.equals(studentDTO.getStatus()) ||
+                StudentStatus.TRANSFERRED.equals(studentDTO.getStatus()) ||
+                StudentStatus.DROPPED.equals(studentDTO.getStatus())
+        ) {
+            if (existingStudentEntity.getPendingFeeAmount().compareTo(BigDecimal.ZERO) != 0) {
+                throw new CustomException(
+                        "This student has " + existingStudentEntity.getPendingFeeAmount() + " pending fees, first complete that fees",
+                        HttpStatus.BAD_REQUEST);
+            }
+        }
+
         // Update basic fields
         existingStudentEntity.setFirstName(studentDTO.getFirstName());
         existingStudentEntity.setLastName(studentDTO.getLastName());
@@ -424,21 +435,15 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             String academicYear = academicDTO.getAcademicYear();
 
             if (academicYear == null || academicYear.trim().isEmpty()) {
-                throw new CustomException(
-                        "Academic year can't be null or empty",
-                        HttpStatus.BAD_REQUEST
-                );
+                throw new CustomException("Academic year can't be null or empty", HttpStatus.BAD_REQUEST);
             }
 
             String normalizedAcademicYear = academicYear.trim().toLowerCase();
 
             // Check duplicate academic year in request itself
             if (!academicYears.add(normalizedAcademicYear)) {
-                throw new CustomException(
-                        "Academic information already exists for academic year "
-                                + academicYear,
-                        HttpStatus.BAD_REQUEST
-                );
+                throw new CustomException("Academic information already exists for academic year "
+                        + academicYear, HttpStatus.BAD_REQUEST);
             }
 
             // Check duplicate academic year against existing DB records
@@ -458,10 +463,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
             if (alreadyExists) {
                 throw new CustomException(
-                        "Academic information already exists for academic year "
-                                + academicYear,
-                        HttpStatus.BAD_REQUEST
-                );
+                        "Academic information already exists for academic year " + academicYear, HttpStatus.BAD_REQUEST);
             }
 
             AcademicInformationEntity academicEntity;
@@ -471,6 +473,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
                 // Update existing
                 academicEntity = existingAcademics.get(academicDTO.getAcademicInformationId());
+                academicEntity.setRollNo(academicDTO.getRollNo());
 
             } else {
                 // New academic record
@@ -501,7 +504,6 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             academicEntity.setStandard(academicDTO.getStandard());
             academicEntity.setDivision(academicDTO.getDivision());
             academicEntity.setMedium(academicDTO.getMedium());
-            academicEntity.setRollNo(academicDTO.getRollNo());
             academicEntity.setAcademicYear(academicDTO.getAcademicYear());
         }
 
@@ -627,8 +629,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             // Set former student results
             List<FormerStudentResultDTO> resultDTOS = new ArrayList<>();
 
-            if (savedEntity.getStudentResultEntities() != null
-                    && !savedEntity.getStudentResultEntities().isEmpty()) {
+            if (savedEntity.getStudentResultEntities() != null && !savedEntity.getStudentResultEntities().isEmpty()) {
 
                 for (StudentResultEntity resultEntity : savedEntity.getStudentResultEntities()) {
 
@@ -639,14 +640,14 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                     for (ExamSubjectsEntity subject : resultEntity.getExamSubjectsEntities()) {
 
                         FormerExamSubjectsDTO formerSubject = modelMapper.map(subject, FormerExamSubjectsDTO.class);
-//                        formerSubject.setFormerResultId(resultEntity.getFormerResultId());
+                        formerSubject.setFormerResultId(resultDTO.getFormerResultId());
                         formerExamSubjectsDTOS.add(formerSubject);
                     }
 
                     resultDTO.setFormerExamSubjectsDTOS(formerExamSubjectsDTOS);
                     resultDTOS.add(resultDTO);
                     // Set former student ID
-//                    resultDTO.setFormerStudentId(formerStudentEntity.getFormerStudentId());
+                    resultDTO.setFormerStudentId(formerStudentDTO.getFormerStudentId());
                 }
             }
             formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
