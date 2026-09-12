@@ -308,10 +308,12 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         // Update basic fields
         existingEntity.setFirstName(formerStudentDTO.getFirstName());
+        existingEntity.setMiddleName(formerStudentDTO.getMiddleName());
         existingEntity.setLastName(formerStudentDTO.getLastName());
         existingEntity.setGender(formerStudentDTO.getGender());
         existingEntity.setDOB(formerStudentDTO.getDOB());
         existingEntity.setAadhaarCard(formerStudentDTO.getAadhaarCard());
+        existingEntity.setMotherName(formerStudentDTO.getMotherName());
         existingEntity.setPhone(formerStudentDTO.getPhone());
         existingEntity.setAddress(formerStudentDTO.getAddress());
         existingEntity.setBloodGroup(formerStudentDTO.getBloodGroup());

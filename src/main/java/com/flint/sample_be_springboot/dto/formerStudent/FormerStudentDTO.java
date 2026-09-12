@@ -14,11 +14,13 @@ public class FormerStudentDTO {
 
     private Long formerStudentId;
     private String firstName;
+    private String middleName;
     private String lastName;
     private String studentCode;
     private String gender;
     private String DOB;
     private String aadhaarCard;
+    private String motherName;
     private String phone;
     private String address;
     private String bloodGroup;

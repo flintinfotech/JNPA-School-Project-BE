@@ -183,6 +183,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         }
 
         studentEntity.setAcademicInformationEntity(academicInformationEntities);
+        studentEntity.setTotalFeeAmount(BigDecimal.ZERO);
+        studentEntity.setPendingFeeAmount(BigDecimal.ZERO);
 
         // save student entity
         StudentEntity savedEntity = studentRepository.save(studentEntity);
@@ -319,6 +321,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // Update basic fields
         existingStudentEntity.setFirstName(studentDTO.getFirstName());
+        existingStudentEntity.setMiddleName(studentDTO.getMiddleName());
         existingStudentEntity.setLastName(studentDTO.getLastName());
         existingStudentEntity.setGender(studentDTO.getGender());
         existingStudentEntity.setStudentCode(studentDTO.getStudentCode());
@@ -333,6 +336,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         existingStudentEntity.setAdmissionNo(existingStudentEntity.getAdmissionNo());
         existingStudentEntity.setPhone(studentDTO.getParentDTO().getPhone());
         existingStudentEntity.setAadhaarCard(studentDTO.getAadhaarCard());
+        existingStudentEntity.setMotherName(studentDTO.getMotherName());
         existingStudentEntity.setAuditDetails(addAuditDetails(existingStudentEntity.getAuditDetails()));
 
         existingStudentEntity.setPaymentStatus(studentDTO.getPaymentStatus());

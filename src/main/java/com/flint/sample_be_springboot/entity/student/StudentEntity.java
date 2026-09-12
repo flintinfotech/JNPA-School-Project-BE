@@ -32,6 +32,9 @@ public class StudentEntity {
     @Column(name = "FIRST_NAME")
     private String firstName;
 
+    @Column(name = "MIDDLE_NAME")
+    private String middleName;
+
     @NotNull
     @Column(name = "LAST_NAME")
     private String lastName;
@@ -49,6 +52,9 @@ public class StudentEntity {
 
     @Column(name = "AADHAAR_CARD")
     private String aadhaarCard;
+
+    @Column(name = "MOTHER_NAME")
+    private String motherName;
 
     @Column(name = "PHONE")
     private String phone;

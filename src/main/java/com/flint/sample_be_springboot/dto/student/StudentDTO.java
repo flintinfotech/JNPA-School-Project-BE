@@ -14,6 +14,7 @@ public class StudentDTO {
 
     private Long studentId;
     private String firstName;
+    private String middleName;
     private String lastName;
     private String studentCode;
     private String gender;
@@ -21,6 +22,7 @@ public class StudentDTO {
     private String aadhaarCard;
     private String phone;
     private String address;
+    private String motherName;
     private String bloodGroup;
     private String category;
     private String religion;
