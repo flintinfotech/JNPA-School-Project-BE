@@ -116,6 +116,9 @@ public class StudentEntity {
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<StudentAchievementsEntity> studentAchievementsEntities;
 
+    @OneToMany(fetch = FetchType.LAZY, mappedBy = "studentEntity", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<StudentAttendanceEntity> studentAttendanceEntities;
+
     @Embedded
     private AuditDetails auditDetails;
 
