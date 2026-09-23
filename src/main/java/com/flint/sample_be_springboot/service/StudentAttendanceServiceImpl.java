@@ -4,6 +4,7 @@ import com.flint.sample_be_springboot.dto.student.StudentAttendanceDTO;
 import com.flint.sample_be_springboot.entity.student.StudentAttendanceEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.notification.NotificationService;
 import com.flint.sample_be_springboot.repository.student.StudentAttendanceRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -32,6 +33,9 @@ public class StudentAttendanceServiceImpl extends BaseService implements Student
 
     @Autowired
     private StudentRepository studentRepository;
+
+    @Autowired
+    private NotificationService notificationService;
 
     @Override
     public StudentAttendanceDTO getStudentAttendanceById(Long studentAttendanceId) {
@@ -76,6 +80,11 @@ public class StudentAttendanceServiceImpl extends BaseService implements Student
         studentAttendanceEntity.setAuditDetails(addAuditDetails(studentAttendanceEntity.getAuditDetails()));
 
         StudentAttendanceEntity savedEntity = studentAttendanceRepository.save(studentAttendanceEntity);
+
+        // send notification on parent mobile
+//        notificationService.sendNotification(studentEntity.getParentEntity().getPhone(),
+//                studentAttendanceDTO.getAttendanceStatus().toString());
+
         StudentAttendanceDTO savedData = modelMapper.map(savedEntity, StudentAttendanceDTO.class);
         savedData.setStudentId(studentAttendanceEntity.getStudentEntity().getStudentId());
 
@@ -104,6 +113,11 @@ public class StudentAttendanceServiceImpl extends BaseService implements Student
         existingStudentAttendanceEntity.setAuditDetails(addAuditDetails(existingStudentAttendanceEntity.getAuditDetails()));
 
         StudentAttendanceEntity updatedEntity = studentAttendanceRepository.save(existingStudentAttendanceEntity);
+
+        // send notification on parent mobile
+//        notificationService.sendNotification(studentEntity.getParentEntity().getPhone(),
+//                studentAttendanceDTO.getAttendanceStatus().toString());
+
         StudentAttendanceDTO updatedData = modelMapper.map(updatedEntity, StudentAttendanceDTO.class);
         updatedData.setStudentId(existingStudentAttendanceEntity.getStudentEntity().getStudentId());
 
