@@ -23,9 +23,9 @@ public class EmployeeSalaryController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Employee salary saved successfully").data(salaryDTO).build());
     }
 
-    @GetMapping("/getEmployeeSalary/{employeeDetailsId}")
-    public ResponseEntity<?> getEmployeeSalary(@PathVariable Long employeeDetailsId) {
-        EmployeeSalaryDTO employeeSalaryDTO = employeeSalaryService.getEmployeeSalary(employeeDetailsId);
+    @GetMapping("/getEmployeeSalary/{employeeSalaryId}")
+    public ResponseEntity<?> getEmployeeSalary(@PathVariable Long employeeSalaryId) {
+        EmployeeSalaryDTO employeeSalaryDTO = employeeSalaryService.getEmployeeSalary(employeeSalaryId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(employeeSalaryDTO).build());
     }
 
@@ -35,9 +35,9 @@ public class EmployeeSalaryController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Employee salary updated successfully").data(data).build());
     }
 
-    @DeleteMapping("/deleteEmployeeSalary/{employeeDetailsId}")
-    public ResponseEntity<?> deleteEmployeeSalary(@PathVariable Long employeeDetailsId) {
-        String msg = employeeSalaryService.deleteEmployeeSalary(employeeDetailsId);
+    @DeleteMapping("/deleteEmployeeSalary/{employeeSalaryId}")
+    public ResponseEntity<?> deleteEmployeeSalary(@PathVariable Long employeeSalaryId) {
+        String msg = employeeSalaryService.deleteEmployeeSalary(employeeSalaryId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message(msg).build());
     }
 

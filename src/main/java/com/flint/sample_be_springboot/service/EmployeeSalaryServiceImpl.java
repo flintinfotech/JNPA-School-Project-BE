@@ -95,21 +95,21 @@ public class EmployeeSalaryServiceImpl extends BaseService implements EmployeeSa
     }
 
     @Override
-    public EmployeeSalaryDTO getEmployeeSalary(Long employeeDetailsId) {
+    public EmployeeSalaryDTO getEmployeeSalary(Long employeeSalaryId) {
 
         log.info("Enter into getEmployeeSalary");
 
-        if (employeeDetailsId == null) {
+        if (employeeSalaryId == null) {
             throw new CustomException("Employee details id can not be null", HttpStatus.PRECONDITION_FAILED);
         }
 
         EmployeeSalaryEntity employeeSalaryEntity = employeeSalaryRepository
-                .findByEmployeeDetailsEntity_EmployeeDetailsId(employeeDetailsId)
+                .findByEmployeeDetailsEntity_EmployeeDetailsId(employeeSalaryId)
                 .orElseThrow(() -> new CustomException("Employee salary is not exist", HttpStatus.NOT_FOUND));
 
         EmployeeSalaryDTO salaryDTO = modelMapper.map(employeeSalaryEntity, EmployeeSalaryDTO.class);
 
-        salaryDTO.setEmployeeDetailsId(employeeDetailsId);
+        salaryDTO.setEmployeeDetailsId(employeeSalaryEntity.getEmployeeDetailsEntity().getEmployeeDetailsId());
 
         log.info("Exit from getEmployeeSalary");
         return salaryDTO;
@@ -158,16 +158,15 @@ public class EmployeeSalaryServiceImpl extends BaseService implements EmployeeSa
     }
 
     @Override
-    public String deleteEmployeeSalary(Long employeeDetailsId) {
+    public String deleteEmployeeSalary(Long employeeSalaryId) {
 
         log.info("Enter into deleteEmployeeSalary");
 
-        if (employeeDetailsId == null) {
+        if (employeeSalaryId == null) {
             throw new CustomException("Employee details id can not be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        EmployeeSalaryEntity employeeSalaryEntity = employeeSalaryRepository
-                .findByEmployeeDetailsEntity_EmployeeDetailsId(employeeDetailsId)
+        EmployeeSalaryEntity employeeSalaryEntity = employeeSalaryRepository.findById(employeeSalaryId)
                 .orElseThrow(() -> new CustomException("Employee salary does not exist", HttpStatus.NOT_FOUND));
 
         employeeSalaryRepository.delete(employeeSalaryEntity);

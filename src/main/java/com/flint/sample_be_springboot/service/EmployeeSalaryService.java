@@ -7,7 +7,7 @@ import java.util.Map;
 
 public interface EmployeeSalaryService {
 
-    EmployeeSalaryDTO getEmployeeSalary(Long employeeDetailsId);
+    EmployeeSalaryDTO getEmployeeSalary(Long employeeSalaryId);
 
     EmployeeSalaryDTO saveEmployeeSalary(EmployeeSalaryDTO employeeSalaryDTO);
 
