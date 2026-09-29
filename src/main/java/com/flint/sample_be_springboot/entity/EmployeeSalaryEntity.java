@@ -6,6 +6,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 @Entity
 @Table(name = "EMPLOYEE_SALARY_ENTITY")
@@ -23,6 +24,9 @@ public class EmployeeSalaryEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "EMPLOYEE_DETAILS_ID")
     private EmployeeDetailsEntity employeeDetailsEntity;
+
+    @Column(name = "SALARY_DATE")
+    private LocalDate salarDate;
 
     @Column(name = "BASIC_SALARY")
     private BigDecimal basicSalary;
@@ -47,5 +51,11 @@ public class EmployeeSalaryEntity {
 
     @Column(name = "REMARK")
     private String remark;
+
+    @Column(name = "ACADEMIC_YEAR)")
+    private String academicYear;
+
+    @Embedded
+    private AuditDetails auditDetails;
 
 }
