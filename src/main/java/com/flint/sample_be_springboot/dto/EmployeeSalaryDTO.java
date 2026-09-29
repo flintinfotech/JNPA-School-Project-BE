@@ -8,6 +8,7 @@ import java.math.BigDecimal;
 public class EmployeeSalaryDTO {
 
     private BigDecimal basicSalary;
+    private Long employeeDetailsId;
     private BigDecimal hra;
     private BigDecimal transportAllowance;
     private BigDecimal medicalAllowance;
