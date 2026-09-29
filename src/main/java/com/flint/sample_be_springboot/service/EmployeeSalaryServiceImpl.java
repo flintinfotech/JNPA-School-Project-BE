@@ -184,6 +184,13 @@ public class EmployeeSalaryServiceImpl extends BaseService implements EmployeeSa
         List<EmployeeSalaryEntity> employeeSalaryEntities;
         long totalElement;
 
+        String startYear = String.valueOf(getStartDate().getYear());
+        String endYear = String.valueOf(getEndDate().getYear());
+
+        String academicYear = startYear.concat("-").concat(endYear);
+
+        filter.put("academicYear", academicYear);
+
         CustomQuerySpecification<EmployeeSalaryEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {

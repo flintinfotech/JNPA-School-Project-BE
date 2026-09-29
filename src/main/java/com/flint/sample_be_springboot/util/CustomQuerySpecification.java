@@ -51,6 +51,9 @@ public class CustomQuerySpecification<T> implements Specification<T> {
         JOIN_FIELDS.put("mobileNo", "userEntity");
         JOIN_FIELDS.put("email", "userEntity");
         JOIN_FIELDS.put("medium", "userEntity");
+
+        // Employee Salary
+        JOIN_FIELDS.put("employeeDetailsId", "employeeDetailsEntity");
     }
 
     /**
