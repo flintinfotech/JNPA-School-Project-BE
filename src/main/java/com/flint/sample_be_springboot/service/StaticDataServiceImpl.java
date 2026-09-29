@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -34,6 +35,21 @@ public class StaticDataServiceImpl implements StaticDataService {
                             Collectors.mapping(StaticDataEntity::getDropDrownValue, Collectors.toList())));
 
         }
+
+        List<String> values = data.get("role");
+
+        if (values != null) {
+            Iterator<String> iterator = values.iterator();
+
+            while (iterator.hasNext()) {
+                String role = iterator.next();
+
+                if (role.equals("STUDENT") || role.equals("PARENT")) {
+                    iterator.remove();
+                }
+            }
+        }
+
         LOGGER.info("Exit from getAllStaticData");
         return data;
     }
