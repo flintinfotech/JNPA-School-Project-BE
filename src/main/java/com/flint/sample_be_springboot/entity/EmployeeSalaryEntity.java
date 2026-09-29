@@ -1,9 +1,7 @@
 package com.flint.sample_be_springboot.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -13,6 +11,8 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
+@Getter
+@Setter
 public class EmployeeSalaryEntity {
 
     @Id
@@ -26,7 +26,7 @@ public class EmployeeSalaryEntity {
     private EmployeeDetailsEntity employeeDetailsEntity;
 
     @Column(name = "SALARY_DATE")
-    private LocalDate salarDate;
+    private LocalDate salaryDate;
 
     @Column(name = "BASIC_SALARY")
     private BigDecimal basicSalary;

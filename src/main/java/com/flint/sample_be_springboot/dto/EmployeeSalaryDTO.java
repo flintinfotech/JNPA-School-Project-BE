@@ -8,9 +8,10 @@ import java.time.LocalDate;
 @Data
 public class EmployeeSalaryDTO {
 
+    private Long employeeSalaryId;
     private BigDecimal basicSalary;
     private Long employeeDetailsId;
-    private LocalDate salarDate;
+    private LocalDate salaryDate;
     private BigDecimal hra;
     private BigDecimal transportAllowance;
     private BigDecimal medicalAllowance;
