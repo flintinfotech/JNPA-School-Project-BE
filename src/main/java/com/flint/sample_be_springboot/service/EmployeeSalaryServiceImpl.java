@@ -104,7 +104,7 @@ public class EmployeeSalaryServiceImpl extends BaseService implements EmployeeSa
         }
 
         EmployeeSalaryEntity employeeSalaryEntity = employeeSalaryRepository
-                .findByEmployeeDetailsEntity_EmployeeDetailsId(employeeSalaryId)
+                .findById(employeeSalaryId)
                 .orElseThrow(() -> new CustomException("Employee salary is not exist", HttpStatus.NOT_FOUND));
 
         EmployeeSalaryDTO salaryDTO = modelMapper.map(employeeSalaryEntity, EmployeeSalaryDTO.class);

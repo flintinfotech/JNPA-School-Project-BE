@@ -11,7 +11,6 @@ import java.util.Optional;
 @Repository
 public interface EmployeeSalaryRepository extends JpaRepository<EmployeeSalaryEntity, Long>, JpaSpecificationExecutor<EmployeeSalaryEntity> {
 
-    Optional<EmployeeSalaryEntity> findByEmployeeDetailsEntity_EmployeeDetailsId(Long employeeDetailsId);
 
 
 }
