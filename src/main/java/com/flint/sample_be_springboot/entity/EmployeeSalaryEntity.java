@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 
-
 @Entity
 @Table(name = "EMPLOYEE_SALARY_ENTITY")
 @AllArgsConstructor
@@ -19,10 +18,14 @@ public class EmployeeSalaryEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "EMPLOYEE_SALARY_ID")
     @EqualsAndHashCode.Include
-    private String employeeSalaryId;
+    private Long employeeSalaryId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "EMPLOYEE_DETAILS_ID")
+    private EmployeeDetailsEntity employeeDetailsEntity;
 
     @Column(name = "BASIC_SALARY")
-    private BigDecimal BasicSalary;
+    private BigDecimal basicSalary;
 
     @Column(name = "HRA")
     private BigDecimal hra;
@@ -39,13 +42,10 @@ public class EmployeeSalaryEntity {
     @Column(name = "DEDUCTION")
     private BigDecimal deduction;
 
+    @Column(name = "NET_SALARY")
+    private BigDecimal netSalary;
+
     @Column(name = "REMARK")
     private String remark;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "EMPLOYEE_DETAILS_ID")
-    private EmployeeDetailsEntity employeeDetailsEntity;
-
-
 
 }

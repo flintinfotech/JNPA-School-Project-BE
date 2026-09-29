@@ -100,6 +100,9 @@ public class EmployeeDetailsEntity {
     @OneToMany(mappedBy = "employeeDetailsEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<TeacherClassSubjectAllocationEntity> teacherClassSubjectAllocationEntities = new ArrayList<>();
 
+    @OneToMany(mappedBy = "employeeDetailsEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
+    private List<EmployeeSalaryEntity> employeeSalaryEntities;
+
     @Embedded
     private AuditDetails auditDetails;
 }

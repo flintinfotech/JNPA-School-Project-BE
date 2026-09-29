@@ -32,5 +32,6 @@ public class EmployeeDetailsDTO {
     private String bloodGroup;
     private StudentStatus status;
     private List<UserDocumentDTO> userDocumentDTOS;
+    private List<EmployeeSalaryDTO> employeeSalaryDTOS;
 
 }
