@@ -94,6 +94,15 @@ public class EmployeeDetailsEntity {
     @Column(name = "STATUS")
     private StudentStatus status;
 
+    @Column(name = "BANK_NAME")
+    private String bankName;
+
+    @Column(name = "IFSC_CODE")
+    private String ifscCode;
+
+    @Column(name = "ACCOUNT_NO")
+    private String accountNo;
+
     @OneToMany(mappedBy = "employeeDetailsEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<UserDocumentEntity> userDocumentEntities;
 

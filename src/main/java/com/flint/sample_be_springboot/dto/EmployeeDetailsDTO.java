@@ -2,6 +2,7 @@ package com.flint.sample_be_springboot.dto;
 
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.enums.StudentStatus;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.time.LocalDate;
@@ -33,5 +34,9 @@ public class EmployeeDetailsDTO {
     private StudentStatus status;
     private List<UserDocumentDTO> userDocumentDTOS;
     private List<EmployeeSalaryDTO> employeeSalaryDTOS;
+
+    private String bankName;
+    private String ifscCode;
+    private String accountNo;
 
 }
