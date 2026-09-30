@@ -1,6 +1,5 @@
 package com.flint.sample_be_springboot.service;
 
-import com.flint.sample_be_springboot.dto.student.StudentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentFeeDTO;
 import org.springframework.data.domain.Pageable;
 
@@ -18,5 +17,6 @@ public interface StudentFeeService {
 
     Map<String, Object> getAllStudentsFeeByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 
+    Map<String, Object> getStudentFeeReportData(Map<String, Object> filter, Pageable pageable, boolean paginate);
 }
 

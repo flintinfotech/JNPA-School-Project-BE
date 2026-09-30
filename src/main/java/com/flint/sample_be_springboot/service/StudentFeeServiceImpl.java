@@ -1,5 +1,7 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.StudentFeeReportDTO;
+import com.flint.sample_be_springboot.dto.StudentFeeReportDataDTO;
 import com.flint.sample_be_springboot.dto.student.FeePaymentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentFeeDTO;
 import com.flint.sample_be_springboot.entity.student.FeePaymentEntity;
@@ -13,7 +15,6 @@ import com.flint.sample_be_springboot.repository.student.StudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import com.flint.sample_be_springboot.util.GenerateCodes;
-import com.flint.sample_be_springboot.util.PasswordGenerator;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,13 +92,13 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         if (studentFeeDTO.getFeePaymentDTOS() != null && !studentFeeDTO.getFeePaymentDTOS().isEmpty()) {
 
             // Get last generated receipt number
-            String lastReceiptNo =feePaymentRepository.findLastReceiptNo();
+            String lastReceiptNo = feePaymentRepository.findLastReceiptNo();
 
             for (FeePaymentDTO feePaymentDTO : studentFeeDTO.getFeePaymentDTOS()) {
                 FeePaymentEntity feePaymentEntity = modelMapper.map(feePaymentDTO, FeePaymentEntity.class);
 
                 // Generate next receipt number
-                String nextReceiptNo =GenerateCodes.generateReceiptNo(lastReceiptNo);
+                String nextReceiptNo = GenerateCodes.generateReceiptNo(lastReceiptNo);
 
                 // Set generated receipt number
                 feePaymentEntity.setReceiptNo(nextReceiptNo);
@@ -116,9 +117,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         }
         studentFeeEntity.setFeePaymentEntities(feePaymentEntities);
 
-        if(pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0){
+        if (pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0) {
             studentEntity.setPaymentStatus(FeePayment.PENDING);
-        }else{
+        } else {
             studentEntity.setPaymentStatus(FeePayment.PAID);
         }
 
@@ -167,7 +168,6 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         existingStudentFeeEntity.setPaidAmount(studentFeeDTO.getPaidAmount());
         existingStudentFeeEntity.setPendingAmount(studentFeeDTO.getPendingAmount());
         existingStudentFeeEntity.setDueAmount(studentFeeDTO.getDueAmount());
-
 
 
         existingStudentFeeEntity.setAuditDetails(addAuditDetails(existingStudentFeeEntity.getAuditDetails()));
@@ -227,7 +227,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                     feePaymentEntity = modelMapper.map(paymentDTO, FeePaymentEntity.class);
 
                     // Generate next receipt number
-                    String nextReceiptNo =GenerateCodes.generateReceiptNo(lastReceiptNo);
+                    String nextReceiptNo = GenerateCodes.generateReceiptNo(lastReceiptNo);
 
                     // Set generated receipt number
                     feePaymentEntity.setReceiptNo(nextReceiptNo);
@@ -246,9 +246,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
             }
         }
 
-        if(pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0){
+        if (pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0) {
             studentEntity.setPaymentStatus(FeePayment.PENDING);
-        }else{
+        } else {
             studentEntity.setPaymentStatus(FeePayment.PAID);
         }
 
@@ -340,4 +340,59 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         result.put("Total elements", totalElement);
         return result;
     }
+
+    @Override
+    public Map<String, Object> getStudentFeeReportData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+
+        log.info("Enter into getStudentFeeReportData");
+        Page<StudentEntity> studentEntityPage;
+        List<StudentEntity> studentEntities;
+        long totalElement;
+
+        CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+
+        if (paginate) {
+            studentEntityPage = studentRepository.findAll(customQuerySpecification, pageable);
+            studentEntities = studentEntityPage.getContent();
+            totalElement = studentEntityPage.getTotalElements();
+        } else {
+            studentEntities = studentRepository.findAll(customQuerySpecification);
+            totalElement = studentEntities.size();
+        }
+
+        List<StudentFeeReportDTO> studentFeeReportDTOS = studentEntities.stream()
+                .map(existingEntity -> {
+
+                    String startYear = String.valueOf(getStartDate().getYear());
+                    String endYear = String.valueOf(getEndDate().getYear());
+                    String academicYear = startYear.concat("-").concat(endYear);
+
+                    StudentFeeReportDTO studentFeeReportDTO = new StudentFeeReportDTO();
+
+                    studentFeeReportDTO.setFirstName(existingEntity.getFirstName());
+                    studentFeeReportDTO.setLastName(existingEntity.getLastName());
+                    studentFeeReportDTO.setGender(existingEntity.getGender());
+                    studentFeeReportDTO.setPhone(existingEntity.getPhone());
+
+                    List<StudentFeeEntity> studentFeeEntities = studentFeeRepository
+                            .findByAcademicYearAndStudentEntity_StudentId(academicYear, existingEntity.getStudentId());
+
+                    List<StudentFeeReportDataDTO> studentFeeReportDataDTOS = studentFeeEntities.stream()
+                            .map(s -> modelMapper.map(s, StudentFeeReportDataDTO.class))
+                            .collect(Collectors.toUnmodifiableList());
+
+                    studentFeeReportDTO.setFeeReportDataDTOS(studentFeeReportDataDTOS);
+
+                    return studentFeeReportDTO;
+                }).collect(Collectors.toUnmodifiableList());
+
+
+        log.info("Exit from getStudentFeeReportData");
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("Data", studentFeeReportDTOS);
+        result.put("Total elements", totalElement);
+        return result;
+    }
+
 }

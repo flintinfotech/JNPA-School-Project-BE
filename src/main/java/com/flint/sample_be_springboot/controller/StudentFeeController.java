@@ -1,6 +1,5 @@
 package com.flint.sample_be_springboot.controller;
 
-import com.flint.sample_be_springboot.dto.student.StudentDTO;
 import com.flint.sample_be_springboot.dto.student.StudentFeeDTO;
 import com.flint.sample_be_springboot.response.APIResponse;
 import com.flint.sample_be_springboot.service.StudentFeeService;
@@ -51,5 +50,13 @@ public class StudentFeeController {
         Map<String, Object> data = studentFeeService.getAllStudentsFeeByFilter(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
     }
+
+    @PostMapping("/getStudentFeeReportData")
+    public ResponseEntity<?> getStudentFeeReportData(@RequestBody Map<String, Object> filter, Pageable pageable,
+                                                     @RequestParam(defaultValue = "true") boolean paginate) {
+        Map<String, Object> data = studentFeeService.getStudentFeeReportData(filter, pageable, paginate);
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
+    }
+
 
 }

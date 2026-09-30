@@ -16,4 +16,6 @@ public interface SchoolExpensesService {
     String deleteSchoolExpenses(Long schoolExpenseId);
 
     Map<String, Object> getAllSchoolExpensesByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
+
+    Map<String, Object> getSchoolExpensesReport(Map<String, Object> filter, Pageable pageable, boolean paginate);
 }

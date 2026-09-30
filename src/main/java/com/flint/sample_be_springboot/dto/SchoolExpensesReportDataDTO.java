@@ -1,24 +1,18 @@
 package com.flint.sample_be_springboot.dto;
 
-import com.flint.sample_be_springboot.enums.FeePayment;
 import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
 
 @Data
-public class SchoolExpensesDTO {
+public class SchoolExpensesReportDataDTO {
 
-    private Long schoolExpenseId;
     private BigDecimal price;
     private Integer quantity;
-    private BigDecimal total;
     private BigDecimal paidAmount;
     private BigDecimal pendingAmount;
-    private Long purchaseId;
-    private String academicYear;
+    private BigDecimal total;
     private LocalDate purchaseDate;
-    private FeePayment status;
-    private PurchaseDTO purchaseDTO;
-
+    private String academicYear;
 }

@@ -2,8 +2,11 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.PurchaseDTO;
 import com.flint.sample_be_springboot.dto.SchoolExpensesDTO;
+import com.flint.sample_be_springboot.dto.SchoolExpensesReportDTO;
+import com.flint.sample_be_springboot.dto.SchoolExpensesReportDataDTO;
 import com.flint.sample_be_springboot.entity.PurchaseEntity;
 import com.flint.sample_be_springboot.entity.SchoolExpensesEntity;
+import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.PurchaseRepository;
 import com.flint.sample_be_springboot.repository.SchoolExpensesRepository;
@@ -17,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +50,31 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId())
                 .orElseThrow(() -> new CustomException("Product not found", HttpStatus.PRECONDITION_FAILED));
 
+        // Calculate pending amount automatically
+        BigDecimal total = schoolExpensesDTO.getTotal() != null
+                ? schoolExpensesDTO.getTotal()
+                : BigDecimal.ZERO;
+
+        BigDecimal paidAmount = schoolExpensesDTO.getPaidAmount() != null
+                ? schoolExpensesDTO.getPaidAmount()
+                : BigDecimal.ZERO;
+
+        BigDecimal pendingAmount = total.subtract(paidAmount);
+
+        if (paidAmount.compareTo(total) == 0) {
+            schoolExpensesEntity.setStatus(FeePayment.PAID);
+        } else if (paidAmount.compareTo(BigDecimal.ZERO) == 0) {
+            schoolExpensesEntity.setStatus(FeePayment.PENDING);
+        } else {
+            schoolExpensesEntity.setStatus(FeePayment.PARTIAL);
+        }
+
+        schoolExpensesEntity.setPendingAmount(pendingAmount);
+        schoolExpensesEntity.setTotal(total);
+        schoolExpensesEntity.setPaidAmount(paidAmount);
         schoolExpensesEntity.setPurchaseEntity(purchaseEntity);
         schoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
+
 
         //save
         SchoolExpensesEntity savedSchoolExpensesEntity = schoolExpensesRepository.save(schoolExpensesEntity);
@@ -101,13 +128,35 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId())
                 .orElseThrow(() -> new CustomException("Product not found", HttpStatus.PRECONDITION_FAILED));
 
+
+        // Calculate pending amount automatically
+        BigDecimal total = schoolExpensesDTO.getTotal() != null
+                ? schoolExpensesDTO.getTotal()
+                : BigDecimal.ZERO;
+
+        BigDecimal paidAmount = schoolExpensesDTO.getPaidAmount() != null
+                ? schoolExpensesDTO.getPaidAmount()
+                : BigDecimal.ZERO;
+
+        BigDecimal pendingAmount = total.subtract(paidAmount);
+
+
+        if (paidAmount.compareTo(total) == 0) {
+            existingSchoolExpensesEntity.setStatus(FeePayment.PAID);
+        } else if (paidAmount.compareTo(BigDecimal.ZERO) == 0) {
+            existingSchoolExpensesEntity.setStatus(FeePayment.PENDING);
+        } else {
+            existingSchoolExpensesEntity.setStatus(FeePayment.PARTIAL);
+        }
+
         existingSchoolExpensesEntity.setPurchaseEntity(purchaseEntity);
 
         //update
         existingSchoolExpensesEntity.setQuantity(schoolExpensesDTO.getQuantity());
         existingSchoolExpensesEntity.setPrice(schoolExpensesDTO.getPrice());
-        existingSchoolExpensesEntity.setTotal(schoolExpensesDTO.getTotal());
-        existingSchoolExpensesEntity.setStatus(schoolExpensesDTO.getStatus());
+        existingSchoolExpensesEntity.setPendingAmount(pendingAmount);
+        existingSchoolExpensesEntity.setPaidAmount(paidAmount);
+        existingSchoolExpensesEntity.setTotal(total);
         existingSchoolExpensesEntity.setPurchaseDate(schoolExpensesDTO.getPurchaseDate());
         existingSchoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
 
@@ -183,6 +232,51 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         map.put("Total Element", totalElement);
 
         log.info("Exit from getAllSchoolExpensesByFilter");
+
+        return map;
+    }
+
+    @Override
+    public Map<String, Object> getSchoolExpensesReport(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+        log.info("Enter into getSchoolExpensesReport");
+
+        Page<PurchaseEntity> purchaseEntityPage;
+        List<PurchaseEntity> purchaseEntities;
+        long totalElement;
+
+        CustomQuerySpecification<PurchaseEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+
+        if (paginate) {
+            purchaseEntityPage = purchaseRepository.findAll(customQuerySpecification, pageable);
+            purchaseEntities = purchaseEntityPage.getContent();
+            totalElement = purchaseEntityPage.getTotalElements();
+        } else {
+            purchaseEntities = purchaseRepository.findAll(customQuerySpecification);
+            totalElement = purchaseEntities.size();
+        }
+
+        List<SchoolExpensesReportDTO> schoolExpensesReportDTOS = purchaseEntities.stream()
+                .map(existingPurchaseEntity -> {
+
+                    String startYear = String.valueOf(getStartDate().getYear());
+                    String endYear = String.valueOf(getEndDate().getYear());
+                    String academicYear = startYear.concat("-").concat(endYear);
+
+                    SchoolExpensesReportDataDTO schoolExpensesReportDataDTO = new SchoolExpensesReportDataDTO();
+
+
+
+
+                    return null;
+
+                })
+                .collect(Collectors.toList());
+
+        Map<String, Object> map = new HashMap<>();
+//        map.put("Data",schoolExpensesReportDTOS);
+        map.put("Total Element", totalElement);
+
+        log.info("Exit from getSchoolExpensesReport");
 
         return map;
     }

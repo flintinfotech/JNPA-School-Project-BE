@@ -398,7 +398,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         List<TimeTablePeriodEntity> timeTablePeriodEntities = timeTablePeriodRepositoryRepository
                 .findByEmployeeDetailsEntity_EmployeeDetailsId(existingEntity.getEmployeeDetailsId());
 
-        if(timeTablePeriodEntities != null && !timeTablePeriodEntities.isEmpty()){
+        if (timeTablePeriodEntities != null && !timeTablePeriodEntities.isEmpty()) {
             throw new CustomException("This user is assigned in time table, cannot delete this user", HttpStatus.FOUND);
         }
 

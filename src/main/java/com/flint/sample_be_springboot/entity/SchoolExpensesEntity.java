@@ -28,6 +28,12 @@ public class SchoolExpensesEntity {
     @Column(name = "QUANTITY")
     private Integer quantity;
 
+    @Column(name = "PAID_AMOUNT")
+    private BigDecimal paidAmount;
+
+    @Column(name = "PENDING_AMOUNT")
+    private BigDecimal pendingAmount;
+
     @Column(name = "TOTAL")
     private BigDecimal total;
 
