@@ -5,6 +5,7 @@ import com.flint.sample_be_springboot.entity.*;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.EmployeeDetailsRepository;
+import com.flint.sample_be_springboot.repository.EmployeeSalaryRepository;
 import com.flint.sample_be_springboot.repository.TimeTablePeriodRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -39,6 +40,9 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
 
     @Autowired
     private TimeTablePeriodRepository timeTablePeriodRepositoryRepository;
+
+    @Autowired
+    private EmployeeSalaryRepository employeeSalaryRepository;
 
     @Override
     public Map<String, Object> saveEmployeeDetails(EmployeeDetailsDTO employeeDetailsDTO) {
@@ -463,4 +467,58 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         result.put("total", totalElement);
         return result;
     }
+
+    @Override
+    public Map<String, Object> getEmployeeSalaryReportData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+        log.info("Enter into getAllEmployeeDetailsByFilter");
+
+        Page<EmployeeDetailsEntity> informationEntityPage;
+        List<EmployeeDetailsEntity> employeeDetailsEntities;
+        long totalElement;
+
+        CustomQuerySpecification<EmployeeDetailsEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+
+        if (paginate) {
+            informationEntityPage = employeeDetailsRepository.findAll(customQuerySpecification, pageable);
+            employeeDetailsEntities = informationEntityPage.getContent();
+            totalElement = informationEntityPage.getTotalElements();
+        } else {
+            employeeDetailsEntities = employeeDetailsRepository.findAll(customQuerySpecification);
+            totalElement = employeeDetailsEntities.size();
+        }
+
+        List<EmployeeSalaryReportDTO> employeeSalaryReportDTOS = employeeDetailsEntities.stream()
+                .map(existingEntity -> {
+                    String startYear = String.valueOf(getStartDate().getYear());
+                    String endYear = String.valueOf(getEndDate().getYear());
+
+                    String academicYear = startYear.concat("-").concat(endYear);
+
+                    EmployeeSalaryReportDTO employeeSalaryReportDTO = new EmployeeSalaryReportDTO();
+
+                    employeeSalaryReportDTO.setFirstName(existingEntity.getFirstName());
+                    employeeSalaryReportDTO.setLastName(existingEntity.getLastName());
+                    employeeSalaryReportDTO.setRole(existingEntity.getRole());
+                    employeeSalaryReportDTO.setDesignation(existingEntity.getDesignation());
+
+                    List<EmployeeSalaryEntity> employeeSalaryEntities = employeeSalaryRepository
+                            .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());
+
+                    List<EmployeeSalaryReportDataDTO> reportDataDTOList = employeeSalaryEntities.stream()
+                            .map(s -> modelMapper.map(s, EmployeeSalaryReportDataDTO.class))
+                            .collect(Collectors.toUnmodifiableList());
+
+                    employeeSalaryReportDTO.setReportDataDTOList(reportDataDTOList);
+
+                    return employeeSalaryReportDTO;
+                }).collect(Collectors.toUnmodifiableList());
+
+        log.info("Exit from getAllEmployeeDetailsByFilter");
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("Data", employeeSalaryReportDTOS);
+        result.put("total", totalElement);
+        return result;
+    }
+
 }

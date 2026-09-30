@@ -19,4 +19,5 @@ public interface EmployeeDetailsService {
 
     Map<String, Object> getAllEmployeeDetailsByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 
+    Map<String, Object> getEmployeeSalaryReportData(Map<String, Object> filter, Pageable pageable, boolean paginate);
 }
