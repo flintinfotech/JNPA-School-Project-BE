@@ -48,10 +48,10 @@ public class SchoolExpensesController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data found successfully").data(map).build());
     }
 
-    @PostMapping("/getSchoolExpensesReport")
-    public ResponseEntity<?> getSchoolExpensesReport(@RequestBody Map<String, Object> filter, Pageable pageable,
+    @PostMapping("/getSchoolExpensesReportData")
+    public ResponseEntity<?> getSchoolExpensesReportData(@RequestBody Map<String, Object> filter, Pageable pageable,
                                                           @RequestParam(defaultValue = "true") boolean paginate) {
-        Map<String, Object> map = schoolExpensesService.getSchoolExpensesReport(filter, pageable, paginate);
+        Map<String, Object> map = schoolExpensesService.getSchoolExpensesReportData(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data found successfully").data(map).build());
     }
 

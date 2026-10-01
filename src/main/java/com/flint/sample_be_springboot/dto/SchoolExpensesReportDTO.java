@@ -14,7 +14,7 @@ public class SchoolExpensesReportDTO {
     private  String productCode;
     private String category;
     private String productName;
-    private List<SchoolExpensesEntity> schoolExpensesEntities;
+    private List<SchoolExpensesReportDataDTO> reportDataDTOList;
     private LocalDate printDate = LocalDate.now();
     private String printTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
 }

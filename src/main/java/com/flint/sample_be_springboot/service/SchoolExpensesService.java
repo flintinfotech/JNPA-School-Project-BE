@@ -17,5 +17,5 @@ public interface SchoolExpensesService {
 
     Map<String, Object> getAllSchoolExpensesByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate);
 
-    Map<String, Object> getSchoolExpensesReport(Map<String, Object> filter, Pageable pageable, boolean paginate);
+    Map<String, Object> getSchoolExpensesReportData(Map<String, Object> filter, Pageable pageable, boolean paginate);
 }

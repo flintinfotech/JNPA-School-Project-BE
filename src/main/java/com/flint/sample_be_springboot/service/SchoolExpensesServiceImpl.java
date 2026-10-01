@@ -193,7 +193,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         log.info("Enter into getAllSchoolExpensesByFilter");
 
 
-        Page<SchoolExpensesEntity> schoolExpensesEntityPage ;
+        Page<SchoolExpensesEntity> schoolExpensesEntityPage;
         List<SchoolExpensesEntity> schoolExpensesEntities;
         long totalElement;
 
@@ -211,12 +211,12 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         List<SchoolExpensesDTO> schoolExpensesDTOS = schoolExpensesEntities.stream()
                 .map(schoolExpensesEntity -> {
 
-                    SchoolExpensesDTO schoolExpensesDTO =modelMapper.map(schoolExpensesEntity,SchoolExpensesDTO.class);
+                    SchoolExpensesDTO schoolExpensesDTO = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
 
                     // PurchaseEntity -> PurchaseDTO
                     if (schoolExpensesEntity.getPurchaseEntity() != null) {
 
-                        PurchaseDTO purchaseDTO =modelMapper.map(schoolExpensesEntity.getPurchaseEntity(),PurchaseDTO.class);
+                        PurchaseDTO purchaseDTO = modelMapper.map(schoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
                         schoolExpensesDTO.setPurchaseDTO(purchaseDTO);
 
                         // Set purchaseId
@@ -228,7 +228,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
                 .collect(Collectors.toList());
 
         Map<String, Object> map = new HashMap<>();
-        map.put("SchoolExpensesDTOS",schoolExpensesDTOS);
+        map.put("SchoolExpensesDTOS", schoolExpensesDTOS);
         map.put("Total Element", totalElement);
 
         log.info("Exit from getAllSchoolExpensesByFilter");
@@ -237,8 +237,12 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
     }
 
     @Override
-    public Map<String, Object> getSchoolExpensesReport(Map<String, Object> filter, Pageable pageable, boolean paginate) {
-        log.info("Enter into getSchoolExpensesReport");
+    public Map<String, Object> getSchoolExpensesReportData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+        log.info("Enter into getSchoolExpensesReportData");
+
+        final String academicYear = filter != null && filter.get("academicYear") != null
+                ? filter.get("academicYear").toString()
+                : null;
 
         Page<PurchaseEntity> purchaseEntityPage;
         List<PurchaseEntity> purchaseEntities;
@@ -255,29 +259,40 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
             totalElement = purchaseEntities.size();
         }
 
-        List<SchoolExpensesReportDTO> schoolExpensesReportDTOS = purchaseEntities.stream()
-                .map(existingPurchaseEntity -> {
+        List<SchoolExpensesReportDTO> reportDTOList = purchaseEntities.stream()
+                .map(purchaseEntity -> {
+                    SchoolExpensesReportDTO reportDTO = new SchoolExpensesReportDTO();
 
-                    String startYear = String.valueOf(getStartDate().getYear());
-                    String endYear = String.valueOf(getEndDate().getYear());
-                    String academicYear = startYear.concat("-").concat(endYear);
+                    reportDTO.setProductCode(purchaseEntity.getProductCode());
+                    reportDTO.setProductName(purchaseEntity.getProductName());
+                    reportDTO.setCategory(purchaseEntity.getCategory());
 
-                    SchoolExpensesReportDataDTO schoolExpensesReportDataDTO = new SchoolExpensesReportDataDTO();
+                    List<SchoolExpensesReportDataDTO> reportDataDTOList = purchaseEntity.getSchoolExpensesEntities()
+                            .stream()
 
+                            // Academic year filter
+                            .filter(expenseEntity ->
+                                    academicYear == null || academicYear.isBlank() || academicYear.equals(expenseEntity.getAcademicYear()))
 
+                            .map(expenseEntity ->
+                                    modelMapper.map(expenseEntity, SchoolExpensesReportDataDTO.class))
+                            .toList();
 
-
-                    return null;
-
+                    reportDTO.setReportDataDTOList(reportDataDTOList);
+                    return reportDTO;
                 })
-                .collect(Collectors.toList());
 
-        Map<String, Object> map = new HashMap<>();
-//        map.put("Data",schoolExpensesReportDTOS);
-        map.put("Total Element", totalElement);
+                // Remove products having no matching expense
+                .filter(reportDTO ->
+                        reportDTO.getReportDataDTOList() != null && !reportDTO.getReportDataDTOList().isEmpty())
+                .toList();
 
-        log.info("Exit from getSchoolExpensesReport");
+        Map<String, Object> result = new HashMap<>();
 
-        return map;
+        result.put("Data", reportDTOList);
+        result.put("total", reportDTOList.size());
+        log.info("Exit from getSchoolExpensesReportData");
+
+        return result;
     }
 }
