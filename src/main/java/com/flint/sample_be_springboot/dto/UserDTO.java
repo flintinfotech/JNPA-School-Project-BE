@@ -20,6 +20,7 @@ public class UserDTO {
     private String standard;
     private String division;
     private String medium;
+    private String department;
     private AuditDetails auditDetails;
 
     private List<ScreenMasterDTO> screens;

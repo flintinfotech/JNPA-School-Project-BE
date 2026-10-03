@@ -27,6 +27,7 @@ public class EmployeeDetailsDTO {
     private String qualification;
     private String specialization;
     private Integer experience;
+    private String department; // new added
     private String designation;
     private LocalDate joiningDate;
     private LocalDate leavingDate;

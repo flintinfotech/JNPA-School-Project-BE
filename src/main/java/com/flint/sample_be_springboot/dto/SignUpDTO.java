@@ -20,6 +20,7 @@ public class SignUpDTO {
     private String aadhaarNo;
     private String section;
     private String medium;
+    private String department;
 
     private List<ScreenMasterDTO> screens;
 

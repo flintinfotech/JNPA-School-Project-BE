@@ -73,6 +73,9 @@ public class UserEntity {
     @Column(name = "DIVISION")
     private String division;
 
+    @Column(name = "DEPARTMENT")
+    private String department;// new added
+
     @OneToMany(mappedBy = "user",
             cascade = CascadeType.ALL,
             orphanRemoval = true)

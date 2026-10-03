@@ -195,6 +195,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setQualification(employeeDetailsDTO.getQualification());
         existingEntity.setSpecialization(employeeDetailsDTO.getSpecialization());
         existingEntity.setExperience(employeeDetailsDTO.getExperience());
+        existingEntity.setDepartment(employeeDetailsDTO.getDepartment());// new added
         existingEntity.setDesignation(employeeDetailsDTO.getDesignation());
         existingEntity.setJoiningDate(employeeDetailsDTO.getJoiningDate());
         existingEntity.setBloodGroup(employeeDetailsDTO.getBloodGroup());
@@ -284,6 +285,8 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         userDTO.setMedium(user.getMedium());
         userDTO.setStandard(user.getStandard());
         userDTO.setDivision(user.getDivision());
+        userDTO.setDepartment(user.getDepartment()); // new added
+
 
         List<ScreenMasterDTO> screens = user.getScreenAccesses()
                 .stream()
@@ -500,6 +503,7 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                     employeeSalaryReportDTO.setLastName(existingEntity.getLastName());
                     employeeSalaryReportDTO.setRole(existingEntity.getRole());
                     employeeSalaryReportDTO.setDesignation(existingEntity.getDesignation());
+                    employeeSalaryReportDTO.setDepartment(existingEntity.getDepartment());
 
                     List<EmployeeSalaryEntity> employeeSalaryEntities = employeeSalaryRepository
                             .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());

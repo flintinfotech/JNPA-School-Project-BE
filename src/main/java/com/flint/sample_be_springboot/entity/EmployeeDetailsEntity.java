@@ -78,6 +78,9 @@ public class EmployeeDetailsEntity {
     @Column(name = "EXPERIENCE")
     private Integer experience;
 
+    @Column(name = "DEPARTMENT")
+    private String department; // new added
+
     @Column(name = "DESIGNATION")
     private String designation;
 

@@ -16,6 +16,7 @@ public class EmployeeSalaryReportDTO {
     private String lastName;
     private Role role;
     private String designation;
+    private String department;
     private List<EmployeeSalaryReportDataDTO> reportDataDTOList;
     private LocalDate printDate = LocalDate.now();
     private String printTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
