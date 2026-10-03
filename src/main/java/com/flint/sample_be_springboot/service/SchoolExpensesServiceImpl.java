@@ -240,9 +240,12 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
     public Map<String, Object> getSchoolExpensesReportData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         log.info("Enter into getSchoolExpensesReportData");
 
-        final String academicYear = filter != null && filter.get("academicYear") != null
-                ? filter.get("academicYear").toString()
-                : null;
+        String startYear = String.valueOf(getStartDate().getYear());
+        String endYear = String.valueOf(getEndDate().getYear());
+
+        String academicYear = startYear.concat("-").concat(endYear);
+
+        filter.put("academicYear", academicYear);
 
         Page<PurchaseEntity> purchaseEntityPage;
         List<PurchaseEntity> purchaseEntities;

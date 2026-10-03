@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.List;
 
 @Entity
@@ -24,6 +25,9 @@ public class PurchaseEntity {
 
     @Column(name = "PRODUCT_CODE", nullable = false)
     private  String productCode;
+
+    @Column(name = "PURCHASE_DATE")
+    private LocalDate purchaseDate;
 
     @Column(name = "CATEGORY", nullable = false)
     private String category;
