@@ -5,6 +5,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Repository
@@ -12,5 +13,8 @@ public interface EmployeeSalaryRepository extends JpaRepository<EmployeeSalaryEn
 
 
     List<EmployeeSalaryEntity> findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(String academicYear, Long employeeDetailsId);
+
+    List<EmployeeSalaryEntity> findBySalaryDateBetweenAndAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId
+            (LocalDate fromDate, LocalDate toDate, String academicYear, Long employeeDetailsId);
 
 }

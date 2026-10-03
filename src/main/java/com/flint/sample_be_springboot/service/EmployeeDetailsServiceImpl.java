@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -505,8 +506,18 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                     employeeSalaryReportDTO.setDesignation(existingEntity.getDesignation());
                     employeeSalaryReportDTO.setDepartment(existingEntity.getDepartment());
 
-                    List<EmployeeSalaryEntity> employeeSalaryEntities = employeeSalaryRepository
-                            .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());
+                    List<EmployeeSalaryEntity> employeeSalaryEntities;
+
+                    if(filter.containsKey("fromDate") && filter.containsKey("toDate")){
+                        LocalDate fromDate = LocalDate.parse((String) filter.get("fromDate"));
+                        LocalDate endDate = LocalDate.parse((String) filter.get("toDate"));
+                        employeeSalaryEntities = employeeSalaryRepository
+                                .findBySalaryDateBetweenAndAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId
+                                        (fromDate, endDate, academicYear, existingEntity.getEmployeeDetailsId());
+                    }else{
+                        employeeSalaryEntities = employeeSalaryRepository
+                                .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());
+                    }
 
                     List<EmployeeSalaryReportDataDTO> reportDataDTOList = employeeSalaryEntities.stream()
                             .map(s -> modelMapper.map(s, EmployeeSalaryReportDataDTO.class))
