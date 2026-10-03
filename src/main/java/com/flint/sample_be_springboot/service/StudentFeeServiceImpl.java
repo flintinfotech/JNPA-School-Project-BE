@@ -25,6 +25,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -349,6 +350,13 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         List<StudentEntity> studentEntities;
         long totalElement;
 
+        String startYear = String.valueOf(getStartDate().getYear());
+        String endYear = String.valueOf(getEndDate().getYear());
+
+        String academicYear = startYear.concat("-").concat(endYear);
+
+        filter.put("academicYear",academicYear);
+
         CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {
@@ -363,9 +371,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         List<StudentFeeReportDTO> studentFeeReportDTOS = studentEntities.stream()
                 .map(existingEntity -> {
 
-                    String startYear = String.valueOf(getStartDate().getYear());
-                    String endYear = String.valueOf(getEndDate().getYear());
-                    String academicYear = startYear.concat("-").concat(endYear);
+//                    String startYear = String.valueOf(getStartDate().getYear());
+//                    String endYear = String.valueOf(getEndDate().getYear());
+//                    String academicYear = startYear.concat("-").concat(endYear);
 
                     StudentFeeReportDTO studentFeeReportDTO = new StudentFeeReportDTO();
 
@@ -377,7 +385,29 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
                     List<StudentFeeEntity> studentFeeEntities = studentFeeRepository
                             .findByAcademicYearAndStudentEntity_StudentId(academicYear, existingEntity.getStudentId());
 
-                    List<StudentFeeReportDataDTO> studentFeeReportDataDTOS = studentFeeEntities.stream()
+                    List<FeePaymentEntity> feePaymentEntities = new ArrayList<>();
+
+                    for (StudentFeeEntity studentFeeEntity : studentFeeEntities) {
+
+                        feePaymentEntities = studentFeeEntity.getFeePaymentEntities();
+
+                        if (filter.containsKey("fromDate") && filter.containsKey("toDate")) {
+
+                            LocalDate fromDate = LocalDate.parse((String) filter.get("fromDate"));
+                            LocalDate toDate = LocalDate.parse((String) filter.get("toDate"));
+
+                            feePaymentEntities = feePaymentEntities.stream()
+                                    .filter(payment -> payment.getPaymentDate() != null)
+                                    .filter(payment ->
+                                            !payment.getPaymentDate().isBefore(fromDate)
+                                                    && !payment.getPaymentDate().isAfter(toDate)
+                                    )
+                                    .toList();
+
+                        }
+                    }
+
+                    List<StudentFeeReportDataDTO> studentFeeReportDataDTOS = feePaymentEntities.stream()
                             .map(s -> modelMapper.map(s, StudentFeeReportDataDTO.class))
                             .collect(Collectors.toUnmodifiableList());
 
@@ -394,5 +424,6 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         result.put("Total elements", totalElement);
         return result;
     }
+
 
 }

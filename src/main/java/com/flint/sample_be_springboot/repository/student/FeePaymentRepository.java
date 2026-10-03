@@ -6,6 +6,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Repository
 public interface FeePaymentRepository extends JpaRepository<FeePaymentEntity, Long>, JpaSpecificationExecutor<FeePaymentEntity> {
 
@@ -14,4 +17,16 @@ public interface FeePaymentRepository extends JpaRepository<FeePaymentEntity, Lo
         FROM FeePaymentEntity f
         """)
     String findLastReceiptNo();
+
+//    List<FeePaymentEntity>
+//    findByPaymentDateBetweenAndStudentFeeEntity_StudentEntity_StudentId(
+//            LocalDate fromDate,
+//            LocalDate toDate,
+//            Long studentId
+//    );
+//
+//    List<FeePaymentEntity>
+//    findByStudentFeeEntity_StudentEntity_StudentId(
+//            Long studentId
+//    );
 }
