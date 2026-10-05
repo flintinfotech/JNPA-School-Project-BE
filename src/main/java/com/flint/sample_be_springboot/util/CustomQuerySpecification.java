@@ -30,6 +30,7 @@ public class CustomQuerySpecification<T> implements Specification<T> {
         JOIN_FIELDS.put("admissionDate", "academicInformationEntity");
         JOIN_FIELDS.put("standard", "academicInformationEntity");
         JOIN_FIELDS.put("section", "academicInformationEntity");
+        JOIN_FIELDS.put("division", "academicInformationEntity");//
         JOIN_FIELDS.put("rollNo", "academicInformationEntity");
         JOIN_FIELDS.put("academicYear", "academicInformationEntity");
 

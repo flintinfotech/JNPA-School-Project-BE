@@ -78,6 +78,10 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
             throw new CustomException("Student fee record should not be null", HttpStatus.NOT_FOUND);
         }
 
+    if (studentFeeDTO.getTotalFeeAmount().compareTo(studentFeeDTO.getPaidAmount()) <= 0){
+        throw new CustomException("Paid amount cannot be greater than total amount", HttpStatus.PRECONDITION_FAILED);
+    }
+
         StudentEntity studentEntity = studentRepository.findById(studentFeeDTO.getStudentId())
                 .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
@@ -151,6 +155,10 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
         if (studentFeeDTO == null) {
             throw new CustomException("Student fee record should not be null", HttpStatus.PRECONDITION_FAILED);
+        }
+
+        if (studentFeeDTO.getTotalFeeAmount().compareTo(studentFeeDTO.getPaidAmount()) <= 0){
+            throw new CustomException("Paid amount cannot be greater than total amount", HttpStatus.PRECONDITION_FAILED);
         }
 
         StudentFeeEntity existingStudentFeeEntity = studentFeeRepository.findById(studentFeeDTO.getStudentFeeId())
@@ -346,6 +354,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
     public Map<String, Object> getStudentFeeReportData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
 
         log.info("Enter into getStudentFeeReportData");
+
         Page<StudentEntity> studentEntityPage;
         List<StudentEntity> studentEntities;
         long totalElement;
@@ -355,7 +364,7 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
         String academicYear = startYear.concat("-").concat(endYear);
 
-        filter.put("academicYear",academicYear);
+        filter.put("academicYear", academicYear);
 
         CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
@@ -363,63 +372,74 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
             studentEntityPage = studentRepository.findAll(customQuerySpecification, pageable);
             studentEntities = studentEntityPage.getContent();
             totalElement = studentEntityPage.getTotalElements();
+
         } else {
             studentEntities = studentRepository.findAll(customQuerySpecification);
             totalElement = studentEntities.size();
         }
 
+        // Date filter
+        LocalDate fromDate = null;
+        LocalDate toDate = null;
+
+        if (filter.containsKey("fromDate") && filter.containsKey("toDate")) {
+
+            fromDate = LocalDate.parse(String.valueOf(filter.get("fromDate")));
+            toDate = LocalDate.parse(String.valueOf(filter.get("toDate")));
+        }
+
+        final LocalDate finalFromDate = fromDate;
+        final LocalDate finalToDate = toDate;
+
         List<StudentFeeReportDTO> studentFeeReportDTOS = studentEntities.stream()
                 .map(existingEntity -> {
 
-//                    String startYear = String.valueOf(getStartDate().getYear());
-//                    String endYear = String.valueOf(getEndDate().getYear());
-//                    String academicYear = startYear.concat("-").concat(endYear);
-
                     StudentFeeReportDTO studentFeeReportDTO = new StudentFeeReportDTO();
-
                     studentFeeReportDTO.setFirstName(existingEntity.getFirstName());
                     studentFeeReportDTO.setLastName(existingEntity.getLastName());
                     studentFeeReportDTO.setGender(existingEntity.getGender());
                     studentFeeReportDTO.setPhone(existingEntity.getPhone());
 
+                    /*
+                     * Get all fee records of this student  for the selected academic year.
+                     */
                     List<StudentFeeEntity> studentFeeEntities = studentFeeRepository
                             .findByAcademicYearAndStudentEntity_StudentId(academicYear, existingEntity.getStudentId());
 
-                    List<FeePaymentEntity> feePaymentEntities = new ArrayList<>();
+//                     * Calculate COMPLETE FEE of the student.
 
-                    for (StudentFeeEntity studentFeeEntity : studentFeeEntities) {
+                    BigDecimal totalFeeAmount = studentFeeEntities.stream()
+                            .filter(Objects::nonNull)
+                            .map(StudentFeeEntity::getTotalFeeAmount)
+                            .filter(Objects::nonNull)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                        feePaymentEntities = studentFeeEntity.getFeePaymentEntities();
+                    BigDecimal paidAmount = studentFeeEntities.stream()
+                            .filter(Objects::nonNull)
+                            .map(StudentFeeEntity::getPaidAmount)
+                            .filter(Objects::nonNull)
+                            .reduce(BigDecimal.ZERO, BigDecimal::add);
 
-                        if (filter.containsKey("fromDate") && filter.containsKey("toDate")) {
+                    BigDecimal pendingAmount = totalFeeAmount.subtract(paidAmount);
 
-                            LocalDate fromDate = LocalDate.parse((String) filter.get("fromDate"));
-                            LocalDate toDate = LocalDate.parse((String) filter.get("toDate"));
+//                      Create only ONE DTO for the student.
+                    StudentFeeReportDataDTO studentFeeReportDataDTO = new StudentFeeReportDataDTO();
 
-                            feePaymentEntities = feePaymentEntities.stream()
-                                    .filter(payment -> payment.getPaymentDate() != null)
-                                    .filter(payment ->
-                                            !payment.getPaymentDate().isBefore(fromDate)
-                                                    && !payment.getPaymentDate().isAfter(toDate)
-                                    )
-                                    .toList();
-
-                        }
-                    }
-
-                    List<StudentFeeReportDataDTO> studentFeeReportDataDTOS = feePaymentEntities.stream()
-                            .map(s -> modelMapper.map(s, StudentFeeReportDataDTO.class))
-                            .collect(Collectors.toUnmodifiableList());
-
-                    studentFeeReportDTO.setFeeReportDataDTOS(studentFeeReportDataDTOS);
+                    studentFeeReportDataDTO.setAcademicYear(academicYear);
+                    studentFeeReportDataDTO.setTotalFeeAmount(totalFeeAmount);
+                    studentFeeReportDataDTO.setPaidAmount(paidAmount);
+                    studentFeeReportDataDTO.setPendingAmount(pendingAmount);
+                    studentFeeReportDTO.setFeeReportDataDTOS(List.of(studentFeeReportDataDTO));
 
                     return studentFeeReportDTO;
-                }).collect(Collectors.toUnmodifiableList());
 
+                })
+                .toList();
 
         log.info("Exit from getStudentFeeReportData");
 
         Map<String, Object> result = new HashMap<>();
+
         result.put("Data", studentFeeReportDTOS);
         result.put("Total elements", totalElement);
         return result;

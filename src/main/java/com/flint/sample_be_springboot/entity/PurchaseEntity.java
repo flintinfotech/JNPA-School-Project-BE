@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Fetch;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -35,4 +36,6 @@ public class PurchaseEntity {
     @Column(name = "PRODUCT_NAME", nullable = false)
     private String productName;
 
+    @OneToMany(mappedBy = "purchaseEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<RequestApprovalEntity> requestApprovalEntity;
 }
