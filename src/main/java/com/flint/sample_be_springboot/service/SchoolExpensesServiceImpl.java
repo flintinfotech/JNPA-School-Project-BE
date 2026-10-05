@@ -1,14 +1,10 @@
 package com.flint.sample_be_springboot.service;
 
-import com.flint.sample_be_springboot.dto.PurchaseDTO;
 import com.flint.sample_be_springboot.dto.SchoolExpensesDTO;
 import com.flint.sample_be_springboot.dto.SchoolExpensesReportDTO;
-import com.flint.sample_be_springboot.dto.SchoolExpensesReportDataDTO;
-import com.flint.sample_be_springboot.entity.PurchaseEntity;
 import com.flint.sample_be_springboot.entity.SchoolExpensesEntity;
 import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.exception.CustomException;
-import com.flint.sample_be_springboot.repository.PurchaseRepository;
 import com.flint.sample_be_springboot.repository.SchoolExpensesRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
@@ -34,9 +30,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
     @Autowired
     private SchoolExpensesRepository schoolExpensesRepository;
 
-    @Autowired
-    private PurchaseRepository purchaseRepository;
-
     @Override
     public SchoolExpensesDTO saveSchoolExpenses(SchoolExpensesDTO schoolExpensesDTO) {
         log.info("Enter into saveSchoolExpenses");
@@ -46,9 +39,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         }
 
         SchoolExpensesEntity schoolExpensesEntity = modelMapper.map(schoolExpensesDTO, SchoolExpensesEntity.class);
-
-        PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId())
-                .orElseThrow(() -> new CustomException("Product not found", HttpStatus.PRECONDITION_FAILED));
 
         // Calculate pending amount automatically
         BigDecimal total = schoolExpensesDTO.getTotal() != null
@@ -72,17 +62,16 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         schoolExpensesEntity.setPendingAmount(pendingAmount);
         schoolExpensesEntity.setTotal(total);
         schoolExpensesEntity.setPaidAmount(paidAmount);
-        schoolExpensesEntity.setPurchaseEntity(purchaseEntity);
         schoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
 
+        // set audit details
+        schoolExpensesEntity.setAuditDetails(addAuditDetails(schoolExpensesEntity.getAuditDetails()));
 
         //save
         SchoolExpensesEntity savedSchoolExpensesEntity = schoolExpensesRepository.save(schoolExpensesEntity);
-        PurchaseDTO purchaseDTO = modelMapper.map(savedSchoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
 
         // Convert to DTO
         SchoolExpensesDTO expensesDTO = modelMapper.map(savedSchoolExpensesEntity, SchoolExpensesDTO.class);
-        expensesDTO.setPurchaseDTO(purchaseDTO);
 
         log.info("Exit from saveSchoolExpenses");
 
@@ -102,15 +91,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
         SchoolExpensesDTO schoolExpensesDTO = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
 
-        PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId())
-                .orElseThrow(() -> new CustomException("Product not found", HttpStatus.PRECONDITION_FAILED));
-
-        schoolExpensesEntity.setPurchaseEntity(purchaseEntity);
-
-        PurchaseDTO purchaseDTO = modelMapper.map(schoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
-        schoolExpensesDTO.setPurchaseDTO(purchaseDTO);
-
-
         log.info("Exit from getSchoolExpenses");
         return schoolExpensesDTO;
     }
@@ -124,10 +104,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         }
         SchoolExpensesEntity existingSchoolExpensesEntity = schoolExpensesRepository.findById(schoolExpensesDTO.getSchoolExpenseId())
                 .orElseThrow(() -> new CustomException("Product not found", HttpStatus.NOT_FOUND));
-
-        PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId())
-                .orElseThrow(() -> new CustomException("Product not found", HttpStatus.PRECONDITION_FAILED));
-
 
         // Calculate pending amount automatically
         BigDecimal total = schoolExpensesDTO.getTotal() != null
@@ -149,8 +125,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
             existingSchoolExpensesEntity.setStatus(FeePayment.PARTIAL);
         }
 
-        existingSchoolExpensesEntity.setPurchaseEntity(purchaseEntity);
-
         //update
         existingSchoolExpensesEntity.setQuantity(schoolExpensesDTO.getQuantity());
         existingSchoolExpensesEntity.setPrice(schoolExpensesDTO.getPrice());
@@ -160,13 +134,14 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         existingSchoolExpensesEntity.setPurchaseDate(schoolExpensesDTO.getPurchaseDate());
         existingSchoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
 
+        // set audit details
+        existingSchoolExpensesEntity.setAuditDetails(addAuditDetails(existingSchoolExpensesEntity.getAuditDetails()));
+
         //save
         SchoolExpensesEntity updatedSchoolExpensesEntity = schoolExpensesRepository.save(existingSchoolExpensesEntity);
-        PurchaseDTO purchaseDTO = modelMapper.map(updatedSchoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
 
         //convert to DTO
         SchoolExpensesDTO expensesDTO = modelMapper.map(updatedSchoolExpensesEntity, SchoolExpensesDTO.class);
-        expensesDTO.setPurchaseDTO(purchaseDTO);
 
         log.info("Exit from updateSchoolExpenses");
         return expensesDTO;
@@ -192,7 +167,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
     public Map<String, Object> getAllSchoolExpensesByFilter(Map<String, Object> filter, Pageable pageable, boolean paginate) {
         log.info("Enter into getAllSchoolExpensesByFilter");
 
-
         Page<SchoolExpensesEntity> schoolExpensesEntityPage;
         List<SchoolExpensesEntity> schoolExpensesEntities;
         long totalElement;
@@ -213,15 +187,6 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
                     SchoolExpensesDTO schoolExpensesDTO = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
 
-                    // PurchaseEntity -> PurchaseDTO
-                    if (schoolExpensesEntity.getPurchaseEntity() != null) {
-
-                        PurchaseDTO purchaseDTO = modelMapper.map(schoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
-                        schoolExpensesDTO.setPurchaseDTO(purchaseDTO);
-
-                        // Set purchaseId
-                        schoolExpensesDTO.setPurchaseId(schoolExpensesEntity.getPurchaseEntity().getPurchaseId());
-                    }
                     return schoolExpensesDTO;
 
                 })
@@ -247,53 +212,33 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
         filter.put("academicYear", academicYear);
 
-        Page<PurchaseEntity> purchaseEntityPage;
-        List<PurchaseEntity> purchaseEntities;
+        Page<SchoolExpensesEntity> purchaseEntityPage;
+        List<SchoolExpensesEntity> purchaseEntities;
         long totalElement;
 
-        CustomQuerySpecification<PurchaseEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+        CustomQuerySpecification<SchoolExpensesEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {
-            purchaseEntityPage = purchaseRepository.findAll(customQuerySpecification, pageable);
+            purchaseEntityPage = schoolExpensesRepository.findAll(customQuerySpecification, pageable);
             purchaseEntities = purchaseEntityPage.getContent();
             totalElement = purchaseEntityPage.getTotalElements();
         } else {
-            purchaseEntities = purchaseRepository.findAll(customQuerySpecification);
+            purchaseEntities = schoolExpensesRepository.findAll(customQuerySpecification);
             totalElement = purchaseEntities.size();
         }
 
         List<SchoolExpensesReportDTO> reportDTOList = purchaseEntities.stream()
                 .map(purchaseEntity -> {
-                    SchoolExpensesReportDTO reportDTO = new SchoolExpensesReportDTO();
+                    SchoolExpensesReportDTO reportDTO = modelMapper.map(purchaseEntity, SchoolExpensesReportDTO.class);
 
-                    reportDTO.setProductCode(purchaseEntity.getProductCode());
-                    reportDTO.setProductName(purchaseEntity.getProductName());
-                    reportDTO.setCategory(purchaseEntity.getCategory());
-
-                    List<SchoolExpensesReportDataDTO> reportDataDTOList = purchaseEntity.getSchoolExpensesEntities()
-                            .stream()
-
-                            // Academic year filter
-                            .filter(expenseEntity ->
-                                    academicYear == null || academicYear.isBlank() || academicYear.equals(expenseEntity.getAcademicYear()))
-
-                            .map(expenseEntity ->
-                                    modelMapper.map(expenseEntity, SchoolExpensesReportDataDTO.class))
-                            .toList();
-
-                    reportDTO.setReportDataDTOList(reportDataDTOList);
                     return reportDTO;
                 })
-
-                // Remove products having no matching expense
-                .filter(reportDTO ->
-                        reportDTO.getReportDataDTOList() != null && !reportDTO.getReportDataDTOList().isEmpty())
                 .toList();
 
         Map<String, Object> result = new HashMap<>();
 
         result.put("Data", reportDTOList);
-        result.put("total", reportDTOList.size());
+        result.put("total", totalElement);
         log.info("Exit from getSchoolExpensesReportData");
 
         return result;
