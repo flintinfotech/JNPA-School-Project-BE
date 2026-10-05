@@ -1,6 +1,7 @@
 package com.flint.sample_be_springboot.dto;
 
 import com.flint.sample_be_springboot.enums.FeePayment;
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,10 +16,11 @@ public class SchoolExpensesDTO {
     private BigDecimal total;
     private BigDecimal paidAmount;
     private BigDecimal pendingAmount;
-    private Long purchaseId;
     private String academicYear;
     private LocalDate purchaseDate;
     private FeePayment status;
-    private PurchaseDTO purchaseDTO;
 
+    private  String productCode;
+    private String category;
+    private String productName;
 }

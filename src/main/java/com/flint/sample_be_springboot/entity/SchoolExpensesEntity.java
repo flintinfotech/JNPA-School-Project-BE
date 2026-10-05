@@ -40,16 +40,24 @@ public class SchoolExpensesEntity {
     @Column(name = "PURCHASE_DATE")
     private LocalDate purchaseDate;
 
-    @Column(name = "ACADEMIC_YEAR") //
-    private String academicYear;   //
+    @Column(name = "ACADEMIC_YEAR")
+    private String academicYear;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS")
     private FeePayment status;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "PURCHASE_ID")
-    private PurchaseEntity purchaseEntity;
+    @Column(name = "PRODUCT_CODE", nullable = false)
+    private  String productCode;
+
+    @Column(name = "CATEGORY", nullable = false)
+    private String category;
+
+    @Column(name = "PRODUCT_NAME", nullable = false)
+    private String productName;
+
+    @Embedded
+    private AuditDetails auditDetails;
 
 }
 

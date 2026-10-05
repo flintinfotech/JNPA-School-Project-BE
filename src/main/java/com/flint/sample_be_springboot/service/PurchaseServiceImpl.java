@@ -121,10 +121,7 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
         PurchaseEntity purchaseEntity = purchaseRepository.findById(purchaseId)
                 .orElseThrow(() -> new CustomException("Purchase not found", HttpStatus.NOT_FOUND));
 
-        List<SchoolExpensesEntity> schoolExpensesEntities = schoolExpensesRepository.findByPurchaseEntity_PurchaseId(purchaseId);
-        if(schoolExpensesEntities != null && !schoolExpensesEntities.isEmpty()){
-            throw new CustomException("This Purchase master is used in school expenses, can't delete it", HttpStatus.BAD_REQUEST);
-        }
+        // validations before delete
 
         purchaseRepository.delete(purchaseEntity);
         log.info("Exit from deletePurchase");
