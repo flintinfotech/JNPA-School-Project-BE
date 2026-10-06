@@ -59,5 +59,10 @@ public class SchoolExpensesEntity {
     @Embedded
     private AuditDetails auditDetails;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "VENDOR_MASTER_ID")
+    private VendorMasterEntity vendorMasterEntity;
+
+
 }
 
