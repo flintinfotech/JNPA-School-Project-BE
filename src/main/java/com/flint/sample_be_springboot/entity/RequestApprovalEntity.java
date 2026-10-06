@@ -1,9 +1,7 @@
 package com.flint.sample_be_springboot.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -12,6 +10,8 @@ import java.time.LocalDate;
 @Table(name = "REQUEST_APPROVAL_ENTITY")
 @AllArgsConstructor
 @NoArgsConstructor
+@Getter
+@Setter
 public class RequestApprovalEntity {
 
     @Id
