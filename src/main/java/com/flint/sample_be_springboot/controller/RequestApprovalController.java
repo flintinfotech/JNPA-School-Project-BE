@@ -19,7 +19,7 @@ public class RequestApprovalController {
 
 
     @GetMapping("/getRequestApproval/{requestApprovalId}")
-    public ResponseEntity<?> getSchoolExpenses(@PathVariable Long requestApprovalId) {
+    public ResponseEntity<?> getRequestApproval(@PathVariable Long requestApprovalId) {
         RequestApprovalDTO requestApprovalDTO = requestApprovalService.getRequestApproval(requestApprovalId);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data found successfully").data(requestApprovalDTO).build());
     }

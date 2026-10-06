@@ -300,13 +300,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         log.info("Enter into updateStudent");
 
         if (studentDTO == null) {
-            throw new CustomException("Student info cannot be null",
-                    HttpStatus.PRECONDITION_FAILED);
+            throw new CustomException("Student info cannot be null",HttpStatus.PRECONDITION_FAILED);
         }
 
         StudentEntity existingStudentEntity = studentRepository.findById(studentDTO.getStudentId())
-                .orElseThrow(() ->
-                        new CustomException("Student not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() ->new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
         if (StudentStatus.PASSED_OUT.equals(studentDTO.getStatus()) ||
                 StudentStatus.TRANSFERRED.equals(studentDTO.getStatus()) ||
@@ -850,8 +848,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         log.info("Enter into deleteStudent");
 
         StudentEntity studentEntity = studentRepository.findById(studentId)
-                .orElseThrow(() ->
-                        new CustomException("Student not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() ->  new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
         // Get associated user
         UserEntity userEntity = studentEntity.getUserEntity();
