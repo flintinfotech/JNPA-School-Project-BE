@@ -38,4 +38,7 @@ public class PurchaseEntity {
 
     @OneToMany(mappedBy = "purchaseEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RequestApprovalEntity> requestApprovalEntity;
+
+    @OneToMany(mappedBy = "purchaseEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<SchoolExpensesEntity> schoolExpensesEntities;
 }

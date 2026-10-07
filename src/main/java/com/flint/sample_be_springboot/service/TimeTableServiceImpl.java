@@ -153,6 +153,7 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
             if (periodDTO.getEmployeeDetailsId() != null) {
 
+
                 EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
                         .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
 

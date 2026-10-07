@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto;
 
+import com.flint.sample_be_springboot.entity.AuditDetails;
 import lombok.Data;
 
 @Data
@@ -18,7 +19,6 @@ public class VendorMasterDTO {
     private String vendorType;
     private String remark;
     private String academicYear;
-    private SchoolExpensesDTO schoolExpensesDTO;
 
 
 }
