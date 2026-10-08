@@ -153,9 +153,20 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
             if (periodDTO.getEmployeeDetailsId() != null) {
 
-
                 EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
                         .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+
+                long conflictCount = timeTablePeriodRepository.countTeacherTimeConflict(timeTableDTO.getAcademicYear(),
+                        periodDTO.getEmployeeDetailsId(),
+                        periodDTO.getDay().name(),
+                        periodDTO.getStartTime(),
+                        periodDTO.getEndTime()
+                );
+
+                if (conflictCount > 0) {
+                    String teacherName = employeeDetailsEntity.getFirstName();
+                    throw new CustomException("Teacher " + teacherName + " is already assigned to another class at this time.", HttpStatus.CONFLICT);
+                }
 
                 periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
             }
@@ -388,10 +399,31 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 //                    throw new CustomException("Teacher can't be null", HttpStatus.BAD_REQUEST);
 //                }
 //
-                if (periodDTO.getEmployeeDetailsId() != null) {
-                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
-                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+//                if (periodDTO.getEmployeeDetailsId() != null) {
+//                    EmployeeDetailsEntity employeeDetailsEntity = employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
+//                            .orElseThrow(() -> new CustomException("Teacher not found", HttpStatus.NOT_FOUND));
+//
+//                    periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
+//                }
 
+                if (periodDTO.getEmployeeDetailsId() != null) {
+
+                    EmployeeDetailsEntity employeeDetailsEntity =employeeDetailsRepository.findById(periodDTO.getEmployeeDetailsId())
+                                    .orElseThrow(() ->new CustomException("Teacher not found",HttpStatus.NOT_FOUND));
+
+                    long conflictCount =timeTablePeriodRepository.countTeacherTimeConflictForUpdate(
+                                    timeTableDTO.getAcademicYear(),
+                                    periodDTO.getEmployeeDetailsId(),
+                                    periodDTO.getDay().name(),
+                                    periodDTO.getStartTime().toString(),
+                                    periodDTO.getEndTime().toString(),
+                                    periodDTO.getTimeTablePeriodId()
+                            );
+
+                    if (conflictCount > 0) {
+                        throw new CustomException("Teacher " + employeeDetailsEntity.getFirstName()
+                                        + " is already assigned to another class at this time.",HttpStatus.CONFLICT);
+                    }
                     periodEntity.setEmployeeDetailsEntity(employeeDetailsEntity);
                 }
                 periodEntity.setTimeTableEntity(existingTimeTable);

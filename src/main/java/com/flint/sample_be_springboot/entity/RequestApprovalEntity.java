@@ -44,6 +44,12 @@ public class RequestApprovalEntity {
     @Column(name = "ACADEMIC_YEAR")
     private String academicYear;
 
+    @Column(name = "CANCELLATION_REASON")
+    private String cancellationReason;
+
+    @Column(name = "ORDER_NUMBER")
+    private String orderNumber;
+
     @Embedded
     private AuditDetails auditDetails;
 

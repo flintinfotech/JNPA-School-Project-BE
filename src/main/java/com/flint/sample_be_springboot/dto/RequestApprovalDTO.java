@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.dto;
 
+import jakarta.persistence.Column;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -18,4 +19,7 @@ public class RequestApprovalDTO {
     private String status;
     private String academicYear;
     private PurchaseDTO purchaseDTO;
+    private String cancellationReason;
+    private String orderNumber;
+
 }

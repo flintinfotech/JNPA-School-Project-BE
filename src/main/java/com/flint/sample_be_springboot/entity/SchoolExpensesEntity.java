@@ -57,6 +57,10 @@ public class SchoolExpensesEntity {
     @Column(name = "PRODUCT_NAME", nullable = false)
     private String productName;
 
+
+    @Column(name = "ORDER_NUMBER")
+    private String orderNumber;
+
     @Lob
     @Column(name = "DOCUMENT")
     private byte[] document;

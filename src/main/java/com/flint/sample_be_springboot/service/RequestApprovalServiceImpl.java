@@ -4,11 +4,13 @@ import com.flint.sample_be_springboot.dto.PurchaseDTO;
 import com.flint.sample_be_springboot.dto.RequestApprovalDTO;
 import com.flint.sample_be_springboot.entity.PurchaseEntity;
 import com.flint.sample_be_springboot.entity.RequestApprovalEntity;
+import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.PurchaseRepository;
 import com.flint.sample_be_springboot.repository.RequestApprovalRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
+import com.flint.sample_be_springboot.util.GenerateCodes;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -50,6 +52,10 @@ public class RequestApprovalServiceImpl extends BaseService implements RequestAp
 
             requestApprovalEntity.setPurchaseEntity(purchaseEntity);
         }
+
+        requestApprovalEntity.setStatus(String.valueOf(FeePayment.PENDING));
+
+        requestApprovalEntity.setAuditDetails(addAuditDetails(requestApprovalEntity.getAuditDetails()));
 
         RequestApprovalEntity savedEntity = requestApprovalRepository.save(requestApprovalEntity);
 
@@ -106,20 +112,16 @@ public class RequestApprovalServiceImpl extends BaseService implements RequestAp
         requestApprovalEntity.setAcademicYear(requestApprovalDTO.getAcademicYear());
         requestApprovalEntity.setEstimatedAmount(requestApprovalDTO.getEstimatedAmount());
         requestApprovalEntity.setRemark(requestApprovalDTO.getRemark());
+        requestApprovalEntity.setCancellationReason(requestApprovalDTO.getCancellationReason());
+        requestApprovalEntity.setOrderNumber(requestApprovalDTO.getOrderNumber());
+        requestApprovalEntity.setAuditDetails(addAuditDetails(requestApprovalEntity.getAuditDetails()));
 
-        if (requestApprovalDTO.getPurchaseDTO() != null) {
-            if (requestApprovalEntity.getPurchaseEntity() == null) {
-                throw new CustomException("Purchase information not found for this request", HttpStatus.PRECONDITION_FAILED);
-            }
+        if (requestApprovalDTO.getStatus().equalsIgnoreCase("APPROVED")){
 
-            PurchaseEntity purchaseEntity = requestApprovalEntity.getPurchaseEntity();
+            String lastOrderNo = requestApprovalRepository.findLastOrderNumber();
+            String nextOrderNo = GenerateCodes.generatePurchaseOrderNumber(lastOrderNo);
+            requestApprovalEntity.setOrderNumber(nextOrderNo);
 
-            purchaseEntity.setProductName(requestApprovalDTO.getPurchaseDTO().getProductName());
-            purchaseEntity.setProductCode(requestApprovalDTO.getPurchaseDTO().getProductCode());
-            purchaseEntity.setPurchaseDate(requestApprovalDTO.getPurchaseDTO().getPurchaseDate());
-            purchaseEntity.setCategory(requestApprovalDTO.getPurchaseDTO().getCategory());
-
-            purchaseRepository.save(purchaseEntity);
         }
 
         RequestApprovalEntity savedRequestApprovalEntity = requestApprovalRepository.save(requestApprovalEntity);

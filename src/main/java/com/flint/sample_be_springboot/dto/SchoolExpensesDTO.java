@@ -22,6 +22,8 @@ public class SchoolExpensesDTO {
     private String productCode;
     private String category;
     private String productName;
+    private String orderNumber;
+
 
     private String document;
 

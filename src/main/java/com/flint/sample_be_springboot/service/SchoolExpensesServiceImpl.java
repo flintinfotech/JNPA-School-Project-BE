@@ -194,6 +194,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         existingSchoolExpensesEntity.setTotal(total);
         existingSchoolExpensesEntity.setPurchaseDate(schoolExpensesDTO.getPurchaseDate());
         existingSchoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
+        existingSchoolExpensesEntity.setOrderNumber(schoolExpensesDTO.getOrderNumber());
 
 
         //set document

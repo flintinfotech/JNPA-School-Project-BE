@@ -63,5 +63,21 @@ public class GenerateCodes {
         return receiptNo;
     }
 
+    //Generate  purchase order Number
+
+    public static String generatePurchaseOrderNumber(String lastOrderNumber) {
+
+        int nextCodeNum = 1;
+
+        if (lastOrderNumber != null) {
+            //For taking last 3 digits of previous purchase order number code and incrementing it by 1
+            String numericPart = lastOrderNumber.substring(3);
+            nextCodeNum = Integer.parseInt(numericPart) + 1;
+        }
+        String nextCode = String.format("ORD%03d", nextCodeNum); // e.g., ORD006
+
+        return nextCode;
+    }
+
 
 }
