@@ -48,7 +48,6 @@ public interface TimeTablePeriodRepository extends JpaRepository<TimeTablePeriod
       AND tp.DAY = :day
       AND tp.START_TIME < CAST(:endTime AS TIME)
       AND tp.END_TIME > CAST(:startTime AS TIME)
-      AND tp.TIME_TABLE_PERIOD_ID <> :timeTablePeriodId
     """, nativeQuery = true)
     long countTeacherTimeConflictForUpdate(
             @Param("academicYear") String academicYear,
@@ -60,4 +59,5 @@ public interface TimeTablePeriodRepository extends JpaRepository<TimeTablePeriod
     );
     }
 
+//AND tp.TIME_TABLE_PERIOD_ID <> :timeTablePeriodId
 
