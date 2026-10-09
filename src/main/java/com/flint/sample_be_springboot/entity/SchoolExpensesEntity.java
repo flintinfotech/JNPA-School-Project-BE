@@ -9,6 +9,7 @@ import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Base64;
 
 @Entity
 @Table(name = "SCHOOL_EXPENSES")
@@ -56,8 +57,31 @@ public class SchoolExpensesEntity {
     @Column(name = "PRODUCT_NAME", nullable = false)
     private String productName;
 
+
+    @Column(name = "ORDER_NUMBER")
+    private String orderNumber;
+
+    @Lob
+    @Column(name = "DOCUMENT")
+    private byte[] document;
+
     @Embedded
     private AuditDetails auditDetails;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "VENDOR_MASTER_ID")
+    private VendorMasterEntity vendorMasterEntity;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "PURCHASE_ID")
+    private PurchaseEntity purchaseEntity;
+
+    public String getDocument() {
+        if (document != null) {
+            return Base64.getEncoder().encodeToString(document);
+        }
+        return null;
+    }
 
 }
 

@@ -1,11 +1,17 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.PurchaseDTO;
 import com.flint.sample_be_springboot.dto.SchoolExpensesDTO;
 import com.flint.sample_be_springboot.dto.SchoolExpensesReportDTO;
+import com.flint.sample_be_springboot.dto.VendorMasterDTO;
+import com.flint.sample_be_springboot.entity.PurchaseEntity;
 import com.flint.sample_be_springboot.entity.SchoolExpensesEntity;
+import com.flint.sample_be_springboot.entity.VendorMasterEntity;
 import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.PurchaseRepository;
 import com.flint.sample_be_springboot.repository.SchoolExpensesRepository;
+import com.flint.sample_be_springboot.repository.VendorMasterRepository;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
@@ -17,6 +23,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.util.Base64;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +36,12 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
     ModelMapper modelMapper = new ModelMapper();
     @Autowired
     private SchoolExpensesRepository schoolExpensesRepository;
+
+    @Autowired
+    private VendorMasterRepository vendorMasterRepository;
+
+    @Autowired
+    private PurchaseRepository purchaseRepository;
 
     @Override
     public SchoolExpensesDTO saveSchoolExpenses(SchoolExpensesDTO schoolExpensesDTO) {
@@ -64,6 +77,19 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         schoolExpensesEntity.setPaidAmount(paidAmount);
         schoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
 
+        //set document
+        if (schoolExpensesDTO.getDocument() !=null){
+           schoolExpensesEntity.setDocument(Base64.getDecoder().decode(schoolExpensesEntity.getDocument()));
+        }
+
+        // set vendor
+        VendorMasterEntity vendorMaster = vendorMasterRepository.findById(schoolExpensesDTO.getVendorMasterId()).get();
+        schoolExpensesEntity.setVendorMasterEntity(vendorMaster);
+
+        //set purchase
+        PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId()).get();
+        schoolExpensesEntity.setPurchaseEntity(purchaseEntity);
+
         // set audit details
         schoolExpensesEntity.setAuditDetails(addAuditDetails(schoolExpensesEntity.getAuditDetails()));
 
@@ -72,6 +98,15 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
         // Convert to DTO
         SchoolExpensesDTO expensesDTO = modelMapper.map(savedSchoolExpensesEntity, SchoolExpensesDTO.class);
+        expensesDTO.setDocument(savedSchoolExpensesEntity.getDocument());
+
+        VendorMasterDTO vendorMasterDTO = modelMapper.map(savedSchoolExpensesEntity.getVendorMasterEntity(), VendorMasterDTO.class);
+        expensesDTO.setVendorMasterDTO(vendorMasterDTO);
+        expensesDTO.setVendorMasterId(vendorMasterDTO.getVendorMasterId());
+
+        PurchaseDTO purchaseDTO = modelMapper.map(savedSchoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
+        expensesDTO.setPurchaseDTO(purchaseDTO);
+        expensesDTO.setPurchaseId(purchaseDTO.getPurchaseId());
 
         log.info("Exit from saveSchoolExpenses");
 
@@ -89,7 +124,33 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         SchoolExpensesEntity schoolExpensesEntity = schoolExpensesRepository.findById(schoolExpenseId)
                 .orElseThrow(() -> new CustomException("Product not found with this id", HttpStatus.NOT_FOUND));
 
+
+        //set document
+        if (schoolExpensesEntity.getDocument()!=null){
+
+            schoolExpensesEntity.setDocument(Base64.getDecoder().decode(schoolExpensesEntity.getDocument()));
+        }
+
+        // set vendor
+        VendorMasterEntity vendorMaster = vendorMasterRepository.findById(schoolExpensesEntity.getVendorMasterEntity().getVendorMasterId()).get();
+        schoolExpensesEntity.setVendorMasterEntity(vendorMaster);
+
+        //set purchase
+        PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesEntity.getPurchaseEntity().getPurchaseId()).get();
+        schoolExpensesEntity.setPurchaseEntity(purchaseEntity);
+
+        // convert to DTO
         SchoolExpensesDTO schoolExpensesDTO = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
+
+        schoolExpensesDTO.setDocument(schoolExpensesEntity.getDocument());
+
+        VendorMasterDTO vendorMasterDTO = modelMapper.map(schoolExpensesEntity.getVendorMasterEntity(), VendorMasterDTO.class);
+        schoolExpensesDTO.setVendorMasterDTO(vendorMasterDTO);
+        schoolExpensesDTO.setVendorMasterId(vendorMasterDTO.getVendorMasterId());
+
+        PurchaseDTO purchaseDTO = modelMapper.map(schoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
+        schoolExpensesDTO.setPurchaseDTO(purchaseDTO);
+        schoolExpensesDTO.setPurchaseId(purchaseDTO.getPurchaseId());
 
         log.info("Exit from getSchoolExpenses");
         return schoolExpensesDTO;
@@ -133,6 +194,24 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         existingSchoolExpensesEntity.setTotal(total);
         existingSchoolExpensesEntity.setPurchaseDate(schoolExpensesDTO.getPurchaseDate());
         existingSchoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
+        existingSchoolExpensesEntity.setOrderNumber(schoolExpensesDTO.getOrderNumber());
+
+
+        //set document
+        if (schoolExpensesDTO.getDocument() !=null){
+            existingSchoolExpensesEntity.setDocument(Base64.getDecoder().decode(existingSchoolExpensesEntity.getDocument()));
+        } else {
+            existingSchoolExpensesEntity.setDocument(null);
+        }
+
+        // set vendor
+        VendorMasterEntity vendorMaster = vendorMasterRepository.findById(schoolExpensesDTO.getVendorMasterId()).get();
+        existingSchoolExpensesEntity.setVendorMasterEntity(vendorMaster);
+
+        //set purchase
+        PurchaseEntity purchaseEntity = purchaseRepository.findById(schoolExpensesDTO.getPurchaseId()).get();
+        existingSchoolExpensesEntity.setPurchaseEntity(purchaseEntity);
+
 
         // set audit details
         existingSchoolExpensesEntity.setAuditDetails(addAuditDetails(existingSchoolExpensesEntity.getAuditDetails()));
@@ -142,6 +221,17 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
         //convert to DTO
         SchoolExpensesDTO expensesDTO = modelMapper.map(updatedSchoolExpensesEntity, SchoolExpensesDTO.class);
+
+        SchoolExpensesDTO schoolExpensesDTO1 = modelMapper.map(updatedSchoolExpensesEntity, SchoolExpensesDTO.class);
+        expensesDTO.setDocument(schoolExpensesDTO1.getDocument());
+
+        VendorMasterDTO vendorMasterDTO = modelMapper.map(updatedSchoolExpensesEntity.getVendorMasterEntity(), VendorMasterDTO.class);
+        expensesDTO.setVendorMasterDTO(vendorMasterDTO);
+        expensesDTO.setVendorMasterId(vendorMasterDTO.getVendorMasterId());
+
+        PurchaseDTO purchaseDTO = modelMapper.map(updatedSchoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
+        expensesDTO.setPurchaseDTO(purchaseDTO);
+        expensesDTO.setPurchaseId(purchaseDTO.getPurchaseId());
 
         log.info("Exit from updateSchoolExpenses");
         return expensesDTO;
@@ -186,6 +276,34 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
                 .map(schoolExpensesEntity -> {
 
                     SchoolExpensesDTO schoolExpensesDTO = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
+
+
+                    // set Document
+                    if (schoolExpensesEntity.getDocument() !=null){
+                        SchoolExpensesDTO schoolExpensesDTO1 = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
+                        schoolExpensesDTO.setDocument(schoolExpensesDTO1.getDocument());
+                    }
+                    //set vendor
+                    if (schoolExpensesEntity.getVendorMasterEntity() != null) {
+
+                        VendorMasterDTO vendorMasterDTO =modelMapper.map(schoolExpensesEntity.getVendorMasterEntity(),VendorMasterDTO.class);
+                        schoolExpensesDTO.setVendorMasterDTO(vendorMasterDTO);
+                        schoolExpensesDTO.setVendorMasterId(vendorMasterDTO.getVendorMasterId());
+                    } else {
+                        schoolExpensesDTO.setVendorMasterDTO(null);
+                        schoolExpensesDTO.setVendorMasterId(null);
+                    }
+
+                    // Set Purchase
+                    if (schoolExpensesEntity.getPurchaseEntity() != null) {
+
+                        PurchaseDTO purchaseDTO =modelMapper.map(schoolExpensesEntity.getPurchaseEntity(),PurchaseDTO.class);
+                        schoolExpensesDTO.setPurchaseDTO(purchaseDTO);
+                        schoolExpensesDTO.setPurchaseId(purchaseDTO.getPurchaseId());
+                    } else {
+                        schoolExpensesDTO.setPurchaseDTO(null);
+                        schoolExpensesDTO.setPurchaseId(null);
+                    }
 
                     return schoolExpensesDTO;
 
