@@ -9,9 +9,6 @@ import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
 import com.flint.sample_be_springboot.dto.student.*;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerExamSubjectsEntity;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentEntity;
-import com.flint.sample_be_springboot.entity.formerStudent.FormerStudentResultEntity;
 import com.flint.sample_be_springboot.entity.student.*;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.enums.StudentStatus;
@@ -154,21 +151,21 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 String normalizedAcademicYear = academicYear.trim().toLowerCase();
 
                 if (!academicYears.add(normalizedAcademicYear)) {
-                    throw new CustomException("Academic information already exists for academic year "+ academicYear,HttpStatus.BAD_REQUEST);
+                    throw new CustomException("Academic information already exists for academic year " + academicYear, HttpStatus.BAD_REQUEST);
                 }
 
                 AcademicInformationEntity academicInformationEntity =
-                        modelMapper.map(academicInformationDTO,AcademicInformationEntity.class);
+                        modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
 
                 academicInformationEntity.setStudentEntity(studentEntity);
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
 
                 //Setting Roll Number
-                Integer maxRollNumber =academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
-                                        academicInformationEntity.getStandard(),
-                                        academicInformationEntity.getDivision(),
-                                        academicInformationEntity.getMedium(),
-                                        academicInformationEntity.getAcademicYear());
+                Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+                        academicInformationEntity.getStandard(),
+                        academicInformationEntity.getDivision(),
+                        academicInformationEntity.getMedium(),
+                        academicInformationEntity.getAcademicYear());
 
                 Integer nextRollNumber;
 
@@ -242,13 +239,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student results
         List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
-        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
-            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
+        if (studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()) {
+            for (StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()) {
                 StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
 
                 List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
-                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                if (studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()) {
+                    for (ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()) {
                         ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
                         examSubjectsDTOS.add(examSubjectsDTO);
                     }
@@ -260,8 +257,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         savedDTO.setStudentResultDTOS(studentResultDTOS);
 
         List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
-        if(studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()){
-            for(StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()){
+        if (studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()) {
+            for (StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()) {
                 StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
                 studentAchievementsDTOS.add(achievementsDTO);
             }
@@ -269,13 +266,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         savedDTO.setStudentAchievementsDTOS(studentAchievementsDTOS);
 
         List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
-        if(savedEntity.getStudentFeeEntities() != null && !savedEntity.getStudentFeeEntities().isEmpty()){
-            for(StudentFeeEntity studentFeeEntity : savedEntity.getStudentFeeEntities()){
+        if (savedEntity.getStudentFeeEntities() != null && !savedEntity.getStudentFeeEntities().isEmpty()) {
+            for (StudentFeeEntity studentFeeEntity : savedEntity.getStudentFeeEntities()) {
                 StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
 
                 List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
-                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
-                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                if (studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()) {
+                    for (FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()) {
                         FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
                         feePaymentDTOS.add(feePaymentDTO);
                     }
@@ -300,11 +297,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         log.info("Enter into updateStudent");
 
         if (studentDTO == null) {
-            throw new CustomException("Student info cannot be null",HttpStatus.PRECONDITION_FAILED);
+            throw new CustomException("Student info cannot be null", HttpStatus.PRECONDITION_FAILED);
         }
 
         StudentEntity existingStudentEntity = studentRepository.findById(studentDTO.getStudentId())
-                .orElseThrow(() ->new CustomException("Student not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
         if (StudentStatus.PASSED_OUT.equals(studentDTO.getStatus()) ||
                 StudentStatus.TRANSFERRED.equals(studentDTO.getStatus()) ||
@@ -482,7 +479,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicEntity = new AcademicInformationEntity();
 
                 //Setting Roll Number
-                Integer maxRollNumber =academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+                Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
                         academicDTO.getStandard(),
                         academicDTO.getDivision(),
                         academicDTO.getMedium(),
@@ -563,7 +560,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         List<AcademicInformationDTO> academicInformationDTOs = new ArrayList<>();
         if (savedEntity.getAcademicInformationEntity() != null && !savedEntity.getAcademicInformationEntity().isEmpty()) {
             for (AcademicInformationEntity academicInformationEntity : savedEntity.getAcademicInformationEntity()) {
-                AcademicInformationDTO academicInformationDTO =modelMapper.map(academicInformationEntity, AcademicInformationDTO.class);
+                AcademicInformationDTO academicInformationDTO = modelMapper.map(academicInformationEntity, AcademicInformationDTO.class);
                 academicInformationDTOs.add(academicInformationDTO);
             }
         }
@@ -571,13 +568,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student results
         List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
-        if(savedEntity.getStudentResultEntities() != null && !savedEntity.getStudentResultEntities().isEmpty()){
-            for(StudentResultEntity studentResultEntity : savedEntity.getStudentResultEntities()){
+        if (savedEntity.getStudentResultEntities() != null && !savedEntity.getStudentResultEntities().isEmpty()) {
+            for (StudentResultEntity studentResultEntity : savedEntity.getStudentResultEntities()) {
                 StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
 
                 List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
-                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                if (studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()) {
+                    for (ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()) {
                         ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
                         examSubjectsDTOS.add(examSubjectsDTO);
                     }
@@ -590,8 +587,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student achievements
         List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
-        if(savedEntity.getStudentAchievementsEntities() != null && !savedEntity.getStudentAchievementsEntities().isEmpty()){
-            for(StudentAchievementsEntity studentAchievementsEntity : savedEntity.getStudentAchievementsEntities()){
+        if (savedEntity.getStudentAchievementsEntities() != null && !savedEntity.getStudentAchievementsEntities().isEmpty()) {
+            for (StudentAchievementsEntity studentAchievementsEntity : savedEntity.getStudentAchievementsEntities()) {
                 StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
                 studentAchievementsDTOS.add(achievementsDTO);
             }
@@ -600,13 +597,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student fees
         List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
-        if(savedEntity.getStudentFeeEntities() != null && !savedEntity.getStudentFeeEntities().isEmpty()){
-            for(StudentFeeEntity studentFeeEntity : savedEntity.getStudentFeeEntities()){
+        if (savedEntity.getStudentFeeEntities() != null && !savedEntity.getStudentFeeEntities().isEmpty()) {
+            for (StudentFeeEntity studentFeeEntity : savedEntity.getStudentFeeEntities()) {
                 StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
 
                 List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
-                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
-                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                if (studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()) {
+                    for (FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()) {
                         FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
                         feePaymentDTOS.add(feePaymentDTO);
                     }
@@ -663,7 +660,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             // 3. delete user record of deleted student from user table
 
             return null;
-        } else{
+        } else {
             return updatedStudentDTO;
         }
     }
@@ -773,8 +770,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student achievements
         List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
-        if(studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()){
-            for(StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()){
+        if (studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()) {
+            for (StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()) {
                 StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
                 studentAchievementsDTOS.add(achievementsDTO);
             }
@@ -848,7 +845,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         log.info("Enter into deleteStudent");
 
         StudentEntity studentEntity = studentRepository.findById(studentId)
-                .orElseThrow(() ->  new CustomException("Student not found", HttpStatus.NOT_FOUND));
+                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
 
         // Get associated user
         UserEntity userEntity = studentEntity.getUserEntity();
@@ -931,13 +928,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
                     // set student results
                     List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
-                    if(s.getStudentResultEntities() != null && !s.getStudentResultEntities().isEmpty()){
-                        for(StudentResultEntity studentResultEntity : s.getStudentResultEntities()){
+                    if (s.getStudentResultEntities() != null && !s.getStudentResultEntities().isEmpty()) {
+                        for (StudentResultEntity studentResultEntity : s.getStudentResultEntities()) {
                             StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
 
                             List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-                            if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
-                                for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                            if (studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()) {
+                                for (ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()) {
                                     ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
                                     examSubjectsDTOS.add(examSubjectsDTO);
                                 }
@@ -950,8 +947,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
                     // set student achievements
                     List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
-                    if(s.getStudentAchievementsEntities() != null && !s.getStudentAchievementsEntities().isEmpty()){
-                        for(StudentAchievementsEntity studentAchievementsEntity : s.getStudentAchievementsEntities()){
+                    if (s.getStudentAchievementsEntities() != null && !s.getStudentAchievementsEntities().isEmpty()) {
+                        for (StudentAchievementsEntity studentAchievementsEntity : s.getStudentAchievementsEntities()) {
                             StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
                             studentAchievementsDTOS.add(achievementsDTO);
                         }
@@ -960,13 +957,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
                     // set student fees
                     List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
-                    if(s.getStudentFeeEntities() != null && !s.getStudentFeeEntities().isEmpty()){
-                        for(StudentFeeEntity studentFeeEntity : s.getStudentFeeEntities()){
+                    if (s.getStudentFeeEntities() != null && !s.getStudentFeeEntities().isEmpty()) {
+                        for (StudentFeeEntity studentFeeEntity : s.getStudentFeeEntities()) {
                             StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
 
                             List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
-                            if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
-                                for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                            if (studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()) {
+                                for (FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()) {
                                     FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
                                     feePaymentDTOS.add(feePaymentDTO);
                                 }
@@ -1035,13 +1032,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student results
         List<StudentResultDTO> studentResultDTOS = new ArrayList<>();
-        if(studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()){
-            for(StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()){
+        if (studentEntity.getStudentResultEntities() != null && !studentEntity.getStudentResultEntities().isEmpty()) {
+            for (StudentResultEntity studentResultEntity : studentEntity.getStudentResultEntities()) {
                 StudentResultDTO studentResultDTO = modelMapper.map(studentResultEntity, StudentResultDTO.class);
 
                 List<ExamSubjectsDTO> examSubjectsDTOS = new ArrayList<>();
-                if(studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()){
-                    for(ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()){
+                if (studentResultEntity.getExamSubjectsEntities() != null && !studentResultEntity.getExamSubjectsEntities().isEmpty()) {
+                    for (ExamSubjectsEntity examSubjectsEntity : studentResultEntity.getExamSubjectsEntities()) {
                         ExamSubjectsDTO examSubjectsDTO = modelMapper.map(examSubjectsEntity, ExamSubjectsDTO.class);
                         examSubjectsDTOS.add(examSubjectsDTO);
                     }
@@ -1054,8 +1051,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student achievements
         List<StudentAchievementsDTO> studentAchievementsDTOS = new ArrayList<>();
-        if(studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()){
-            for(StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()){
+        if (studentEntity.getStudentAchievementsEntities() != null && !studentEntity.getStudentAchievementsEntities().isEmpty()) {
+            for (StudentAchievementsEntity studentAchievementsEntity : studentEntity.getStudentAchievementsEntities()) {
                 StudentAchievementsDTO achievementsDTO = modelMapper.map(studentAchievementsEntity, StudentAchievementsDTO.class);
                 studentAchievementsDTOS.add(achievementsDTO);
             }
@@ -1064,13 +1061,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         // set student fee information
         List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
-        if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
-            for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
+        if (studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()) {
+            for (StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()) {
                 StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
 
                 List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
-                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
-                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                if (studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()) {
+                    for (FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()) {
                         FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
                         feePaymentDTOS.add(feePaymentDTO);
                     }
@@ -1229,13 +1226,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         BigDecimal pendingFeeAmount = BigDecimal.ZERO;
 
         List<StudentFeeDTO> studentFeeDTOS = new ArrayList<>();
-        if(studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()){
-            for(StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()){
+        if (studentEntity.getStudentFeeEntities() != null && !studentEntity.getStudentFeeEntities().isEmpty()) {
+            for (StudentFeeEntity studentFeeEntity : studentEntity.getStudentFeeEntities()) {
                 StudentFeeDTO studentFeeDTO = modelMapper.map(studentFeeEntity, StudentFeeDTO.class);
 
                 List<FeePaymentDTO> feePaymentDTOS = new ArrayList<>();
-                if(studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()){
-                    for(FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()){
+                if (studentFeeEntity.getFeePaymentEntities() != null && !studentFeeEntity.getFeePaymentEntities().isEmpty()) {
+                    for (FeePaymentEntity feePaymentEntity : studentFeeEntity.getFeePaymentEntities()) {
                         FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
                         feePaymentDTOS.add(feePaymentDTO);
                     }
@@ -1253,6 +1250,24 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         studentDTO.setPendingFeeAmount(pendingFeeAmount);
 
         return studentDTO;
+    }
+
+
+    @Override
+    public List<StudentDTO> savePromoteStudents(List<StudentDTO> studentDTOS) {
+
+        if (studentDTOS == null) {
+            throw new CustomException("Student info cannot be null", HttpStatus.PRECONDITION_FAILED);
+        }
+
+        List<StudentDTO> promotedStudentList = new ArrayList<>();
+
+        for(StudentDTO studentDTO : studentDTOS){
+            StudentDTO promotedStudent = updateStudent(studentDTO);
+            promotedStudentList.add(promotedStudent);
+        }
+
+        return promotedStudentList;
     }
 
 }

@@ -7,9 +7,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -41,14 +41,14 @@ public class StudentController {
     @PutMapping("/updateStudent")
     public ResponseEntity<?> updateStudent(@RequestBody StudentDTO studentDTO) {
         StudentDTO data = studentService.updateStudent(studentDTO);
-        if(data != null){
+        if (data != null) {
             return ResponseEntity.ok(APIResponse.builder().success(true).message("Student updated successfully").data(data).build());
-        }else {
+        } else {
             return ResponseEntity.ok(APIResponse.builder().success(true).message("Student transferred into former student successfully").data(null).build());
         }
     }
 
-//    @PreAuthorize("hasRole('ADMIN')")
+    //    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteStudent/{studentId}")
     public ResponseEntity<?> deleteStudent(@PathVariable Long studentId) {
         String msg = studentService.deleteStudent(studentId);
@@ -69,6 +69,12 @@ public class StudentController {
                                                            @RequestParam(defaultValue = "true") boolean paginate) {
         Map<String, Object> data = studentService.getAllCurrentYearStudentsData(filter, pageable, paginate);
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data fetched successfully").data(data).build());
+    }
+
+    @PostMapping("/savePromoteStudents")
+    public ResponseEntity<?> savePromoteStudents(@RequestBody List<StudentDTO> studentDTOS) {
+        List<StudentDTO> studentDTOList = studentService.savePromoteStudents(studentDTOS);
+        return ResponseEntity.ok(APIResponse.builder().success(true).message("Data saved successfully").data(studentDTOList).build());
     }
 
 }

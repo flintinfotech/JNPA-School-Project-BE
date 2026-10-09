@@ -3,6 +3,7 @@ package com.flint.sample_be_springboot.service;
 import com.flint.sample_be_springboot.dto.student.StudentDTO;
 import org.springframework.data.domain.Pageable;
 
+import java.util.List;
 import java.util.Map;
 
 public interface StudentService {
@@ -20,4 +21,6 @@ public interface StudentService {
     StudentDTO getStudentByUserId(Long userId);
 
     Map<String, Object> getAllCurrentYearStudentsData(Map<String, Object> filter, Pageable pageable, boolean paginate);
+
+    List<StudentDTO> savePromoteStudents(List<StudentDTO> studentDTOS);
 }
