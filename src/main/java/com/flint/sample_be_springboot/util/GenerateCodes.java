@@ -69,14 +69,17 @@ public class GenerateCodes {
 
         int nextCodeNum = 1;
 
-        if (lastOrderNumber != null) {
-            //For taking last 3 digits of previous purchase order number code and incrementing it by 1
+        if (lastOrderNumber != null && !lastOrderNumber.trim().isEmpty() && !"null".equalsIgnoreCase(lastOrderNumber.trim())) {
+            lastOrderNumber = lastOrderNumber.trim();
+
+            if (!lastOrderNumber.matches("ORD\\d+")) {
+                throw new IllegalArgumentException("Invalid purchase order number: " + lastOrderNumber);
+            }
+
             String numericPart = lastOrderNumber.substring(3);
             nextCodeNum = Integer.parseInt(numericPart) + 1;
         }
-        String nextCode = String.format("ORD%03d", nextCodeNum); // e.g., ORD006
-
-        return nextCode;
+        return String.format("ORD%03d", nextCodeNum);
     }
 
 

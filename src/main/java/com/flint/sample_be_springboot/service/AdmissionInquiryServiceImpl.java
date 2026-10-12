@@ -66,6 +66,9 @@ public class AdmissionInquiryServiceImpl extends BaseService implements Admissio
             inquiry.setMedium(admissionInquiryDTO.getMedium());
             inquiry.setStream(admissionInquiryDTO.getStream());
             inquiry.setStatus(admissionInquiryDTO.getStatus());
+            inquiry.setSection(admissionInquiryDTO.getSection());
+            inquiry.setInquiryDate(admissionInquiryDTO.getInquiryDate());
+
 
             inquiry.setAuditDetails(addAuditDetails(inquiry.getAuditDetails()));
 

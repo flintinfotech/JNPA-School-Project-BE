@@ -22,15 +22,18 @@ public class CustomQuerySpecification<T> implements Specification<T> {
      * Child entity field mapping
      */
     private static final Map<String, String> JOIN_FIELDS = new HashMap<>();
+    private static final Map<String, String> JOIN_FIELD_NAMES = new HashMap<>();//
 
     static {
 
         // Academic Information
+
         JOIN_FIELDS.put("admissionNo", "academicInformationEntity");
         JOIN_FIELDS.put("admissionDate", "academicInformationEntity");
         JOIN_FIELDS.put("standard", "academicInformationEntity");
         JOIN_FIELDS.put("section", "academicInformationEntity");
         JOIN_FIELDS.put("division", "academicInformationEntity");//
+        JOIN_FIELDS.put("academicMedium", "academicInformationEntity");//
         JOIN_FIELDS.put("rollNo", "academicInformationEntity");
         JOIN_FIELDS.put("academicYear", "academicInformationEntity");
 
@@ -51,7 +54,11 @@ public class CustomQuerySpecification<T> implements Specification<T> {
         JOIN_FIELDS.put("userName", "userEntity");
         JOIN_FIELDS.put("mobileNo", "userEntity");
         JOIN_FIELDS.put("email", "userEntity");
-        JOIN_FIELDS.put("medium", "userEntity");
+        JOIN_FIELDS.put("medium", "userEntity");//
+        JOIN_FIELDS.put("userMedium", "userEntity");//
+
+        JOIN_FIELD_NAMES.put("academicMedium", "medium");
+        JOIN_FIELD_NAMES.put("userMedium", "medium");
 
         // Employee Salary
         JOIN_FIELDS.put("employeeDetailsId", "employeeDetailsEntity");
@@ -72,8 +79,13 @@ public class CustomQuerySpecification<T> implements Specification<T> {
                     .stream()
                     .anyMatch(a -> a.getName().equals(joinName));
 
+//            if (joinExists) {
+//                return root.join(joinName, JoinType.LEFT).get(key);
+//            }
+
             if (joinExists) {
-                return root.join(joinName, JoinType.LEFT).get(key);
+                String fieldName = JOIN_FIELD_NAMES.getOrDefault(key, key);
+                return root.join(joinName, JoinType.LEFT).get(fieldName);
             }
         }
 

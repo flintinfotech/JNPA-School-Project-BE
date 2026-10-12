@@ -6,6 +6,8 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
+import java.time.LocalDate;
+
 @Table(name = "ADMISSION_INQUIRY")
 @Entity
 @NoArgsConstructor
@@ -37,6 +39,12 @@ public class AdmissionInquiry {
 
     @Column(name = "MEDIUM")
     private String medium;
+
+    @Column(name = "SECTION")
+    private String section;
+
+    @Column(name = "INQUIRY_DATE")
+    private LocalDate inquiryDate;
 
     @Column(name = "STREAM")
     private String stream;

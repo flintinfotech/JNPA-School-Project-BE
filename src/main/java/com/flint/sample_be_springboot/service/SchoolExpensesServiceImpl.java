@@ -51,6 +51,11 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
             throw new CustomException("Expenses information can not be null", HttpStatus.PRECONDITION_FAILED);
         }
 
+        if (schoolExpensesDTO.getOrderNumber() != null && schoolExpensesRepository.existsByOrderNumber(
+                schoolExpensesDTO.getOrderNumber().trim())) {
+            throw new CustomException("Expense already exists for this order number", HttpStatus.CONFLICT);
+        }
+
         SchoolExpensesEntity schoolExpensesEntity = modelMapper.map(schoolExpensesDTO, SchoolExpensesEntity.class);
 
         // Calculate pending amount automatically
@@ -78,8 +83,8 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         schoolExpensesEntity.setAcademicYear(schoolExpensesDTO.getAcademicYear());
 
         //set document
-        if (schoolExpensesDTO.getDocument() !=null){
-           schoolExpensesEntity.setDocument(Base64.getDecoder().decode(schoolExpensesEntity.getDocument()));
+        if (schoolExpensesDTO.getDocument() != null) {
+            schoolExpensesEntity.setDocument(Base64.getDecoder().decode(schoolExpensesDTO.getDocument()));
         }
 
         // set vendor
@@ -99,6 +104,9 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
         // Convert to DTO
         SchoolExpensesDTO expensesDTO = modelMapper.map(savedSchoolExpensesEntity, SchoolExpensesDTO.class);
         expensesDTO.setDocument(savedSchoolExpensesEntity.getDocument());
+        expensesDTO.setPaidAmount(savedSchoolExpensesEntity.getPaidAmount());
+        expensesDTO.setPendingAmount(savedSchoolExpensesEntity.getPendingAmount());
+        expensesDTO.setTotal(savedSchoolExpensesEntity.getTotal());
 
         VendorMasterDTO vendorMasterDTO = modelMapper.map(savedSchoolExpensesEntity.getVendorMasterEntity(), VendorMasterDTO.class);
         expensesDTO.setVendorMasterDTO(vendorMasterDTO);
@@ -126,7 +134,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
 
         //set document
-        if (schoolExpensesEntity.getDocument()!=null){
+        if (schoolExpensesEntity.getDocument() != null) {
 
             schoolExpensesEntity.setDocument(Base64.getDecoder().decode(schoolExpensesEntity.getDocument()));
         }
@@ -198,8 +206,8 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
 
         //set document
-        if (schoolExpensesDTO.getDocument() !=null){
-            existingSchoolExpensesEntity.setDocument(Base64.getDecoder().decode(existingSchoolExpensesEntity.getDocument()));
+        if (schoolExpensesDTO.getDocument() != null) {
+            existingSchoolExpensesEntity.setDocument(Base64.getDecoder().decode(schoolExpensesDTO.getDocument()));
         } else {
             existingSchoolExpensesEntity.setDocument(null);
         }
@@ -279,14 +287,14 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
 
                     // set Document
-                    if (schoolExpensesEntity.getDocument() !=null){
+                    if (schoolExpensesEntity.getDocument() != null) {
                         SchoolExpensesDTO schoolExpensesDTO1 = modelMapper.map(schoolExpensesEntity, SchoolExpensesDTO.class);
                         schoolExpensesDTO.setDocument(schoolExpensesDTO1.getDocument());
                     }
                     //set vendor
                     if (schoolExpensesEntity.getVendorMasterEntity() != null) {
 
-                        VendorMasterDTO vendorMasterDTO =modelMapper.map(schoolExpensesEntity.getVendorMasterEntity(),VendorMasterDTO.class);
+                        VendorMasterDTO vendorMasterDTO = modelMapper.map(schoolExpensesEntity.getVendorMasterEntity(), VendorMasterDTO.class);
                         schoolExpensesDTO.setVendorMasterDTO(vendorMasterDTO);
                         schoolExpensesDTO.setVendorMasterId(vendorMasterDTO.getVendorMasterId());
                     } else {
@@ -297,7 +305,7 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
                     // Set Purchase
                     if (schoolExpensesEntity.getPurchaseEntity() != null) {
 
-                        PurchaseDTO purchaseDTO =modelMapper.map(schoolExpensesEntity.getPurchaseEntity(),PurchaseDTO.class);
+                        PurchaseDTO purchaseDTO = modelMapper.map(schoolExpensesEntity.getPurchaseEntity(), PurchaseDTO.class);
                         schoolExpensesDTO.setPurchaseDTO(purchaseDTO);
                         schoolExpensesDTO.setPurchaseId(purchaseDTO.getPurchaseId());
                     } else {

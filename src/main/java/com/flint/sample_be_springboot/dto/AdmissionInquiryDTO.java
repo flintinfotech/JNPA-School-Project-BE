@@ -3,6 +3,8 @@ package com.flint.sample_be_springboot.dto;
 import com.flint.sample_be_springboot.enums.StudentStatus;
 import lombok.Data;
 
+import java.time.LocalDate;
+
 @Data
 public class AdmissionInquiryDTO {
 
@@ -14,5 +16,7 @@ public class AdmissionInquiryDTO {
     private  String medium;
     private  String stream;
     private String status;
+    private String section;
+    private LocalDate inquiryDate;
 
 }

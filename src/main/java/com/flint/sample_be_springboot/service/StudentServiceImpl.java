@@ -875,6 +875,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         List<StudentEntity> studentEntities;
         long totalElement;
 
+        if(filter.containsKey("medium")){
+            filter.put("userMedium",filter.get("medium"));
+            filter.remove("medium");
+        }
+
         CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {

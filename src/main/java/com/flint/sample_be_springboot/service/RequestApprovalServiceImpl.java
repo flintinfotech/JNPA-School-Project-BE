@@ -103,7 +103,6 @@ public class RequestApprovalServiceImpl extends BaseService implements RequestAp
                 .orElseThrow(() -> new CustomException("Request not found", HttpStatus.PRECONDITION_FAILED));
 
         //update
-
         requestApprovalEntity.setRequestType(requestApprovalDTO.getRequestType());
         requestApprovalEntity.setRequestedDate(requestApprovalDTO.getRequestedDate());
         requestApprovalEntity.setStatus(requestApprovalDTO.getStatus());
@@ -113,15 +112,15 @@ public class RequestApprovalServiceImpl extends BaseService implements RequestAp
         requestApprovalEntity.setEstimatedAmount(requestApprovalDTO.getEstimatedAmount());
         requestApprovalEntity.setRemark(requestApprovalDTO.getRemark());
         requestApprovalEntity.setCancellationReason(requestApprovalDTO.getCancellationReason());
-        requestApprovalEntity.setOrderNumber(requestApprovalDTO.getOrderNumber());
         requestApprovalEntity.setAuditDetails(addAuditDetails(requestApprovalEntity.getAuditDetails()));
 
-        if (requestApprovalDTO.getStatus().equalsIgnoreCase("APPROVED")){
+        // Generate order number only when request is approved
+        if ("APPROVED".equalsIgnoreCase(requestApprovalDTO.getStatus())
+                && (requestApprovalEntity.getOrderNumber() == null || requestApprovalEntity.getOrderNumber().trim().isEmpty())) {
 
-            String lastOrderNo = requestApprovalRepository.findLastOrderNumber();
-            String nextOrderNo = GenerateCodes.generatePurchaseOrderNumber(lastOrderNo);
-            requestApprovalEntity.setOrderNumber(nextOrderNo);
-
+            String lastOrderNumber = requestApprovalRepository.findLastOrderNumber();
+            String newOrderNumber = GenerateCodes.generatePurchaseOrderNumber(lastOrderNumber);
+            requestApprovalEntity.setOrderNumber(newOrderNumber);
         }
 
         RequestApprovalEntity savedRequestApprovalEntity = requestApprovalRepository.save(requestApprovalEntity);
@@ -133,7 +132,6 @@ public class RequestApprovalServiceImpl extends BaseService implements RequestAp
             PurchaseDTO purchaseDTO = modelMapper.map(savedRequestApprovalEntity.getPurchaseEntity(), PurchaseDTO.class);
             requestApprovalDTO1.setPurchaseDTO(purchaseDTO);
         }
-
 
         log.info("Exit from updateRequestApproval");
         return requestApprovalDTO1;
