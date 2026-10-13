@@ -93,6 +93,12 @@ public class FormerStudentEntity {
     @Column(name = "PENDING_FEE_AMOUNT")
     private BigDecimal pendingFeeAmount;
 
+    @Column(name = "MEDIUM")
+    private String medium;
+
+    @Column(name = "SECTION")
+    private String section;
+
     @Lob
     @Column(name = "PROFILE_IMG")
     private byte[] profileImg;

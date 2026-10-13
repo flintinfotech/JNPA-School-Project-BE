@@ -24,12 +24,14 @@ public interface AcademicInformationRepository extends JpaRepository<AcademicInf
     WHERE a.standard = :standard
       AND a.division = :division
       AND a.medium = :medium
+      AND a.section = :section
       AND a.academicYear = :academicYear
 """)
-    Integer findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+    Integer findMaxRollNoByStandardAndDivisionAndMediumAndSectionAndAcademicYear(
             @Param("standard") String standard,
             @Param("division") String division,
             @Param("medium") String medium,
+            @Param("section") String section,
             @Param("academicYear") String academicYear
     );
 }

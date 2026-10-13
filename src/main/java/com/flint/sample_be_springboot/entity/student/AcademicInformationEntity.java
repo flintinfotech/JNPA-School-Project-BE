@@ -41,6 +41,9 @@ public class AcademicInformationEntity {
     @Column(name = "MEDIUM")
     private String medium;
 
+    @Column(name = "SECTION")
+    private String section;
+
     @Column(name = "ROLL_NO")
     private String rollNo;
 

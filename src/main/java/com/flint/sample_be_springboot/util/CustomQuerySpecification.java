@@ -31,7 +31,8 @@ public class CustomQuerySpecification<T> implements Specification<T> {
         JOIN_FIELDS.put("admissionNo", "academicInformationEntity");
         JOIN_FIELDS.put("admissionDate", "academicInformationEntity");
         JOIN_FIELDS.put("standard", "academicInformationEntity");
-        JOIN_FIELDS.put("section", "academicInformationEntity");
+//        JOIN_FIELDS.put("section", "academicInformationEntity");
+        JOIN_FIELDS.put("academicSection", "academicInformationEntity");
         JOIN_FIELDS.put("division", "academicInformationEntity");//
         JOIN_FIELDS.put("academicMedium", "academicInformationEntity");//
         JOIN_FIELDS.put("rollNo", "academicInformationEntity");
@@ -58,6 +59,7 @@ public class CustomQuerySpecification<T> implements Specification<T> {
         JOIN_FIELDS.put("userMedium", "userEntity");//
 
         JOIN_FIELD_NAMES.put("academicMedium", "medium");
+        JOIN_FIELD_NAMES.put("academicSection", "section");
         JOIN_FIELD_NAMES.put("userMedium", "medium");
 
         // Employee Salary

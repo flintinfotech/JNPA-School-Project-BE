@@ -15,6 +15,7 @@ public class AcademicInformationDTO {
     private String standard;
     private String division;
     private String medium;
+    private String section;
     private String rollNo;
     private String academicYear;
     private AuditDetails auditDetails;

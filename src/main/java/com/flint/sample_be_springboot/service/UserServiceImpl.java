@@ -4,6 +4,7 @@ import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
 import com.flint.sample_be_springboot.entity.*;
+import com.flint.sample_be_springboot.entity.student.AcademicInformationEntity;
 import com.flint.sample_be_springboot.entity.student.StudentEntity;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.exception.CustomException;
@@ -76,7 +77,7 @@ public class UserServiceImpl extends BaseService implements UserService {
 
         UserDTO savedUser;
 
-        if(!Role.STUDENT.equals(signUpDTO.getRole())) {
+        if (!Role.STUDENT.equals(signUpDTO.getRole())) {
             Optional<UserEntity> existingUserEntity = userRepository.findByUserName(signUpDTO.getUserName());
             if (existingUserEntity.isPresent()) {
                 throw new CustomException("Username is already exist", HttpStatus.CONFLICT);
@@ -149,7 +150,7 @@ public class UserServiceImpl extends BaseService implements UserService {
             access1.setScreen(screenMaster1);
             userScreenAccessEntities.add(access1);
 
-            for(UserScreenAccessEntity userScreenAccessEntity : userScreenAccessEntities){
+            for (UserScreenAccessEntity userScreenAccessEntity : userScreenAccessEntities) {
                 userScreenAccessRepository.save(userScreenAccessEntity);
             }
 
@@ -290,6 +291,11 @@ public class UserServiceImpl extends BaseService implements UserService {
         Page<UserEntity> userEntityPage;
         List<UserEntity> userEntityList;
         Long totalElement = 0L;
+
+        if(filter.containsKey("medium")){
+            filter.put("userMedium",filter.get("medium"));
+            filter.remove("medium");
+        }
 
         CustomQuerySpecification<UserEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 

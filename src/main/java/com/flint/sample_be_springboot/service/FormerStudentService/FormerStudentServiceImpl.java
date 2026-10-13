@@ -1,12 +1,7 @@
 package com.flint.sample_be_springboot.service.FormerStudentService;
 
-import com.flint.sample_be_springboot.dto.FormerStudentLCDTO;
-import com.flint.sample_be_springboot.dto.formerStudent.FormerExamSubjectsDTO;
-import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDTO;
-import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDocumentDTO;
-import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
+import com.flint.sample_be_springboot.dto.formerStudent.*;
 import com.flint.sample_be_springboot.entity.formerStudent.*;
-import com.flint.sample_be_springboot.entity.student.ExamSubjectsEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.FormerStudentRepository.FormerStudentRepository;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -80,6 +75,8 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
             }
         }
         formerStudentEntity.setFormerStudentResultEntities(formerStudentResultEntities);
+        formerStudentEntity.setMedium(formerStudentDTO.getMedium());
+        formerStudentEntity.setSection(formerStudentDTO.getSection());
 
         // 4. Save former student
         FormerStudentEntity savedEntity = formerStudentRepository.save(formerStudentEntity);
@@ -278,7 +275,7 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         // set lc details
         FormerStudentLCDTO formerStudentLCDTO = new FormerStudentLCDTO();
-        if(formerStudentEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(formerStudentEntity.getFormerStudentLCEntity())){
+        if (formerStudentEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(formerStudentEntity.getFormerStudentLCEntity())) {
             formerStudentLCDTO = modelMapper.map(formerStudentEntity.getFormerStudentLCEntity(), FormerStudentLCDTO.class);
         }
         formerStudentDTO.setFormerStudentLCDTO(formerStudentLCDTO);
@@ -287,7 +284,6 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         return formerStudentDTO;
     }
-
 
 
     @Override
@@ -326,6 +322,8 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         existingEntity.setPaymentStatus(formerStudentDTO.getPaymentStatus());
         existingEntity.setTotalFeeAmount(formerStudentDTO.getTotalFeeAmount());
         existingEntity.setPendingFeeAmount(formerStudentDTO.getPendingFeeAmount());
+        existingEntity.setMedium(formerStudentDTO.getMedium());//
+        existingEntity.setSection(formerStudentDTO.getSection());//
 
         existingEntity.setAuditDetails(addAuditDetails(existingEntity.getAuditDetails()));
 
@@ -405,7 +403,7 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
                 // Update document file only when new file is provided
                 if (documentDTO.getDocument() != null && !documentDTO.getDocument().isEmpty()) {
                     documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
-                }else{
+                } else {
                     documentEntity.setDocument(null);
                 }
 
@@ -571,7 +569,7 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         // set lc details
         FormerStudentLCDTO formerStudentLCDTO = new FormerStudentLCDTO();
-        if(savedEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(savedEntity.getFormerStudentLCEntity())){
+        if (savedEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(savedEntity.getFormerStudentLCEntity())) {
             formerStudentLCDTO = modelMapper.map(savedEntity.getFormerStudentLCEntity(), FormerStudentLCDTO.class);
         }
         savedDTO.setFormerStudentLCDTO(formerStudentLCDTO);
@@ -609,6 +607,16 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
         Page<FormerStudentEntity> formerStudentEntityPage;
         List<FormerStudentEntity> formerStudentEntities;
         long totalElement;
+
+//        if (filter.containsKey("medium")) {
+//            filter.put("academicMedium", filter.get("medium"));
+//            filter.remove("medium");
+//        }
+//
+//        if (filter.containsKey("section")) {
+//            filter.put("academicSection", filter.get("section"));
+//            filter.remove("section");
+//        }
 
         CustomQuerySpecification<FormerStudentEntity> customQuerySpecification =
                 CustomQuerySpecification.getInstance(filter);
@@ -728,7 +736,7 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
             // set lc details
             FormerStudentLCDTO formerStudentLCDTO = new FormerStudentLCDTO();
-            if(formerStudentEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(formerStudentEntity.getFormerStudentLCEntity())){
+            if (formerStudentEntity.getFormerStudentLCEntity() != null && !ObjectUtils.isEmpty(formerStudentEntity.getFormerStudentLCEntity())) {
                 formerStudentLCDTO = modelMapper.map(formerStudentEntity.getFormerStudentLCEntity(), FormerStudentLCDTO.class);
             }
             formerStudentDTO.setFormerStudentLCDTO(formerStudentLCDTO);

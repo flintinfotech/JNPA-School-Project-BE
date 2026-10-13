@@ -1,6 +1,5 @@
 package com.flint.sample_be_springboot.dto.formerStudent;
 
-import com.flint.sample_be_springboot.dto.FormerStudentLCDTO;
 import com.flint.sample_be_springboot.entity.AuditDetails;
 import com.flint.sample_be_springboot.enums.FeePayment;
 import com.flint.sample_be_springboot.enums.StudentStatus;
@@ -28,6 +27,8 @@ public class FormerStudentDTO {
     private String religion;
     private String caste;
     private String nationality;
+    private String medium;//
+    private String section;//
     private StudentStatus status;
     private String admissionNo;
     private List<FormerStudentResultDTO> formerStudentResultDTOS;

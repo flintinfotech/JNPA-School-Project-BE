@@ -161,10 +161,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
 
                 //Setting Roll Number
-                Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+                Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndSectionAndAcademicYear(
                         academicInformationEntity.getStandard(),
                         academicInformationEntity.getDivision(),
                         academicInformationEntity.getMedium(),
+                        academicInformationEntity.getSection(),
                         academicInformationEntity.getAcademicYear());
 
                 Integer nextRollNumber;
@@ -196,7 +197,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         signUpDTO.setEmail(studentDTO.getParentDTO().getEmail());
         signUpDTO.setAadhaarNo(studentDTO.getAadhaarCard());
         signUpDTO.setDOB(studentDTO.getDOB());
-
+        if (studentDTO.getAcademicInformation() != null){
+            signUpDTO.setMedium(studentDTO.getAcademicInformation().getLast().getMedium());
+            signUpDTO.setSection(studentDTO.getAcademicInformation().getLast().getSection());
+        }
 
         UserDTO userDTO = userService.saveUser(signUpDTO);
 
@@ -479,10 +483,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicEntity = new AcademicInformationEntity();
 
                 //Setting Roll Number
-                Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndAcademicYear(
+                Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndSectionAndAcademicYear(
                         academicDTO.getStandard(),
                         academicDTO.getDivision(),
                         academicDTO.getMedium(),
+                        academicDTO.getSection(),
                         academicDTO.getAcademicYear());
 
                 Integer nextRollNumber;
@@ -503,6 +508,7 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             academicEntity.setStandard(academicDTO.getStandard());
             academicEntity.setDivision(academicDTO.getDivision());
             academicEntity.setMedium(academicDTO.getMedium());
+            academicEntity.setSection(academicDTO.getSection());
             academicEntity.setAcademicYear(academicDTO.getAcademicYear());
         }
 
@@ -518,6 +524,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         userDTO.setMobileNo(studentDTO.getParentDTO().getPhone());
         userDTO.setFirstName(studentDTO.getFirstName());
         userDTO.setLastName(studentDTO.getLastName());
+        if (user.getStudentEntity().getAcademicInformationEntity() != null){
+            userDTO.setMedium(studentDTO.getAcademicInformation().getLast().getMedium());
+            userDTO.setSection(studentDTO.getAcademicInformation().getLast().getSection());
+        }
         userDTO.setRole(Role.STUDENT);
         userDTO.setEmail(studentDTO.getParentDTO().getEmail());
 
@@ -651,6 +661,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             }
             formerStudentDTO.setFormerStudentResultDTOS(resultDTOS);
             formerStudentDTO.setAdmissionNo(studentDTO.getAdmissionNo());
+            formerStudentDTO.setMedium(savedEntity.getAcademicInformationEntity().getLast().getMedium());
+            formerStudentDTO.setSection(savedEntity.getAcademicInformationEntity().getLast().getSection());
 
             formerStudentService.saveFormerStudent(formerStudentDTO);
 
@@ -876,8 +888,13 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         long totalElement;
 
         if(filter.containsKey("medium")){
-            filter.put("userMedium",filter.get("medium"));
+            filter.put("academicMedium",filter.get("medium"));
             filter.remove("medium");
+        }
+
+        if(filter.containsKey("section")){
+            filter.put("academicSection",filter.get("section"));
+            filter.remove("section");
         }
 
         CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
