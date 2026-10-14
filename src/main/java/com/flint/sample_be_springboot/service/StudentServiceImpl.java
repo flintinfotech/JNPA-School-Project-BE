@@ -529,12 +529,11 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 existingStudentEntity.getAcademicInformationEntity().add(academicEntity);
             }
 
-            academicEntity.setAdmissionNo(existingStudentEntity.getAdmissionNo());
             academicEntity.setAdmissionDate(academicDTO.getAdmissionDate());
             academicEntity.setStandard(academicDTO.getStandard());
             academicEntity.setDivision(academicDTO.getDivision());
             academicEntity.setMedium(academicDTO.getMedium());
-            academicEntity.setSection(academicDTO.getSection());
+//            academicEntity.setSection(academicDTO.getSection());
             academicEntity.setAcademicYear(academicDTO.getAcademicYear());
         }
 
