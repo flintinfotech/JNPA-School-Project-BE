@@ -100,6 +100,8 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
         existingPurchaseEntity.setCategory(purchaseDTO.getCategory());
         existingPurchaseEntity.setProductCode(purchaseDTO.getProductCode());
         existingPurchaseEntity.setProductName(purchaseDTO.getProductName());
+        existingPurchaseEntity.setMedium(purchaseDTO.getMedium());
+        existingPurchaseEntity.setSection(purchaseDTO.getSection());
 
         PurchaseEntity updatedPurchaseEntity = purchaseRepository.save(existingPurchaseEntity);
 

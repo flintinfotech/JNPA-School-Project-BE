@@ -86,6 +86,9 @@ public class SubjectMasterServiceImpl extends BaseService implements SubjectMast
 
         modelMapper.map(subjectMasterDTO, existingSubject);
 
+        existingSubject.setMedium(subjectMasterDTO.getMedium());
+        existingSubject.setSection(subjectMasterDTO.getSection());
+
         SubjectMasterEntity updatedEntity = subjectMasterRepository.save(existingSubject);
 
         SubjectMasterDTO updatedDto = modelMapper.map(updatedEntity, SubjectMasterDTO.class);

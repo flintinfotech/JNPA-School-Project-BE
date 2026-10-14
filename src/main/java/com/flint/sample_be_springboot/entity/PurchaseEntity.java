@@ -36,6 +36,12 @@ public class PurchaseEntity {
     @Column(name = "PRODUCT_NAME", nullable = false)
     private String productName;
 
+    @Column(name = "MEDIUM")
+    private String medium;
+
+    @Column(name = "SECTION")
+    private String section;
+
     @OneToMany(mappedBy = "purchaseEntity", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<RequestApprovalEntity> requestApprovalEntity;
 

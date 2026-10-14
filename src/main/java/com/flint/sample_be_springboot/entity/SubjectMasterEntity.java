@@ -26,6 +26,12 @@ public class SubjectMasterEntity {
     @Column(name = "SUBJECT_NAME")
     private String subjectName;
 
+    @Column(name = "MEDIUM")
+    private String medium;
+
+    @Column(name = "SECTION")
+    private String section;
+
     @OneToMany(mappedBy = "subjectMasterEntity", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<ClassSubjectAllocationEntity> classSubjectAllocations = new ArrayList<>();
 

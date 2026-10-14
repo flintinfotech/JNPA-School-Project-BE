@@ -8,5 +8,7 @@ public class SubjectMasterDTO {
     private Long subjectMasterId;
     private String subjectCode;
     private String subjectName;
+    private String medium;
+    private String section;
 
 }

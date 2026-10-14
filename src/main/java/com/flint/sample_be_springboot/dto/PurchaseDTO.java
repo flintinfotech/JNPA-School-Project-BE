@@ -12,5 +12,8 @@ public class PurchaseDTO {
     private String category;
     private String productName;
     private LocalDate purchaseDate;
+    private String medium;
+    private String section;
+
 
 }
