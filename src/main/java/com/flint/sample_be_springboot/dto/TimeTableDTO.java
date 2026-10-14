@@ -12,5 +12,6 @@ public class TimeTableDTO {
     private String medium;
     private String standard;
     private String division;
+    private String section;
     private List<TimeTablePeriodDTO> timeTablePeriods;
 }

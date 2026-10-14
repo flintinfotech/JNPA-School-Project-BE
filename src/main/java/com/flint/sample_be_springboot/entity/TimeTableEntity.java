@@ -34,6 +34,9 @@ public class TimeTableEntity {
     @Column(name = "DIVISION", nullable = false)
     private String division;
 
+    @Column(name = "SECTION")
+    private String section;
+
     @OneToMany(mappedBy = "timeTableEntity", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<TimeTablePeriodEntity> timeTablePeriodEntities;
 

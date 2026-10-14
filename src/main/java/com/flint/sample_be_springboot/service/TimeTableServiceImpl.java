@@ -4,10 +4,7 @@ import com.flint.sample_be_springboot.dto.EmployeeDetailsDTO;
 import com.flint.sample_be_springboot.dto.SubjectMasterDTO;
 import com.flint.sample_be_springboot.dto.TimeTableDTO;
 import com.flint.sample_be_springboot.dto.TimeTablePeriodDTO;
-import com.flint.sample_be_springboot.entity.EmployeeDetailsEntity;
-import com.flint.sample_be_springboot.entity.SubjectMasterEntity;
-import com.flint.sample_be_springboot.entity.TimeTableEntity;
-import com.flint.sample_be_springboot.entity.TimeTablePeriodEntity;
+import com.flint.sample_be_springboot.entity.*;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.*;
 import com.flint.sample_be_springboot.util.BaseService;
@@ -88,6 +85,14 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
 
         // 5. Create TimeTableEntity
         TimeTableEntity timeTableEntity = modelMapper.map(timeTableDTO, TimeTableEntity.class);
+
+        ClassMasterEntity classMasterEntity = classMasterRepository.findByStandardAndDivisionAndMedium
+                        (timeTableDTO.getStandard(), timeTableDTO.getDivision(), timeTableDTO.getMedium())
+                .orElse(null);
+
+        if(classMasterEntity != null){
+            timeTableEntity.setSection(classMasterEntity.getSection());
+        }
 
         timeTableEntity.setAuditDetails(addAuditDetails(timeTableEntity.getAuditDetails()));
 
@@ -312,6 +317,15 @@ public class TimeTableServiceImpl extends BaseService implements TimeTableServic
         existingTimeTable.setMedium(timeTableDTO.getMedium());
         existingTimeTable.setAcademicYear(timeTableDTO.getAcademicYear());
         existingTimeTable.setAuditDetails(addAuditDetails(existingTimeTable.getAuditDetails()));
+
+        ClassMasterEntity classMasterEntity = classMasterRepository.findByStandardAndDivisionAndMedium
+                        (timeTableDTO.getStandard(), timeTableDTO.getDivision(), timeTableDTO.getMedium())
+                .orElse(null);
+
+        if(classMasterEntity != null){
+            existingTimeTable.setSection(classMasterEntity.getSection());
+        }
+
 
         if (timeTableDTO.getTimeTablePeriods() != null) {
 
