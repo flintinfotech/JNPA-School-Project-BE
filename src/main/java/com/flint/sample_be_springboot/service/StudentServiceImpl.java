@@ -1153,16 +1153,20 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 ? filter.get("medium").toString()
                 : null;
 
+        String section = filter.get("section") != null
+                ? filter.get("section").toString()
+                : null;
+
         Page<StudentEntity> studentEntityPage = null;
         List<StudentEntity> studentEntities;
         long totalElement;
 
         if (paginate) {
-            studentEntityPage = studentRepository.findAllCurrentYearStudents(currentAcademicYear, standard, division, medium, pageable);
+            studentEntityPage = studentRepository.findAllCurrentYearStudents(currentAcademicYear, standard, division, medium, section, pageable);
             studentEntities = studentEntityPage.getContent();
             totalElement = studentEntityPage.getTotalElements();
         } else {
-            studentEntities = studentRepository.findAllCurrentYearStudents(currentAcademicYear, standard, division, medium);
+            studentEntities = studentRepository.findAllCurrentYearStudents(currentAcademicYear, standard, division, medium, section);
             totalElement = studentEntities.size();
         }
 

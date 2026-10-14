@@ -33,12 +33,14 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long>, J
               AND (:standard IS NULL OR :standard = '' OR a.standard = :standard)
               AND (:division IS NULL OR :division = '' OR a.division = :division)
               AND (:medium IS NULL OR :medium = '' OR a.medium = :medium)
+              AND (:section IS NULL OR :section = '' OR a.section = :section)
             """)
     Page<StudentEntity> findAllCurrentYearStudents(
             @Param("academicYear") String academicYear,
             @Param("standard") String standard,
             @Param("division") String division,
             @Param("medium") String medium,
+            @Param("section") String section,
             Pageable pageable);
 
     @Query("""
@@ -49,11 +51,14 @@ public interface StudentRepository extends JpaRepository<StudentEntity, Long>, J
           AND (:standard IS NULL OR :standard = '' OR a.standard = :standard)
           AND (:division IS NULL OR :division = '' OR a.division = :division)
           AND (:medium IS NULL OR :medium = '' OR a.medium = :medium)
+          AND (:section IS NULL OR :section = '' OR a.section = :section)
         """)
     List<StudentEntity> findAllCurrentYearStudents(
             @Param("academicYear") String academicYear,
             @Param("standard") String standard,
             @Param("division") String division,
-            @Param("medium") String medium);
+            @Param("medium") String medium,
+            @Param("section") String section);
+
 
 }

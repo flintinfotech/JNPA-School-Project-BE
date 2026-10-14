@@ -5,11 +5,9 @@ import com.flint.sample_be_springboot.dto.ClassMasterSearchDTO;
 import com.flint.sample_be_springboot.entity.ClassMasterEntity;
 import com.flint.sample_be_springboot.entity.ClassSubjectAllocationEntity;
 import com.flint.sample_be_springboot.entity.TeacherClassSubjectAllocationEntity;
+import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
-import com.flint.sample_be_springboot.repository.ClassMasterRepository;
-import com.flint.sample_be_springboot.repository.ClassSubjectAllocationRepository;
-import com.flint.sample_be_springboot.repository.TeacherClassSubjectAllocationRepository;
-import com.flint.sample_be_springboot.repository.TimeTableRepository;
+import com.flint.sample_be_springboot.repository.*;
 import com.flint.sample_be_springboot.util.BaseService;
 import com.flint.sample_be_springboot.util.CustomQuerySpecification;
 import lombok.extern.slf4j.Slf4j;
@@ -42,6 +40,9 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
 
     @Autowired
     private TimeTableRepository timeTableRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public ClassMasterDTO getClassMasterById(Long classMasterId) {
@@ -172,6 +173,9 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
 
         log.info("Enter into searchClasses");
 
+        UserEntity loggedInUser = userRepository.findByUserName(getUserName())
+                .orElse(null);
+
         List<ClassMasterEntity> classMasterEntities =
                 classMasterRepository.searchClasses(keyword);
 
@@ -180,16 +184,27 @@ public class ClassMasterServiceImpl extends BaseService implements ClassMasterSe
 
                     ClassMasterSearchDTO dto = new ClassMasterSearchDTO();
 
-                    dto.setClassMasterId(entity.getClassMasterId());
+                    if (loggedInUser != null
+                            && loggedInUser.getSection() != null
+                            && !loggedInUser.getSection().isBlank()
+                            && loggedInUser.getMedium() != null
+                            && !loggedInUser.getMedium().isBlank()
+                            && entity.getSection() != null
+                            && entity.getMedium() != null
+                            && loggedInUser.getSection().equalsIgnoreCase(entity.getSection())
+                            && loggedInUser.getMedium().equalsIgnoreCase(entity.getMedium())) {
 
-                    dto.setDisplayName(
-                            entity.getStandard()
-                                    + " - "
-                                    + entity.getDivision()
-                                    + " ("
-                                    + entity.getMedium()
-                                    + ")"
-                    );
+                        dto.setClassMasterId(entity.getClassMasterId());
+
+                        dto.setDisplayName(
+                                entity.getStandard()
+                                        + " - "
+                                        + entity.getDivision()
+                                        + " ("
+                                        + entity.getMedium()
+                                        + ")"
+                        );
+                    }
 
                     return dto;
                 })
