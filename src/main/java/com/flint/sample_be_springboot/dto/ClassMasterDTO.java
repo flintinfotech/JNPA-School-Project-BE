@@ -11,5 +11,6 @@ public class ClassMasterDTO {
     private String standard;
     private String division;
     private String medium;
+    private String section;
 
 }

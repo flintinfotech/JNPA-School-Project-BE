@@ -1,5 +1,6 @@
 package com.flint.sample_be_springboot.service;
 
+import com.flint.sample_be_springboot.dto.ClassMasterSearchDTO;
 import com.flint.sample_be_springboot.dto.ScreenMasterDTO;
 import com.flint.sample_be_springboot.dto.SignUpDTO;
 import com.flint.sample_be_springboot.dto.UserDTO;
@@ -7,12 +8,14 @@ import com.flint.sample_be_springboot.dto.formerStudent.FormerExamSubjectsDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentDTO;
 import com.flint.sample_be_springboot.dto.formerStudent.FormerStudentResultDTO;
 import com.flint.sample_be_springboot.dto.student.*;
+import com.flint.sample_be_springboot.entity.ClassMasterEntity;
 import com.flint.sample_be_springboot.entity.UserEntity;
 import com.flint.sample_be_springboot.entity.UserScreenAccessEntity;
 import com.flint.sample_be_springboot.entity.student.*;
 import com.flint.sample_be_springboot.enums.Role;
 import com.flint.sample_be_springboot.enums.StudentStatus;
 import com.flint.sample_be_springboot.exception.CustomException;
+import com.flint.sample_be_springboot.repository.ClassMasterRepository;
 import com.flint.sample_be_springboot.repository.UserRepository;
 import com.flint.sample_be_springboot.repository.student.AcademicInformationRepository;
 import com.flint.sample_be_springboot.repository.student.StudentRepository;
@@ -55,6 +58,9 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
     @Autowired
     private FormerStudentService formerStudentService;
+
+    @Autowired
+    private ClassMasterRepository classMasterRepository;
 
     @Override
     public Map<String, Object> saveStudent(StudentDTO studentDTO) {
@@ -156,6 +162,14 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
                 AcademicInformationEntity academicInformationEntity =
                         modelMapper.map(academicInformationDTO, AcademicInformationEntity.class);
+
+                ClassMasterEntity classMasterEntity = classMasterRepository.findByStandardAndDivisionAndMedium
+                                (academicInformationDTO.getStandard(), academicInformationDTO.getDivision(),academicInformationDTO.getMedium())
+                        .orElse(null);
+
+                if(classMasterEntity != null){
+                    academicInformationEntity.setSection(classMasterEntity.getSection());
+                }
 
                 academicInformationEntity.setStudentEntity(studentEntity);
                 academicInformationEntity.setAdmissionNo(nextStudentAdmissionCode);
@@ -435,6 +449,10 @@ public class StudentServiceImpl extends BaseService implements StudentService {
 
         for (AcademicInformationDTO academicDTO : studentDTO.getAcademicInformation()) {
 
+            ClassMasterEntity classMasterEntity = classMasterRepository.findByStandardAndDivisionAndMedium
+                            (academicDTO.getStandard(), academicDTO.getDivision(),academicDTO.getMedium())
+                    .orElse(null);
+
             String academicYear = academicDTO.getAcademicYear();
 
             if (academicYear == null || academicYear.trim().isEmpty()) {
@@ -478,9 +496,17 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 academicEntity = existingAcademics.get(academicDTO.getAcademicInformationId());
                 academicEntity.setRollNo(academicDTO.getRollNo());
 
+                if(classMasterEntity != null){
+                    academicEntity.setSection(classMasterEntity.getSection());
+                }
+
             } else {
                 // New academic record
                 academicEntity = new AcademicInformationEntity();
+
+                if(classMasterEntity != null){
+                    academicEntity.setSection(classMasterEntity.getSection());
+                }
 
                 //Setting Roll Number
                 Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndSectionAndAcademicYear(
