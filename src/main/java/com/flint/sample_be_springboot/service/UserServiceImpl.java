@@ -292,10 +292,10 @@ public class UserServiceImpl extends BaseService implements UserService {
         List<UserEntity> userEntityList;
         Long totalElement = 0L;
 
-        if(filter.containsKey("medium")){
-            filter.put("userMedium",filter.get("medium"));
-            filter.remove("medium");
-        }
+//        if(filter.containsKey("medium")){
+//            filter.put("userMedium",filter.get("medium"));
+//            filter.remove("medium");
+//        }
 
         CustomQuerySpecification<UserEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
