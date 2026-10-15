@@ -113,6 +113,9 @@ public class RequestApprovalServiceImpl extends BaseService implements RequestAp
         requestApprovalEntity.setRemark(requestApprovalDTO.getRemark());
         requestApprovalEntity.setCancellationReason(requestApprovalDTO.getCancellationReason());
         requestApprovalEntity.setAuditDetails(addAuditDetails(requestApprovalEntity.getAuditDetails()));
+        requestApprovalEntity.setMedium(requestApprovalDTO.getMedium());
+        requestApprovalEntity.setSection(requestApprovalDTO.getSection());
+
 
         // Generate order number only when request is approved
         if ("APPROVED".equalsIgnoreCase(requestApprovalDTO.getStatus())

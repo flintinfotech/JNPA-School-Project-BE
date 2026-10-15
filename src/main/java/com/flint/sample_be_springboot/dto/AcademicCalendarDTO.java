@@ -13,5 +13,8 @@ public class AcademicCalendarDTO {
     private LocalDate startDate;
     private LocalDate endDate;
     private String description;
+    private String medium;
+    private String section;
+
 
 }

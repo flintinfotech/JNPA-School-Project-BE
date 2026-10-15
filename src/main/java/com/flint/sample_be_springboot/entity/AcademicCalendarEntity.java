@@ -25,6 +25,12 @@ public class AcademicCalendarEntity {
     @Column(name = "ACADEMIC_YEAR")
     private String academicYear;
 
+    @Column(name = "MEDIUM")
+    private String medium;
+
+    @Column(name = "SECTION")
+    private String section;
+
     @Column(name = "EVENT_TITLE", nullable = false)
     private String eventTitle;
 

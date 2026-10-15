@@ -21,5 +21,8 @@ public class RequestApprovalDTO {
     private PurchaseDTO purchaseDTO;
     private String cancellationReason;
     private String orderNumber;
+    private String medium;
+    private String section;
+
 
 }

@@ -83,6 +83,8 @@ public class AcademicCalendarServiceImpl extends BaseService implements Academic
         }
 
         modelMapper.map(academicCalendarDTO, existingAcademicCalendarEntity);
+        existingAcademicCalendarEntity.setMedium(academicCalendarDTO.getMedium());
+        existingAcademicCalendarEntity.setSection(academicCalendarDTO.getSection());
 
         AcademicCalendarEntity updatedEntity = academicCalendarRepository.save(existingAcademicCalendarEntity);
 

@@ -41,6 +41,12 @@ public class RequestApprovalEntity {
     @Column(name = "STATUS")
     private String status;
 
+    @Column(name = "MEDIUM")
+    private String medium;
+
+    @Column(name = "SECTION")
+    private String section;
+
     @Column(name = "ACADEMIC_YEAR")
     private String academicYear;
 
