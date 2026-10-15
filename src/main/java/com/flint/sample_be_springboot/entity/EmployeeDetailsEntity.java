@@ -46,12 +46,6 @@ public class EmployeeDetailsEntity {
     @Column(name = "LAST_NAME")
     private String lastName;
 
-    @Column(name = "MEDIUM")
-    private String medium;
-
-    @Column(name = "SECTION")
-    private String section;
-
     @NotNull
     @Column(name = "MOBILE_NO")
     private String mobileNo;

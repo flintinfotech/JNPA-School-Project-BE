@@ -40,8 +40,4 @@ public class EmployeeDetailsDTO {
     private String ifscCode;
     private String accountNo;
 
-    private String medium;
-    private String section;
-
-
 }

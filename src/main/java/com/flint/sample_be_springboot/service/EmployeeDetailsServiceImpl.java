@@ -209,9 +209,6 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         existingEntity.setBankName(employeeDetailsDTO.getBankName());
         existingEntity.setIfscCode(employeeDetailsDTO.getIfscCode());
         existingEntity.setAccountNo(employeeDetailsDTO.getAccountNo());
-        existingEntity.setMedium(employeeDetailsDTO.getMedium());
-        existingEntity.setSection(employeeDetailsDTO.getSection());
-
 
         if (!existingEntity.equals(employeeDetailsDTO.getRole())) {
             existingEntity.getUserEntity().setRole(employeeDetailsDTO.getRole());
