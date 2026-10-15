@@ -315,6 +315,16 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         List<StudentFeeEntity> studentFeeEntities;
         long totalElement;
 
+        if(filter.containsKey("medium")){
+            filter.put("academicMedium",filter.get("medium"));
+            filter.remove("medium");
+        }
+
+        if(filter.containsKey("section")){
+            filter.put("academicSection",filter.get("section"));
+            filter.remove("section");
+        }
+
         CustomQuerySpecification<StudentFeeEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {
@@ -358,6 +368,16 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         Page<StudentEntity> studentEntityPage;
         List<StudentEntity> studentEntities;
         long totalElement;
+
+        if(filter.containsKey("medium")){
+            filter.put("academicMedium",filter.get("medium"));
+            filter.remove("medium");
+        }
+
+        if(filter.containsKey("section")){
+            filter.put("academicSection",filter.get("section"));
+            filter.remove("section");
+        }
 
         String startYear = String.valueOf(getStartDate().getYear());
         String endYear = String.valueOf(getEndDate().getYear());
