@@ -308,8 +308,21 @@ public class UserServiceImpl extends BaseService implements UserService {
             totalElement = (long) userEntityList.size();
         }
 
+        String loggedInUsername = getUserName();
+
+        boolean isSuperAdmin = "Superadmin".equalsIgnoreCase(loggedInUsername);
+
         List<UserDTO> userDTOS = userEntityList.stream()
-                .filter(user -> !"Superadmin".equalsIgnoreCase(user.getUserName())) // main superadmin
+//                .filter(user -> !"Superadmin".equalsIgnoreCase(user.getUserName())) // main superadmin
+                .filter(userEntity -> {
+                    if (isSuperAdmin) {
+                        return true;
+                    }
+
+                    return userEntity == null ||
+                            (userEntity.getRole() != Role.ADMIN &&
+                                    userEntity.getRole() != Role.PRINCIPAL);
+                })
                 .map(u -> {
                     UserDTO dto = modelMapper.map(u, UserDTO.class);
 

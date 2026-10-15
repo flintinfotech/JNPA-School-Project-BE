@@ -439,7 +439,22 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             totalElement = userInformationEntities.size();
         }
 
+        String loggedInUsername = getUserName();
+
+        boolean isSuperAdmin = "Superadmin".equalsIgnoreCase(loggedInUsername);
+
         List<EmployeeDetailsDTO> EmployeeDetailsDTOS = userInformationEntities.stream()
+                .filter(existingEntity -> {
+                    if (isSuperAdmin) {
+                        return true;
+                    }
+
+                    UserEntity userEntity = existingEntity.getUserEntity();
+
+                    return userEntity == null ||
+                            (userEntity.getRole() != Role.ADMIN &&
+                                    userEntity.getRole() != Role.PRINCIPAL);
+                })
                 .map(existingEntity -> {
                     EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
