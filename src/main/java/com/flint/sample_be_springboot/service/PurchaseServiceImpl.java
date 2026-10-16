@@ -2,7 +2,6 @@ package com.flint.sample_be_springboot.service;
 
 import com.flint.sample_be_springboot.dto.PurchaseDTO;
 import com.flint.sample_be_springboot.entity.PurchaseEntity;
-import com.flint.sample_be_springboot.entity.SchoolExpensesEntity;
 import com.flint.sample_be_springboot.exception.CustomException;
 import com.flint.sample_be_springboot.repository.PurchaseRepository;
 import com.flint.sample_be_springboot.repository.SchoolExpensesRepository;
@@ -43,8 +42,8 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
             throw new CustomException("Purchase information can not be null", HttpStatus.PRECONDITION_FAILED);
         }
 
-        Optional<PurchaseEntity> existingPurchaseEntity = purchaseRepository.findByProductCodeAndProductNameAndCategory
-                (purchaseDTO.getProductCode(), purchaseDTO.getProductName(), purchaseDTO.getCategory());
+        Optional<PurchaseEntity> existingPurchaseEntity = purchaseRepository.findByProductCodeAndProductNameAndCategoryAndSectionAndMedium
+                (purchaseDTO.getProductCode(), purchaseDTO.getProductName(), purchaseDTO.getCategory(), purchaseDTO.getSection(), purchaseDTO.getMedium());
         if (existingPurchaseEntity.isPresent()) {
             throw new CustomException("product is already exist", HttpStatus.CONFLICT);
         }
@@ -90,8 +89,8 @@ public class PurchaseServiceImpl extends BaseService implements PurchaseService 
         PurchaseEntity existingPurchaseEntity = purchaseRepository.findById(purchaseDTO.getPurchaseId())
                 .orElseThrow(() -> new CustomException("data not exist", HttpStatus.NOT_FOUND));
 
-        Optional<PurchaseEntity> existingPurchaseEntity1 = purchaseRepository.findByProductCodeAndProductNameAndCategoryAndPurchaseIdNot
-                (purchaseDTO.getProductCode(), purchaseDTO.getProductName(), purchaseDTO.getCategory(), purchaseDTO.getPurchaseId());
+        Optional<PurchaseEntity> existingPurchaseEntity1 = purchaseRepository.findByProductCodeAndProductNameAndCategoryAndSectionAndMediumAndPurchaseIdNot
+                (purchaseDTO.getProductCode(), purchaseDTO.getProductName(), purchaseDTO.getCategory(),purchaseDTO.getSection(), purchaseDTO.getMedium(), purchaseDTO.getPurchaseId());
         if (existingPurchaseEntity1.isPresent()) {
             throw new CustomException("product already exist", HttpStatus.CONFLICT);
         }

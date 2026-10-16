@@ -9,8 +9,8 @@ import java.util.Optional;
 @Repository
 public interface SubjectMasterRepository extends JpaRepository<SubjectMasterEntity, Long>, JpaSpecificationExecutor<SubjectMasterEntity> {
 
-    Optional<SubjectMasterEntity> findBySubjectName(String subjectName);
+    Optional<SubjectMasterEntity> findBySubjectNameAndSectionAndMedium(String subjectName,String section,String medium);
 
-    Optional<SubjectMasterEntity> findBySubjectNameAndSubjectMasterIdNot(String subjectName, Long subjectId);
+    Optional<SubjectMasterEntity> findBySubjectNameAndSectionAndMediumAndSubjectMasterIdNot(String subjectName,String section,String medium, Long subjectId);
 
 }

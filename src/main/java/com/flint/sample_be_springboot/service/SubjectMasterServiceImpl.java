@@ -56,7 +56,8 @@ public class SubjectMasterServiceImpl extends BaseService implements SubjectMast
     public SubjectMasterDTO saveSubjectMaster(SubjectMasterDTO subjectMasterDTO) {
         log.info("Enter into saveSubjectMaster");
 
-        Optional<SubjectMasterEntity> existingSubject = subjectMasterRepository.findBySubjectName(subjectMasterDTO.getSubjectName());
+        Optional<SubjectMasterEntity> existingSubject = subjectMasterRepository.findBySubjectNameAndSectionAndMedium
+                (subjectMasterDTO.getSubjectName(), subjectMasterDTO.getSection(), subjectMasterDTO.getMedium());
         if (existingSubject.isPresent()) {
             throw new CustomException("Subject already exist", HttpStatus.PRECONDITION_FAILED);
         }
@@ -78,8 +79,8 @@ public class SubjectMasterServiceImpl extends BaseService implements SubjectMast
         SubjectMasterEntity existingSubject = subjectMasterRepository.findById(subjectMasterDTO.getSubjectMasterId())
                 .orElseThrow(() -> new CustomException("Subject information not found", HttpStatus.NOT_FOUND));
 
-        Optional<SubjectMasterEntity> isDuplicate = subjectMasterRepository.findBySubjectNameAndSubjectMasterIdNot
-                (subjectMasterDTO.getSubjectName(), subjectMasterDTO.getSubjectMasterId());
+        Optional<SubjectMasterEntity> isDuplicate = subjectMasterRepository.findBySubjectNameAndSectionAndMediumAndSubjectMasterIdNot
+                (subjectMasterDTO.getSubjectName(),subjectMasterDTO.getSection(), subjectMasterDTO.getMedium(), subjectMasterDTO.getSubjectMasterId());
         if (isDuplicate.isPresent()) {
             throw new CustomException("Subject already exist", HttpStatus.PRECONDITION_FAILED);
         }
