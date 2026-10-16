@@ -40,6 +40,7 @@ public class FormerStudentServiceImpl extends BaseService implements FormerStude
 
         // 2. Map DTO to Entity
         FormerStudentEntity formerStudentEntity = modelMapper.map(formerStudentDTO, FormerStudentEntity.class);
+        formerStudentEntity.setFormerStudentId(null);
         formerStudentEntity.setAuditDetails(addAuditDetails(formerStudentEntity.getAuditDetails()));
 
         List<FormerStudentResultEntity> formerStudentResultEntities = new ArrayList<>();

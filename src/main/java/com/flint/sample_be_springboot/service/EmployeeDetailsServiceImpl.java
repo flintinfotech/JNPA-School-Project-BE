@@ -450,16 +450,19 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         if (paginate) {
             informationEntityPage = employeeDetailsRepository.findAll(customQuerySpecification, pageable);
             userInformationEntities = informationEntityPage.getContent();
-            totalElement = informationEntityPage.getTotalElements();
+            totalElement = informationEntityPage.getTotalElements()-1;
         } else {
             userInformationEntities = employeeDetailsRepository.findAll(customQuerySpecification);
-            totalElement = userInformationEntities.size();
+            totalElement = userInformationEntities.size()-1L;
         }
 
         UserEntity loggedInUser = userRepository.findByUserName(getUserName()).orElse(null);
 
         List<EmployeeDetailsDTO> EmployeeDetailsDTOS = userInformationEntities.stream()
-                .filter(user -> loggedInUser.getEmployeeDetails().getEmployeeDetailsId().compareTo((user.getEmployeeDetailsId())) != 0) // main superadmin
+                .filter(user -> loggedInUser == null
+                        || loggedInUser.getEmployeeDetails() == null
+                        || !loggedInUser.getEmployeeDetails().getEmployeeDetailsId()
+                        .equals(user.getEmployeeDetailsId()))
                 .map(existingEntity -> {
                     EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
@@ -510,42 +513,46 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             totalElement = employeeDetailsEntities.size();
         }
 
-        List<EmployeeSalaryReportDTO> employeeSalaryReportDTOS = employeeDetailsEntities.stream()
-                .map(existingEntity -> {
-                    String startYear = String.valueOf(getStartDate().getYear());
-                    String endYear = String.valueOf(getEndDate().getYear());
+        List<EmployeeSalaryReportDTO> employeeSalaryReportDTOS =  new ArrayList<>();
 
-                    String academicYear = startYear.concat("-").concat(endYear);
+        if(!employeeDetailsEntities.isEmpty()) {
+            employeeSalaryReportDTOS = employeeDetailsEntities.stream()
+                    .map(existingEntity -> {
+                        String startYear = String.valueOf(getStartDate().getYear());
+                        String endYear = String.valueOf(getEndDate().getYear());
 
-                    EmployeeSalaryReportDTO employeeSalaryReportDTO = new EmployeeSalaryReportDTO();
+                        String academicYear = startYear.concat("-").concat(endYear);
 
-                    employeeSalaryReportDTO.setFirstName(existingEntity.getFirstName());
-                    employeeSalaryReportDTO.setLastName(existingEntity.getLastName());
-                    employeeSalaryReportDTO.setRole(existingEntity.getRole());
-                    employeeSalaryReportDTO.setDesignation(existingEntity.getDesignation());
-                    employeeSalaryReportDTO.setDepartment(existingEntity.getDepartment());
+                        EmployeeSalaryReportDTO employeeSalaryReportDTO = new EmployeeSalaryReportDTO();
 
-                    List<EmployeeSalaryEntity> employeeSalaryEntities;
+                        employeeSalaryReportDTO.setFirstName(existingEntity.getFirstName());
+                        employeeSalaryReportDTO.setLastName(existingEntity.getLastName());
+                        employeeSalaryReportDTO.setRole(existingEntity.getRole());
+                        employeeSalaryReportDTO.setDesignation(existingEntity.getDesignation());
+                        employeeSalaryReportDTO.setDepartment(existingEntity.getDepartment());
 
-                    if(filter.containsKey("fromDate") && filter.containsKey("toDate")){
-                        LocalDate fromDate = LocalDate.parse((String) filter.get("fromDate"));
-                        LocalDate endDate = LocalDate.parse((String) filter.get("toDate"));
-                        employeeSalaryEntities = employeeSalaryRepository
-                                .findBySalaryDateBetweenAndAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId
-                                        (fromDate, endDate, academicYear, existingEntity.getEmployeeDetailsId());
-                    }else{
-                        employeeSalaryEntities = employeeSalaryRepository
-                                .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());
-                    }
+                        List<EmployeeSalaryEntity> employeeSalaryEntities;
 
-                    List<EmployeeSalaryReportDataDTO> reportDataDTOList = employeeSalaryEntities.stream()
-                            .map(s -> modelMapper.map(s, EmployeeSalaryReportDataDTO.class))
-                            .collect(Collectors.toUnmodifiableList());
+                        if (filter.containsKey("fromDate") && filter.containsKey("toDate")) {
+                            LocalDate fromDate = LocalDate.parse((String) filter.get("fromDate"));
+                            LocalDate endDate = LocalDate.parse((String) filter.get("toDate"));
+                            employeeSalaryEntities = employeeSalaryRepository
+                                    .findBySalaryDateBetweenAndAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId
+                                            (fromDate, endDate, academicYear, existingEntity.getEmployeeDetailsId());
+                        } else {
+                            employeeSalaryEntities = employeeSalaryRepository
+                                    .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());
+                        }
 
-                    employeeSalaryReportDTO.setReportDataDTOList(reportDataDTOList);
+                        List<EmployeeSalaryReportDataDTO> reportDataDTOList = employeeSalaryEntities.stream()
+                                .map(s -> modelMapper.map(s, EmployeeSalaryReportDataDTO.class))
+                                .collect(Collectors.toUnmodifiableList());
 
-                    return employeeSalaryReportDTO;
-                }).collect(Collectors.toUnmodifiableList());
+                        employeeSalaryReportDTO.setReportDataDTOList(reportDataDTOList);
+
+                        return employeeSalaryReportDTO;
+                    }).collect(Collectors.toUnmodifiableList());
+        }
 
         log.info("Exit from getAllEmployeeDetailsByFilter");
 
