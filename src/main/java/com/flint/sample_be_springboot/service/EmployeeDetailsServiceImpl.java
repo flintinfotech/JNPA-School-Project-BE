@@ -109,7 +109,24 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         // Save
         EmployeeDetailsEntity savedEntity = employeeDetailsRepository.save(employeeDetailsEntity);
 
+        UserEntity loggedInUser = userRepository.findByUserName(getUserName()).orElse(null);
+
+        String section = null;
+        String medium = null;
+
         SignUpDTO signUpDTO = modelMapper.map(employeeDetailsDTO, SignUpDTO.class);
+
+        if (loggedInUser != null && Role.PRINCIPAL.equals(loggedInUser.getRole())) {
+            section = loggedInUser.getSection();
+            medium = loggedInUser.getMedium();
+        }
+
+        if (section != null && !section.isBlank()
+                && medium != null && !medium.isBlank()) {
+            signUpDTO.setSection(section);
+            signUpDTO.setMedium(medium);
+        }
+
         signUpDTO.setEmployeeDetailsId(savedEntity.getEmployeeDetailsId());
 
         UserDTO userDTO = userService.saveUser(signUpDTO);
@@ -439,22 +456,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             totalElement = userInformationEntities.size();
         }
 
-        String loggedInUsername = getUserName();
-
-        boolean isSuperAdmin = "Superadmin".equalsIgnoreCase(loggedInUsername);
+        UserEntity loggedInUser = userRepository.findByUserName(getUserName()).orElse(null);
 
         List<EmployeeDetailsDTO> EmployeeDetailsDTOS = userInformationEntities.stream()
-                .filter(existingEntity -> {
-                    if (isSuperAdmin) {
-                        return true;
-                    }
-
-                    UserEntity userEntity = existingEntity.getUserEntity();
-
-                    return userEntity == null ||
-                            (userEntity.getRole() != Role.ADMIN &&
-                                    userEntity.getRole() != Role.PRINCIPAL);
-                })
+                .filter(user -> loggedInUser.getEmployeeDetails().getEmployeeDetailsId().compareTo((user.getEmployeeDetailsId())) != 0) // main superadmin
                 .map(existingEntity -> {
                     EmployeeDetailsDTO employeeDetailsDTO = modelMapper.map(existingEntity, EmployeeDetailsDTO.class);
 
