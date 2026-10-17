@@ -38,7 +38,7 @@ public class AcademicYearController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Academic Year updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteAcademicYear/{academicYearId}")
     public ResponseEntity<?> deleteAcademicYear(@PathVariable Long academicYearId) {
         String msg = academicYearService.deleteAcademicYear(academicYearId);

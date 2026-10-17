@@ -38,7 +38,7 @@ public class AdmissionController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Admission updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteAdmission/{admissionId}")
     public ResponseEntity<?> deleteAdmission(@PathVariable Long admissionId) {
         String msg = admissionService.deleteAdmission(admissionId);

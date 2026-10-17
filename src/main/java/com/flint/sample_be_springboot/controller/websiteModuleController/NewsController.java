@@ -38,7 +38,7 @@ public class NewsController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("News updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteNews/{newsId}")
     public ResponseEntity<?> deleteNews(@PathVariable Long newsId) {
         String msg = newsService.deleteNews(newsId);

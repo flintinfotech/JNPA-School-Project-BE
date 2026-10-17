@@ -78,9 +78,9 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
             throw new CustomException("Student fee record should not be null", HttpStatus.NOT_FOUND);
         }
 
-    if (studentFeeDTO.getTotalFeeAmount().compareTo(studentFeeDTO.getPaidAmount()) <= 0){
-        throw new CustomException("Paid amount cannot be greater than total amount", HttpStatus.PRECONDITION_FAILED);
-    }
+        if (studentFeeDTO.getPaidAmount().compareTo(studentFeeDTO.getTotalFeeAmount()) > 0) {
+            throw new CustomException("Paid amount cannot be greater than total amount", HttpStatus.PRECONDITION_FAILED);
+        }
 
         StudentEntity studentEntity = studentRepository.findById(studentFeeDTO.getStudentId())
                 .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));

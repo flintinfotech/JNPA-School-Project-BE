@@ -450,10 +450,10 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
         if (paginate) {
             informationEntityPage = employeeDetailsRepository.findAll(customQuerySpecification, pageable);
             userInformationEntities = informationEntityPage.getContent();
-            totalElement = informationEntityPage.getTotalElements()-1;
+            totalElement = informationEntityPage.getTotalElements();
         } else {
             userInformationEntities = employeeDetailsRepository.findAll(customQuerySpecification);
-            totalElement = userInformationEntities.size()-1L;
+            totalElement = userInformationEntities.size();
         }
 
         UserEntity loggedInUser = userRepository.findByUserName(getUserName()).orElse(null);

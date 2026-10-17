@@ -38,7 +38,7 @@ public class ExamController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Exam updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteExam/{examId}")
     public ResponseEntity<?> deleteExam(@PathVariable Long examId) {
         String msg = examService.deleteExam(examId);

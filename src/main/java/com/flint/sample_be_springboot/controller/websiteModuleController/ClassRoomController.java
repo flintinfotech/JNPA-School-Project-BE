@@ -39,7 +39,7 @@ public class ClassRoomController {
                 .success(true).message("Class Room updated successfully").data(data).build());
     }
 
-    @PreAuthorize("hasRole('ADMIN')")
+//    @PreAuthorize("hasRole('ADMIN')")
     @DeleteMapping("/deleteClassRoom/{classRoomId}")
     public ResponseEntity<?> deleteClassRoom(@PathVariable Long classRoomId) {
         String msg = classRoomService.deleteClassRoom(classRoomId);

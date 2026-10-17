@@ -369,4 +369,14 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
         return result;
     }
+
+    @Override
+    public Boolean checkSchoolExpenseIsPresent(String orderNo) {
+        log.info("Exit from checkSchoolExpenseIsPres");
+
+        boolean flag = !schoolExpensesRepository.existsByOrderNumber(orderNo.trim());
+
+        log.info("Exit from checkSchoolExpenseIsPres");
+        return flag;
+    }
 }

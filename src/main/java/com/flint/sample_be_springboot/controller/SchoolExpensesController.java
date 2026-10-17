@@ -55,5 +55,10 @@ public class SchoolExpensesController {
         return ResponseEntity.ok(APIResponse.builder().success(true).message("Data found successfully").data(map).build());
     }
 
+    @GetMapping("/checkSchoolExpenseIsPresent/{orderNo}")
+    public ResponseEntity<?> checkSchoolExpenseIsPresent(@PathVariable String orderNo) {
+        Boolean status = schoolExpensesService.checkSchoolExpenseIsPresent(orderNo);
+        return ResponseEntity.ok(APIResponse.builder().success(true).message(null).data(status).build());
+    }
 
 }
