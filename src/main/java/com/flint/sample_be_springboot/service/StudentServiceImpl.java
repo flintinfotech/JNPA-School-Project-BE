@@ -382,6 +382,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
             }
         }
 
+        if (studentDTO.getStudentDocuments() != null &&
+                !studentDTO.getStudentDocuments().isEmpty()) {
         // Delete removed student documents
         Set<Long> requestDocumentIds = studentDTO.getStudentDocuments().stream()
                 .map(StudentDocumentDTO::getStudentDocumentId)
@@ -396,37 +398,38 @@ public class StudentServiceImpl extends BaseService implements StudentService {
         Map<Long, StudentDocumentEntity> existingDocuments = existingStudentEntity.getStudentDocumentEntities().stream()
                 .collect(Collectors.toMap(StudentDocumentEntity::getStudentDocumentId, Function.identity()));
 
-        for (StudentDocumentDTO documentDTO : studentDTO.getStudentDocuments()) {
+            for (StudentDocumentDTO documentDTO : studentDTO.getStudentDocuments()) {
 
-            StudentDocumentEntity documentEntity;
+                StudentDocumentEntity documentEntity;
 
-            if (documentDTO.getStudentDocumentId() != null &&
-                    existingDocuments.containsKey(documentDTO.getStudentDocumentId())) {
+                if (documentDTO.getStudentDocumentId() != null &&
+                        existingDocuments.containsKey(documentDTO.getStudentDocumentId())) {
 
-                // Update existing
-                documentEntity = existingDocuments.get(documentDTO.getStudentDocumentId());
+                    // Update existing
+                    documentEntity = existingDocuments.get(documentDTO.getStudentDocumentId());
 
-                if (documentDTO.getDocument() != null) {
-                    documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+                    if (documentDTO.getDocument() != null) {
+                        documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+                    }
+
+                    documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
+
+                } else {
+
+                    // New document
+                    documentEntity = new StudentDocumentEntity();
+                    documentEntity.setStudentEntity(existingStudentEntity);
+                    if (documentDTO.getDocument() != null) {
+                        documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
+                    }
+
+                    documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
+                    existingStudentEntity.getStudentDocumentEntities().add(documentEntity);
                 }
 
-                documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
-
-            } else {
-
-                // New document
-                documentEntity = new StudentDocumentEntity();
-                documentEntity.setStudentEntity(existingStudentEntity);
-                if (documentDTO.getDocument() != null) {
-                    documentEntity.setDocument(Base64.getDecoder().decode(documentDTO.getDocument()));
-                }
-
-                documentEntity.setAuditDetails(addAuditDetails(documentEntity.getAuditDetails()));
-                existingStudentEntity.getStudentDocumentEntities().add(documentEntity);
+                documentEntity.setDocumentName(documentDTO.getDocumentName());
+                documentEntity.setUploadDate(documentDTO.getUploadDate());
             }
-
-            documentEntity.setDocumentName(documentDTO.getDocumentName());
-            documentEntity.setUploadDate(documentDTO.getUploadDate());
         }
 
         // Delete removed academic information
@@ -495,6 +498,8 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 // Update existing
                 academicEntity = existingAcademics.get(academicDTO.getAcademicInformationId());
                 academicEntity.setRollNo(academicDTO.getRollNo());
+                academicEntity.setAdmissionNo(academicDTO.getAdmissionNo());
+                academicEntity.setAdmissionDate(academicDTO.getAdmissionDate());
 
                 if(classMasterEntity != null){
                     academicEntity.setSection(classMasterEntity.getSection());
@@ -507,6 +512,9 @@ public class StudentServiceImpl extends BaseService implements StudentService {
                 if(classMasterEntity != null){
                     academicEntity.setSection(classMasterEntity.getSection());
                 }
+
+                academicEntity.setAdmissionNo(academicDTO.getAdmissionNo());
+                academicEntity.setAdmissionDate(academicDTO.getAdmissionDate());
 
                 //Setting Roll Number
                 Integer maxRollNumber = academicInformationRepository.findMaxRollNoByStandardAndDivisionAndMediumAndSectionAndAcademicYear(
