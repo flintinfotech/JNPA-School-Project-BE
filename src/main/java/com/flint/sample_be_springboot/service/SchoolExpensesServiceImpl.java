@@ -338,22 +338,22 @@ public class SchoolExpensesServiceImpl extends BaseService implements SchoolExpe
 
         filter.put("academicYear", academicYear);
 
-        Page<SchoolExpensesEntity> purchaseEntityPage;
-        List<SchoolExpensesEntity> purchaseEntities;
+        Page<SchoolExpensesEntity> schoolExpensesEntityPage;
+        List<SchoolExpensesEntity> schoolExpensesEntities;
         long totalElement;
 
         CustomQuerySpecification<SchoolExpensesEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
 
         if (paginate) {
-            purchaseEntityPage = schoolExpensesRepository.findAll(customQuerySpecification, pageable);
-            purchaseEntities = purchaseEntityPage.getContent();
-            totalElement = purchaseEntityPage.getTotalElements();
+            schoolExpensesEntityPage = schoolExpensesRepository.findAll(customQuerySpecification, pageable);
+            schoolExpensesEntities = schoolExpensesEntityPage.getContent();
+            totalElement = schoolExpensesEntityPage.getTotalElements();
         } else {
-            purchaseEntities = schoolExpensesRepository.findAll(customQuerySpecification);
-            totalElement = purchaseEntities.size();
+            schoolExpensesEntities = schoolExpensesRepository.findAll(customQuerySpecification);
+            totalElement = schoolExpensesEntities.size();
         }
 
-        List<SchoolExpensesReportDTO> reportDTOList = purchaseEntities.stream()
+        List<SchoolExpensesReportDTO> reportDTOList = schoolExpensesEntities.stream()
                 .map(purchaseEntity -> {
                     SchoolExpensesReportDTO reportDTO = modelMapper.map(purchaseEntity, SchoolExpensesReportDTO.class);
 

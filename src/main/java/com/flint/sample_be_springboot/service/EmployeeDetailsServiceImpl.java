@@ -19,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Function;
@@ -513,9 +514,9 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
             totalElement = employeeDetailsEntities.size();
         }
 
-        List<EmployeeSalaryReportDTO> employeeSalaryReportDTOS =  new ArrayList<>();
+        List<EmployeeSalaryReportDTO> employeeSalaryReportDTOS = new ArrayList<>();
 
-        if(!employeeDetailsEntities.isEmpty()) {
+        if (!employeeDetailsEntities.isEmpty()) {
             employeeSalaryReportDTOS = employeeDetailsEntities.stream()
                     .map(existingEntity -> {
                         String startYear = String.valueOf(getStartDate().getYear());
@@ -544,11 +545,63 @@ public class EmployeeDetailsServiceImpl extends BaseService implements EmployeeD
                                     .findByAcademicYearAndEmployeeDetailsEntity_EmployeeDetailsId(academicYear, existingEntity.getEmployeeDetailsId());
                         }
 
-                        List<EmployeeSalaryReportDataDTO> reportDataDTOList = employeeSalaryEntities.stream()
-                                .map(s -> modelMapper.map(s, EmployeeSalaryReportDataDTO.class))
-                                .collect(Collectors.toUnmodifiableList());
+                        BigDecimal totalNetSalary = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getNetSalary())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalNetSalary(totalNetSalary);
 
-                        employeeSalaryReportDTO.setReportDataDTOList(reportDataDTOList);
+                        BigDecimal totalHra = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getHra())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalHra(totalHra);
+
+                        BigDecimal totalBasicSalary = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getBasicSalary())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalBasicSalary(totalBasicSalary);
+
+                        BigDecimal totalTransportAllowance = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getTransportAllowance())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalTransportAllowance(totalTransportAllowance);
+
+                        BigDecimal totalMedicalAllowance = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getMedicalAllowance())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalMedicalAllowance(totalMedicalAllowance);
+
+
+                        BigDecimal totalOtherAllowance = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getOtherAllowance())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalOtherAllowance(totalOtherAllowance);
+
+
+                        BigDecimal totalDeduction = employeeSalaryEntities.stream()
+                                .filter(entity -> entity != null)
+                                .map(entity -> entity.getDeduction())
+                                .filter(amount -> amount != null)
+                                .reduce(BigDecimal.ZERO, (total, amount) -> total.add(amount));
+                        employeeSalaryReportDTO.setTotalDeduction(totalDeduction);
+
+
+//                        List<EmployeeSalaryReportDataDTO> reportDataDTOList = employeeSalaryEntities.stream()
+//                                .map(s -> modelMapper.map(s, EmployeeSalaryReportDataDTO.class))
+//                                .collect(Collectors.toUnmodifiableList());
+//
+//                        employeeSalaryReportDTO.setReportDataDTOList(reportDataDTOList);
 
                         return employeeSalaryReportDTO;
                     }).collect(Collectors.toUnmodifiableList());
