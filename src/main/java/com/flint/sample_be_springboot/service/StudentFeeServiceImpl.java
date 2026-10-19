@@ -153,138 +153,250 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
         log.info("Enter into updateStudentFee");
 
+        // 1. Validate request
         if (studentFeeDTO == null) {
-            throw new CustomException("Student fee record should not be null", HttpStatus.PRECONDITION_FAILED);
+            throw new CustomException(
+                    "Student fee record should not be null",
+                    HttpStatus.PRECONDITION_FAILED
+            );
         }
 
-        if (studentFeeDTO.getTotalFeeAmount().compareTo(studentFeeDTO.getPaidAmount()) <= 0){
-            throw new CustomException("Paid amount cannot be greater than total amount", HttpStatus.PRECONDITION_FAILED);
+        if (studentFeeDTO.getStudentFeeId() == null) {
+            throw new CustomException(
+                    "Student fee ID is required",
+                    HttpStatus.PRECONDITION_FAILED
+            );
         }
 
-        StudentFeeEntity existingStudentFeeEntity = studentFeeRepository.findById(studentFeeDTO.getStudentFeeId())
-                .orElseThrow(() -> new CustomException("Student fee record not found", HttpStatus.NOT_FOUND));
+        if (studentFeeDTO.getStudentId() == null) {
+            throw new CustomException(
+                    "Student ID is required",
+                    HttpStatus.PRECONDITION_FAILED
+            );
+        }
 
-        StudentEntity studentEntity = studentRepository.findById(studentFeeDTO.getStudentId())
-                .orElseThrow(() -> new CustomException("Student not found", HttpStatus.NOT_FOUND));
+        if (studentFeeDTO.getTotalFeeAmount() == null
+                || studentFeeDTO.getTotalFeeAmount().compareTo(BigDecimal.ZERO) < 0) {
+            throw new CustomException(
+                    "Total fee amount must be zero or greater",
+                    HttpStatus.PRECONDITION_FAILED
+            );
+        }
 
+        if (studentFeeDTO.getPaidAmount() != null
+                && studentFeeDTO.getPaidAmount().compareTo(studentFeeDTO.getTotalFeeAmount()) > 0) {
+
+            throw new CustomException(
+                    "Paid amount cannot be greater than total amount",
+                    HttpStatus.PRECONDITION_FAILED
+            );
+        }
+
+        // 2. Find existing student fee
+        StudentFeeEntity existingStudentFeeEntity =
+                studentFeeRepository.findById(studentFeeDTO.getStudentFeeId())
+                        .orElseThrow(() -> new CustomException(
+                                "Student fee record not found",
+                                HttpStatus.NOT_FOUND
+                        ));
+
+        // 3. Find student
+        StudentEntity studentEntity =
+                studentRepository.findById(studentFeeDTO.getStudentId())
+                        .orElseThrow(() -> new CustomException(
+                                "Student not found",
+                                HttpStatus.NOT_FOUND
+                        ));
+
+        // 4. Update student fee basic fields
         existingStudentFeeEntity.setStudentEntity(studentEntity);
-
-
-        // Update basic fields
         existingStudentFeeEntity.setAcademicYear(studentFeeDTO.getAcademicYear());
         existingStudentFeeEntity.setFeeName(studentFeeDTO.getFeeName());
         existingStudentFeeEntity.setTotalFeeAmount(studentFeeDTO.getTotalFeeAmount());
-        existingStudentFeeEntity.setPaidAmount(studentFeeDTO.getPaidAmount());
-        existingStudentFeeEntity.setPendingAmount(studentFeeDTO.getPendingAmount());
         existingStudentFeeEntity.setDueAmount(studentFeeDTO.getDueAmount());
 
+        existingStudentFeeEntity.setAuditDetails(
+                addAuditDetails(existingStudentFeeEntity.getAuditDetails())
+        );
 
-        existingStudentFeeEntity.setAuditDetails(addAuditDetails(existingStudentFeeEntity.getAuditDetails()));
-
-        BigDecimal totalFeeAmount = BigDecimal.ZERO;
-        BigDecimal pendingFeeAmount = BigDecimal.ZERO;
-
-        // Delete removed fee payments
+        // 5. Process payment entries when supplied
         if (studentFeeDTO.getFeePaymentDTOS() != null) {
 
-            Set<Long> requestPaymentIds = studentFeeDTO.getFeePaymentDTOS().stream()
+            // Collect IDs of payments present in the request
+            Set<Long> requestPaymentIds = studentFeeDTO.getFeePaymentDTOS()
+                    .stream()
                     .map(FeePaymentDTO::getFeePaymentId)
                     .filter(Objects::nonNull)
                     .collect(Collectors.toSet());
 
+            // Remove payments deleted from the request
             existingStudentFeeEntity.getFeePaymentEntities().removeIf(payment ->
-                    payment.getFeePaymentId() != null && !requestPaymentIds.contains(payment.getFeePaymentId())
+                    payment.getFeePaymentId() != null
+                            && !requestPaymentIds.contains(payment.getFeePaymentId())
             );
 
-            // Existing payment map
-            Map<Long, FeePaymentEntity> existingPayments = existingStudentFeeEntity.getFeePaymentEntities()
-                    .stream()
-                    .filter(payment -> payment.getFeePaymentId() != null)
-                    .collect(Collectors.toMap(
-                            FeePaymentEntity::getFeePaymentId,
-                            Function.identity()
-                    ));
+            // Map remaining existing payments by ID
+            Map<Long, FeePaymentEntity> existingPayments =
+                    existingStudentFeeEntity.getFeePaymentEntities()
+                            .stream()
+                            .filter(payment -> payment.getFeePaymentId() != null)
+                            .collect(Collectors.toMap(
+                                    FeePaymentEntity::getFeePaymentId,
+                                    Function.identity()
+                            ));
 
-            // Get last receipt number ONCE
+            // Fetch last receipt number once
             String lastReceiptNo = feePaymentRepository.findLastReceiptNo();
 
-            // Update / Add payments
+            // Update existing payments or add new payments
             for (FeePaymentDTO paymentDTO : studentFeeDTO.getFeePaymentDTOS()) {
+
+                if (paymentDTO.getAmount() == null
+                        || paymentDTO.getAmount().compareTo(BigDecimal.ZERO) <= 0) {
+
+                    throw new CustomException(
+                            "Payment amount must be greater than zero",
+                            HttpStatus.PRECONDITION_FAILED
+                    );
+                }
 
                 FeePaymentEntity feePaymentEntity;
 
                 // Update existing payment
-                if (paymentDTO.getFeePaymentId() != null && existingPayments.containsKey(paymentDTO.getFeePaymentId())) {
+                if (paymentDTO.getFeePaymentId() != null) {
 
-                    feePaymentEntity = existingPayments.get(paymentDTO.getFeePaymentId());
+                    feePaymentEntity = existingPayments.get(
+                            paymentDTO.getFeePaymentId()
+                    );
+
+                    if (feePaymentEntity == null) {
+                        throw new CustomException(
+                                "Fee payment not found: "
+                                        + paymentDTO.getFeePaymentId(),
+                                HttpStatus.NOT_FOUND
+                        );
+                    }
 
                     feePaymentEntity.setAmount(paymentDTO.getAmount());
                     feePaymentEntity.setPaymentMode(paymentDTO.getPaymentMode());
                     feePaymentEntity.setPaymentDate(paymentDTO.getPaymentDate());
                     feePaymentEntity.setTransactionId(paymentDTO.getTransactionId());
                     feePaymentEntity.setRemarks(paymentDTO.getRemarks());
-                    feePaymentEntity.setReceiptNo(paymentDTO.getReceiptNo());
-                    feePaymentEntity.setStatus(paymentDTO.getStatus());
 
-                    feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
-
-                    feePaymentEntity.setStudentFee(existingStudentFeeEntity);
+                    // Preserve the existing receipt number
+                    feePaymentEntity.setAuditDetails(
+                            addAuditDetails(feePaymentEntity.getAuditDetails())
+                    );
 
                 } else {
 
                     // Add new payment
-                    feePaymentEntity = modelMapper.map(paymentDTO, FeePaymentEntity.class);
+                    feePaymentEntity = modelMapper.map(
+                            paymentDTO,
+                            FeePaymentEntity.class
+                    );
 
-                    // Generate next receipt number
-                    String nextReceiptNo = GenerateCodes.generateReceiptNo(lastReceiptNo);
+                    // Generate receipt number automatically
+                    String nextReceiptNo =
+                            GenerateCodes.generateReceiptNo(lastReceiptNo);
 
-                    // Set generated receipt number
                     feePaymentEntity.setReceiptNo(nextReceiptNo);
-
-                    // Update local last receipt number
                     lastReceiptNo = nextReceiptNo;
 
-                    feePaymentEntity.setAuditDetails(addAuditDetails(feePaymentEntity.getAuditDetails()));
+                    feePaymentEntity.setAuditDetails(
+                            addAuditDetails(feePaymentEntity.getAuditDetails())
+                    );
 
-                    existingStudentFeeEntity.getFeePaymentEntities().add(feePaymentEntity);
+                    feePaymentEntity.setStudentFee(existingStudentFeeEntity);
+
+                    existingStudentFeeEntity.getFeePaymentEntities()
+                            .add(feePaymentEntity);
                 }
 
-                totalFeeAmount = totalFeeAmount.add(studentFeeDTO.getTotalFeeAmount());
-                pendingFeeAmount = pendingFeeAmount.add(studentFeeDTO.getPendingAmount());
-
+                // Ensure payment belongs to this fee record
+                feePaymentEntity.setStudentFee(existingStudentFeeEntity);
             }
         }
 
-        if (pendingFeeAmount.compareTo(BigDecimal.ZERO) > 0) {
-            studentEntity.setPaymentStatus(FeePayment.PENDING);
-        } else {
-            studentEntity.setPaymentStatus(FeePayment.PAID);
+        // 6. Calculate total paid from the final payment collection
+        BigDecimal totalPaidAmount = BigDecimal.ZERO;
+
+        if (existingStudentFeeEntity.getFeePaymentEntities() != null) {
+
+            for (FeePaymentEntity payment :
+                    existingStudentFeeEntity.getFeePaymentEntities()) {
+
+                if (payment.getAmount() != null) {
+                    totalPaidAmount = totalPaidAmount.add(payment.getAmount());
+                }
+            }
         }
 
+        BigDecimal totalFeeAmount =
+                existingStudentFeeEntity.getTotalFeeAmount();
+
+        // 7. Validate actual payment total
+        if (totalPaidAmount.compareTo(totalFeeAmount) > 0) {
+            throw new CustomException(
+                    "Total payment cannot be greater than total fee amount",
+                    HttpStatus.PRECONDITION_FAILED
+            );
+        }
+
+        // 8. Calculate pending amount
+        BigDecimal pendingFeeAmount =
+                totalFeeAmount.subtract(totalPaidAmount);
+
+        existingStudentFeeEntity.setPaidAmount(totalPaidAmount);
+        existingStudentFeeEntity.setPendingAmount(pendingFeeAmount);
+
+        // 9. Update student payment summary
         studentEntity.setTotalFeeAmount(totalFeeAmount);
         studentEntity.setPendingFeeAmount(pendingFeeAmount);
 
-        // Save student fee
-        StudentFeeEntity updatedStudentFeeEntity = studentFeeRepository.save(existingStudentFeeEntity);
-
-        // Return updated DTO
-        StudentFeeDTO updatedStudentFeeDTO = modelMapper.map(updatedStudentFeeEntity, StudentFeeDTO.class);
-
-        if (updatedStudentFeeEntity.getStudentEntity() != null) {
-            updatedStudentFeeDTO.setStudentId(updatedStudentFeeEntity.getStudentEntity().getStudentId());
+        if (pendingFeeAmount.compareTo(BigDecimal.ZERO) == 0) {
+            studentEntity.setPaymentStatus(FeePayment.PAID);
+        } else {
+            studentEntity.setPaymentStatus(FeePayment.PENDING);
         }
 
-        // Set Fee Payment DTOs
+        // 10. Save updated student fee and payment collection
+        StudentFeeEntity updatedStudentFeeEntity =
+                studentFeeRepository.save(existingStudentFeeEntity);
+
+        // Save student summary as well
+        studentRepository.save(studentEntity);
+
+        // 11. Map updated entity to response DTO
+        StudentFeeDTO updatedStudentFeeDTO = modelMapper.map(
+                updatedStudentFeeEntity,
+                StudentFeeDTO.class
+        );
+
+        if (updatedStudentFeeEntity.getStudentEntity() != null) {
+            updatedStudentFeeDTO.setStudentId(
+                    updatedStudentFeeEntity.getStudentEntity().getStudentId()
+            );
+        }
+
+        // 12. Map payment entities to payment DTOs
         List<FeePaymentDTO> feePaymentDTOList = new ArrayList<>();
 
-        if (updatedStudentFeeEntity.getFeePaymentEntities() != null && !updatedStudentFeeEntity.getFeePaymentEntities().isEmpty()) {
+        if (updatedStudentFeeEntity.getFeePaymentEntities() != null) {
 
-            for (FeePaymentEntity feePaymentEntity : updatedStudentFeeEntity.getFeePaymentEntities()) {
+            for (FeePaymentEntity payment :
+                    updatedStudentFeeEntity.getFeePaymentEntities()) {
 
-                FeePaymentDTO feePaymentDTO = modelMapper.map(feePaymentEntity, FeePaymentDTO.class);
-                feePaymentDTO.setStudentFeeId(updatedStudentFeeEntity.getStudentFeeId());
-                feePaymentDTO.setStatus(feePaymentDTO.getStatus());
-                feePaymentDTOList.add(feePaymentDTO);
+                FeePaymentDTO paymentDTO = modelMapper.map(
+                        payment,
+                        FeePaymentDTO.class
+                );
+
+                paymentDTO.setStudentFeeId(
+                        updatedStudentFeeEntity.getStudentFeeId()
+                );
+
+                feePaymentDTOList.add(paymentDTO);
             }
         }
 
