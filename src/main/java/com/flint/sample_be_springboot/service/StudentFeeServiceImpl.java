@@ -510,19 +510,6 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
             totalElement = studentEntities.size();
         }
 
-        // Date filter
-        LocalDate fromDate = null;
-        LocalDate toDate = null;
-
-        if (filter.containsKey("fromDate") && filter.containsKey("toDate")) {
-
-            fromDate = LocalDate.parse(String.valueOf(filter.get("fromDate")));
-            toDate = LocalDate.parse(String.valueOf(filter.get("toDate")));
-        }
-
-        final LocalDate finalFromDate = fromDate;
-        final LocalDate finalToDate = toDate;
-
         List<StudentFeeReportDTO> studentFeeReportDTOS = studentEntities.stream()
                 .map(existingEntity -> {
 
@@ -554,14 +541,10 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
 
                     BigDecimal pendingAmount = totalFeeAmount.subtract(paidAmount);
 
-//                      Create only ONE DTO for the student.
-                    StudentFeeReportDataDTO studentFeeReportDataDTO = new StudentFeeReportDataDTO();
-
-                    studentFeeReportDataDTO.setAcademicYear(academicYear);
-                    studentFeeReportDataDTO.setTotalFeeAmount(totalFeeAmount);
-                    studentFeeReportDataDTO.setPaidAmount(paidAmount);
-                    studentFeeReportDataDTO.setPendingAmount(pendingAmount);
-                    studentFeeReportDTO.setFeeReportDataDTOS(List.of(studentFeeReportDataDTO));
+                    studentFeeReportDTO.setAcademicYear(academicYear);
+                    studentFeeReportDTO.setTotalFeeAmount(totalFeeAmount);
+                    studentFeeReportDTO.setPaidAmount(paidAmount);
+                    studentFeeReportDTO.setPendingAmount(pendingAmount);
 
                     return studentFeeReportDTO;
 
@@ -576,6 +559,111 @@ public class StudentFeeServiceImpl extends BaseService implements StudentFeeServ
         result.put("Total elements", totalElement);
         return result;
     }
+
+//    @Override
+//    public Map<String, Object> getStudentFeeReportData(Map<String, Object> filter, Pageable pageable, boolean paginate) {
+//
+//        log.info("Enter into getStudentFeeReportData");
+//
+//        Page<StudentEntity> studentEntityPage;
+//        List<StudentEntity> studentEntities;
+//        long totalElement;
+//
+//        if(filter.containsKey("medium")){
+//            filter.put("academicMedium",filter.get("medium"));
+//            filter.remove("medium");
+//        }
+//
+//        if(filter.containsKey("section")){
+//            filter.put("academicSection",filter.get("section"));
+//            filter.remove("section");
+//        }
+//
+//        String startYear = String.valueOf(getStartDate().getYear());
+//        String endYear = String.valueOf(getEndDate().getYear());
+//
+//        String academicYear = startYear.concat("-").concat(endYear);
+//
+//        filter.put("academicYear", academicYear);
+//
+//        CustomQuerySpecification<StudentEntity> customQuerySpecification = CustomQuerySpecification.getInstance(filter);
+//
+//        if (paginate) {
+//            studentEntityPage = studentRepository.findAll(customQuerySpecification, pageable);
+//            studentEntities = studentEntityPage.getContent();
+//            totalElement = studentEntityPage.getTotalElements();
+//
+//        } else {
+//            studentEntities = studentRepository.findAll(customQuerySpecification);
+//            totalElement = studentEntities.size();
+//        }
+//
+//        // Date filter
+//        LocalDate fromDate = null;
+//        LocalDate toDate = null;
+//
+//        if (filter.containsKey("fromDate") && filter.containsKey("toDate")) {
+//
+//            fromDate = LocalDate.parse(String.valueOf(filter.get("fromDate")));
+//            toDate = LocalDate.parse(String.valueOf(filter.get("toDate")));
+//        }
+//
+//        final LocalDate finalFromDate = fromDate;
+//        final LocalDate finalToDate = toDate;
+//
+//        List<StudentFeeReportDTO> studentFeeReportDTOS = studentEntities.stream()
+//                .map(existingEntity -> {
+//
+//                    StudentFeeReportDTO studentFeeReportDTO = new StudentFeeReportDTO();
+//                    studentFeeReportDTO.setFirstName(existingEntity.getFirstName());
+//                    studentFeeReportDTO.setLastName(existingEntity.getLastName());
+//                    studentFeeReportDTO.setGender(existingEntity.getGender());
+//                    studentFeeReportDTO.setPhone(existingEntity.getPhone());
+//
+//                    /*
+//                     * Get all fee records of this student  for the selected academic year.
+//                     */
+//                    List<StudentFeeEntity> studentFeeEntities = studentFeeRepository
+//                            .findByAcademicYearAndStudentEntity_StudentId(academicYear, existingEntity.getStudentId());
+//
+////                     * Calculate COMPLETE FEE of the student.
+//
+//                    BigDecimal totalFeeAmount = studentFeeEntities.stream()
+//                            .filter(Objects::nonNull)
+//                            .map(StudentFeeEntity::getTotalFeeAmount)
+//                            .filter(Objects::nonNull)
+//                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//                    BigDecimal paidAmount = studentFeeEntities.stream()
+//                            .filter(Objects::nonNull)
+//                            .map(StudentFeeEntity::getPaidAmount)
+//                            .filter(Objects::nonNull)
+//                            .reduce(BigDecimal.ZERO, BigDecimal::add);
+//
+//                    BigDecimal pendingAmount = totalFeeAmount.subtract(paidAmount);
+//
+////                      Create only ONE DTO for the student.
+//                    StudentFeeReportDataDTO studentFeeReportDataDTO = new StudentFeeReportDataDTO();
+//
+//                    studentFeeReportDataDTO.setAcademicYear(academicYear);
+//                    studentFeeReportDataDTO.setTotalFeeAmount(totalFeeAmount);
+//                    studentFeeReportDataDTO.setPaidAmount(paidAmount);
+//                    studentFeeReportDataDTO.setPendingAmount(pendingAmount);
+//                    studentFeeReportDTO.setFeeReportDataDTOS(List.of(studentFeeReportDataDTO));
+//
+//                    return studentFeeReportDTO;
+//
+//                })
+//                .toList();
+//
+//        log.info("Exit from getStudentFeeReportData");
+//
+//        Map<String, Object> result = new HashMap<>();
+//
+//        result.put("Data", studentFeeReportDTOS);
+//        result.put("Total elements", totalElement);
+//        return result;
+//    }
 
 
 }

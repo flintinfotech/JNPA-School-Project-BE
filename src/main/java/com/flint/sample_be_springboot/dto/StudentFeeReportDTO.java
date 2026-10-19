@@ -2,6 +2,7 @@ package com.flint.sample_be_springboot.dto;
 
 import lombok.Data;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -14,7 +15,13 @@ public class StudentFeeReportDTO {
     private String lastName;
     private String gender;
     private String phone;
-    private List<StudentFeeReportDataDTO> feeReportDataDTOS;
+    private String academicYear;
+    private BigDecimal totalFeeAmount;
+    private BigDecimal paidAmount;
+    private BigDecimal pendingAmount;
+
+//    private List<StudentFeeReportDataDTO> feeReportDataDTOS;
+
     private LocalDate printDate = LocalDate.now();
     private String printTime = LocalTime.now().format(DateTimeFormatter.ofPattern("hh:mm a"));
 }
